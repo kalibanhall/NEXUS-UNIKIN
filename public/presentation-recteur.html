@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS UNIKIN - Présentation au Recteur</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a1628;
+            color: white;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            padding: 60px 80px;
+            background: linear-gradient(135deg, #0a1628 0%, #1a365d 100%);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo-text span {
+            color: #60a5fa;
+        }
+
+        .slide-number {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #fff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 42px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+
+        h3 {
+            font-size: 28px;
+            font-weight: 500;
+            color: #60a5fa;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 22px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            max-width: 900px;
+        }
+
+        .subtitle {
+            font-size: 28px;
+            color: #94a3b8;
+            margin-bottom: 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .green { background: linear-gradient(135deg, #10b981, #059669); }
+        .purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .pink { background: linear-gradient(135deg, #ec4899, #db2777); }
+        .cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+        .stats {
+            display: flex;
+            gap: 60px;
+            margin-top: 40px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 56px;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: #3b82f6;
+            border-radius: 50%;
+            border: 3px solid #0a1628;
+        }
+
+        .timeline-date {
+            font-size: 14px;
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .timeline-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 5px 0;
+        }
+
+        .timeline-desc {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .architecture {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .arch-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px 35px;
+            text-align: center;
+        }
+
+        .arch-box h4 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .arch-box p {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .arch-arrow {
+            font-size: 30px;
+            color: #60a5fa;
+        }
+
+        .list {
+            margin-top: 20px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .list-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .list-content h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .list-content p {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-btn.primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+        }
+
+        .progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.3s ease;
+        }
+
+        .center-content {
+            text-align: center;
+            align-items: center;
+        }
+
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-slide h1 {
+            font-size: 72px;
+            margin-bottom: 10px;
+        }
+
+        .badges {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .badge {
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .highlight-box h4 {
+            color: #60a5fa;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+            justify-content: center;
+        }
+
+        .contact-item {
+            text-align: center;
+        }
+
+        .contact-item .icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 15px;
+        }
+
+        @media (max-width: 1200px) {
+            .slide {
+                padding: 40px 50px;
+            }
+            h1 { font-size: 42px; }
+            h2 { font-size: 32px; }
+            .grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; opacity: 0; }
+        .delay-2 { animation-delay: 0.4s; opacity: 0; }
+        .delay-3 { animation-delay: 0.6s; opacity: 0; }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    
+    <div class="presentation">
+        <!-- Slide 1: Titre -->
+        <div class="slide active title-slide" data-slide="1">
+            <div class="content center-content">
+                <div class="logo" style="justify-content: center; margin-bottom: 40px;">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <h1>Le Cœur Numérique de l'UNIKIN</h1>
+                <p class="subtitle">Système de Gestion Universitaire Intégré</p>
+                <div class="badges">
+                    <span class="badge">🎓 +30 000 Étudiants</span>
+                    <span class="badge">👨‍🏫 +2 000 Enseignants</span>
+                    <span class="badge">🏛️ 11 Facultés</span>
+                </div>
+                <p style="margin-top: 60px; font-size: 18px; color: #64748b;">
+                    Présentation au Recteur • Janvier 2026
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Problématique -->
+        <div class="slide" data-slide="2">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">02 / 12</span>
+            </div>
+            <div class="content">
+                <h2>Pourquoi NEXUS ?</h2>
+                <p class="subtitle">Les défis actuels de la gestion universitaire</p>
+                
+                <div class="grid grid-2">
+                    <div class="card">
+                        <div class="card-icon orange">📋</div>
+                        <div class="card-title">Gestion Papier</div>
+                        <div class="card-desc">Processus administratifs lents, risques de perte de documents, difficultés d'archivage et de recherche d'informations.</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon pink">⏰</div>
+                        <div class="card-title">Files d'attente</div>
+                        <div class="card-desc">Étudiants passant des heures pour les inscriptions, paiements et demandes de documents.</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon purple">📊</div>
+                        <div class="card-title">Manque de Visibilité</div>
+                        <div class="card-desc">Difficulté à obtenir des statistiques en temps réel sur les effectifs, résultats et finances.</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon cyan">🔗</div>
+                        <div class="card-title">Systèmes Cloisonnés</div>
+                        <div class="card-desc">Pas de communication entre les différents services (scolarité, finances, bibliothèque...).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Solution -->
+        <div class="slide" data-slide="3">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">03 / 12</span>
+            </div>
+            <div class="content">
+                <h2>NEXUS : La Solution Intégrée</h2>
+                <p>Une plateforme unique qui connecte tous les acteurs de l'université</p>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">Espaces Dédiés</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">20+</div>
+                        <div class="stat-label">Modules</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">Disponibilité</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label">En Ligne</div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🎯 Objectif Principal</h4>
+                    <p style="font-size: 18px;">Digitaliser et automatiser l'ensemble des processus académiques et administratifs pour améliorer l'efficacité et l'expérience de tous les utilisateurs.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Les 4 Espaces -->
+        <div class="slide" data-slide="4">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">04 / 12</span>
+            </div>
+            <div class="content">
+                <h2>Les 4 Espaces Utilisateurs</h2>
+                <p>Chaque utilisateur accède à son espace personnalisé</p>
+                
+                <div class="grid" style="margin-top: 40px;">
+                    <div class="card">
+                        <div class="card-icon blue">👨‍🎓</div>
+                        <div class="card-title">Espace Étudiant</div>
+                        <div class="card-desc">
+                            • Consultation des notes et emploi du temps<br>
+                            • Paiement des frais (Mobile Money)<br>
+                            • Demande de documents<br>
+                            • Accès à la bibliothèque numérique<br>
+                            • Passage des évaluations en ligne
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon green">👨‍🏫</div>
+                        <div class="card-title">Espace Enseignant</div>
+                        <div class="card-desc">
+                            • Saisie des notes et présences<br>
+                            • Création d'évaluations (TP, TD, Examens)<br>
+                            • Gestion des cours et ressources<br>
+                            • Communication avec les étudiants<br>
+                            • Système anti-plagiat intégré
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon purple">👔</div>
+                        <div class="card-title">Espace Employé</div>
+                        <div class="card-desc">
+                            • Traitement des demandes<br>
+                            • Gestion des inscriptions<br>
+                            • Suivi des paiements<br>
+                            • Génération de documents<br>
+                            • Tableaux de bord
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon orange">⚙️</div>
+                        <div class="card-title">Espace Admin</div>
+                        <div class="card-desc">
+                            • Configuration du système<br>
+                            • Gestion des utilisateurs<br>
+                            • Statistiques globales<br>
+                            • Paramétrage des facultés<br>
+                            • Rapports et analyses
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Modules Principaux -->
+        <div class="slide" data-slide="5">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">05 / 12</span>
+            </div>
+            <div class="content">
+                <h2>Les Modules Clés</h2>
+                <p>Une couverture complète des besoins universitaires</p>
+                
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-icon blue">📚</div>
+                        <div class="card-title">Gestion Académique</div>
+                        <div class="card-desc">Inscriptions, promotions, emplois du temps, cours, crédits ECTS</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon green">📝</div>
+                        <div class="card-title">Évaluations</div>
+                        <div class="card-desc">Examens, Interrogations, TP, TD, Projets, Oraux + Anti-plagiat</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon purple">📊</div>
+                        <div class="card-title">Notes & Délibérations</div>
+                        <div class="card-desc">Saisie, calcul automatique des moyennes, PV de délibération</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon orange">💰</div>
+                        <div class="card-title">Finances</div>
+                        <div class="card-desc">Paiements Mobile Money, suivi, reçus automatiques, bourses</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon pink">📖</div>
+                        <div class="card-title">Bibliothèque</div>
+                        <div class="card-desc">Catalogue en ligne, emprunts, réservations, ressources numériques</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon cyan">🤖</div>
+                        <div class="card-title">Assistant IA</div>
+                        <div class="card-desc">Chatbot intelligent 24/7 pour guider les utilisateurs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Fonctionnalités Innovantes -->
+        <div class="slide" data-slide="6">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">06 / 12</span>
+            </div>
+            <div class="content">
+                <h2>Fonctionnalités Innovantes</h2>
+                
+                <div class="two-columns">
+                    <div>
+                        <div class="list">
+                            <div class="list-item">
+                                <div class="list-icon">📱</div>
+                                <div class="list-content">
+                                    <h4>Paiement Mobile Money</h4>
+                                    <p>M-Pesa, Orange Money, Airtel Money - Paiement instantané des frais</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">🔍</div>
+                                <div class="list-content">
+                                    <h4>Système Anti-Plagiat</h4>
+                                    <p>Vérification automatique des travaux soumis avec rapport de similarité</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">🤖</div>
+                                <div class="list-content">
+                                    <h4>Assistant IA NEXUS</h4>
+                                    <p>Chatbot intelligent répondant aux questions 24h/24</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">📈</div>
+                                <div class="list-content">
+                                    <h4>Analytics & Prédictions</h4>
+                                    <p>Tableaux de bord en temps réel, prédiction de réussite</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="list">
+                            <div class="list-item">
+                                <div class="list-icon">📄</div>
+                                <div class="list-content">
+                                    <h4>Documents Automatisés</h4>
+                                    <p>Génération instantanée d'attestations, relevés, certificats</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">🔔</div>
+                                <div class="list-content">
+                                    <h4>Notifications Temps Réel</h4>
+                                    <p>Alertes SMS, email et in-app pour les événements importants</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">📅</div>
+                                <div class="list-content">
+                                    <h4>Emploi du Temps Dynamique</h4>
+                                    <p>Planning interactif avec export calendrier, alertes de changements</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">🔐</div>
+                                <div class="list-content">
+                                    <h4>Sécurité Avancée</h4>
+                                    <p>Authentification sécurisée, logs d'activité, rôles et permissions</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Architecture Technique -->
+        <div class="slide" data-slide="7">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">07 / 12</span>
+            </div>
+            <div class="content">
+                <h2>Architecture Technique</h2>
+                <p>Technologies modernes et infrastructure robuste</p>
+                
+                <div class="architecture">
+                    <div class="arch-box">
+                        <h4>🌐 Frontend</h4>
+                        <p>Next.js 14<br>React<br>TypeScript<br>Tailwind CSS</p>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box">
+                        <h4>⚡ API</h4>
+                        <p>REST API<br>Authentification JWT<br>Validation<br>Rate Limiting</p>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box">
+                        <h4>💾 Base de Données</h4>
+                        <p>PostgreSQL<br>Sauvegardes auto<br>Réplication<br>Chiffrement</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box" style="margin-top: 40px;">
+                    <h4>☁️ Hébergement Cloud</h4>
+                    <div style="display: flex; gap: 40px; margin-top: 15px;">
+                        <div>
+                            <p style="font-size: 16px;"><strong>Option 1:</strong> Serveurs locaux UNIKIN</p>
+                            <p style="font-size: 14px; color: #94a3b8;">Contrôle total, données sur place</p>
+                        </div>
+                        <div>
+                            <p style="font-size: 16px;"><strong>Option 2:</strong> Cloud (AWS/Azure)</p>
+                            <p style="font-size: 14px; color: #94a3b8;">Scalabilité, haute disponibilité</p>
+                        </div>
+                        <div>
+                            <p style="font-size: 16px;"><strong>Option 3:</strong> Hybride</p>
+                            <p style="font-size: 14px; color: #94a3b8;">Données sensibles locales + services cloud</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Mise en Ligne -->
+        <div class="slide" data-slide="8">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">08 / 12</span>
+            </div>
+            <div class="content">
+                <h2>Comment la Plateforme sera Mise en Ligne ?</h2>
+                
+                <div class="timeline" style="margin-top: 30px;">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Phase 1 - Préparation</div>
+                        <div class="timeline-title">Configuration de l'Infrastructure</div>
+                        <div class="timeline-desc">Mise en place des serveurs, configuration réseau, certificats SSL, domaine nexus.unikin.ac.cd</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Phase 2 - Migration</div>
+                        <div class="timeline-title">Import des Données Existantes</div>
+                        <div class="timeline-desc">Migration sécurisée des données étudiants, enseignants, cours depuis les systèmes actuels</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Phase 3 - Tests</div>
+                        <div class="timeline-title">Phase Pilote</div>
+                        <div class="timeline-desc">Déploiement sur 2-3 facultés pilotes, corrections des bugs, retours utilisateurs</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Phase 4 - Déploiement</div>
+                        <div class="timeline-title">Lancement Général</div>
+                        <div class="timeline-desc">Ouverture progressive à toutes les facultés, formation des utilisateurs, support renforcé</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Gestion & Maintenance -->
+        <div class="slide" data-slide="9">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">09 / 12</span>
+            </div>
+            <div class="content">
+                <h2>Comment la Plateforme sera Gérée ?</h2>
+                
+                <div class="grid grid-2" style="margin-top: 30px;">
+                    <div class="card">
+                        <div class="card-icon blue">👥</div>
+                        <div class="card-title">Équipe Dédiée</div>
+                        <div class="card-desc">
+                            <strong>Composition recommandée :</strong><br>
+                            • 1 Administrateur système<br>
+                            • 1 Développeur maintenance<br>
+                            • 2 Supports utilisateurs<br>
+                            • 1 Responsable données
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon green">🔄</div>
+                        <div class="card-title">Maintenance Continue</div>
+                        <div class="card-desc">
+                            • Mises à jour de sécurité mensuelles<br>
+                            • Sauvegardes automatiques quotidiennes<br>
+                            • Monitoring 24/7 des performances<br>
+                            • Nouvelles fonctionnalités trimestrielles
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon purple">📞</div>
+                        <div class="card-title">Support Utilisateurs</div>
+                        <div class="card-desc">
+                            • Helpdesk avec tickets<br>
+                            • FAQ et documentation en ligne<br>
+                            • Chatbot IA pour assistance immédiate<br>
+                            • Formations régulières
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon orange">📊</div>
+                        <div class="card-title">Gouvernance</div>
+                        <div class="card-desc">
+                            • Comité de pilotage mensuel<br>
+                            • Rapports d'utilisation au Rectorat<br>
+                            • Évolution selon les besoins<br>
+                            • Conformité RGPD
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Calendrier -->
+        <div class="slide" data-slide="10">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">10 / 12</span>
+            </div>
+            <div class="content">
+                <h2>Calendrier de Déploiement</h2>
+                
+                <div class="grid" style="margin-top: 30px;">
+                    <div class="card" style="border-left: 4px solid #3b82f6;">
+                        <div class="card-title" style="color: #3b82f6;">📅 Février 2026</div>
+                        <div class="card-desc">
+                            <strong>Finalisation</strong><br>
+                            Tests finaux, correction des bugs, préparation infrastructure
+                        </div>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #10b981;">
+                        <div class="card-title" style="color: #10b981;">📅 Mars 2026</div>
+                        <div class="card-desc">
+                            <strong>Phase Pilote</strong><br>
+                            Déploiement Faculté des Sciences + FASEG (2 000 utilisateurs)
+                        </div>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #8b5cf6;">
+                        <div class="card-title" style="color: #8b5cf6;">📅 Avril-Mai 2026</div>
+                        <div class="card-desc">
+                            <strong>Extension Progressive</strong><br>
+                            Ajout de 3 facultés supplémentaires, formations intensives
+                        </div>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #f59e0b;">
+                        <div class="card-title" style="color: #f59e0b;">📅 Juin 2026</div>
+                        <div class="card-desc">
+                            <strong>Déploiement Complet</strong><br>
+                            Toutes les 11 facultés opérationnelles
+                        </div>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #ec4899;">
+                        <div class="card-title" style="color: #ec4899;">📅 Septembre 2026</div>
+                        <div class="card-desc">
+                            <strong>Rentrée Académique</strong><br>
+                            Première rentrée 100% numérique avec NEXUS
+                        </div>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #06b6d4;">
+                        <div class="card-title" style="color: #06b6d4;">📅 2027+</div>
+                        <div class="card-desc">
+                            <strong>Évolution Continue</strong><br>
+                            Nouvelles fonctionnalités, intégration partenaires, mobile app
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Avantages -->
+        <div class="slide" data-slide="11">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">11 / 12</span>
+            </div>
+            <div class="content">
+                <h2>Les Bénéfices pour l'UNIKIN</h2>
+                
+                <div class="grid grid-2" style="margin-top: 30px;">
+                    <div>
+                        <h3>Pour les Étudiants</h3>
+                        <div class="list">
+                            <div class="list-item">
+                                <div class="list-icon">✓</div>
+                                <div class="list-content">
+                                    <p>Plus de files d'attente - tout se fait en ligne</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">✓</div>
+                                <div class="list-content">
+                                    <p>Accès 24/7 aux notes, emplois du temps, ressources</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">✓</div>
+                                <div class="list-content">
+                                    <p>Paiement facile via Mobile Money</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">✓</div>
+                                <div class="list-content">
+                                    <p>Documents générés instantanément</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Pour l'Administration</h3>
+                        <div class="list">
+                            <div class="list-item">
+                                <div class="list-icon">✓</div>
+                                <div class="list-content">
+                                    <p>Visibilité totale sur les effectifs et finances</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">✓</div>
+                                <div class="list-content">
+                                    <p>Réduction des erreurs et fraudes</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">✓</div>
+                                <div class="list-content">
+                                    <p>Statistiques et rapports en temps réel</p>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-icon">✓</div>
+                                <div class="list-content">
+                                    <p>Image moderne de l'université</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box" style="margin-top: 30px; text-align: center;">
+                    <h4>🏆 Objectif : Faire de l'UNIKIN une université de référence en Afrique Centrale</h4>
+                    <p style="font-size: 16px; margin-top: 10px;">Première université de la RDC à disposer d'un système de gestion universitaire intégré moderne</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Conclusion -->
+        <div class="slide" data-slide="12">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                </div>
+                <span class="slide-number">12 / 12</span>
+            </div>
+            <div class="content center-content" style="text-align: center;">
+                <h2>Prêts à Transformer l'UNIKIN ?</h2>
+                <p style="max-width: 700px; margin: 0 auto;">
+                    NEXUS UNIKIN est plus qu'un logiciel. C'est une vision pour moderniser l'enseignement supérieur en RDC et offrir à nos étudiants les outils du 21ème siècle.
+                </p>
+                
+                <div class="stats" style="justify-content: center; margin-top: 50px;">
+                    <div class="stat">
+                        <div class="stat-value">🎯</div>
+                        <div class="stat-label">Prêt pour le déploiement</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">💪</div>
+                        <div class="stat-label">Équipe motivée</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">🚀</div>
+                        <div class="stat-label">Technologie moderne</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 60px;">
+                    <h3 style="margin-bottom: 20px;">Merci de votre attention</h3>
+                    <p style="color: #64748b;">Questions ?</p>
+                </div>
+
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="icon">🌐</div>
+                        <p>nexus.unikin.ac.cd</p>
+                    </div>
+                    <div class="contact-item">
+                        <div class="icon">📧</div>
+                        <p>nexus@unikin.ac.cd</p>
+                    </div>
+                    <div class="contact-item">
+                        <div class="icon">📞</div>
+                        <p>+243 XX XXX XXXX</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="prevSlide()">← Précédent</button>
+        <button class="nav-btn primary" onclick="nextSlide()">Suivant →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 12;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) currentSlide = 1;
+            if (n < 1) currentSlide = totalSlides;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            // Update progress bar
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

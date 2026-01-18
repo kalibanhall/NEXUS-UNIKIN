@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS UNIKIN - Présentation au Recteur</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            color: white;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Différents backgrounds pour chaque slide */
+        .slide-1 { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%); }
+        .slide-2 { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+        .slide-3 { background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%); }
+        .slide-4 { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); }
+        .slide-5 { background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%); }
+        .slide-6 { background: linear-gradient(135deg, #134e4a 0%, #115e59 100%); }
+        .slide-7 { background: linear-gradient(135deg, #3b0764 0%, #581c87 100%); }
+        .slide-8 { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); }
+        .slide-9 { background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #1a1a2e 100%); }
+        .slide-10 { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); }
+
+        .slide-content {
+            flex: 1;
+            padding: 40px 60px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo-text span {
+            color: #60a5fa;
+        }
+
+        .slide-number {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 15px;
+        }
+
+        h1 .gradient {
+            background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #94a3b8;
+            margin-bottom: 25px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+
+        /* Navigation */
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            padding: 12px 28px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        /* Cards Grid */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        .icon-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .icon-green { background: linear-gradient(135deg, #10b981, #059669); }
+        .icon-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .icon-orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .icon-pink { background: linear-gradient(135deg, #ec4899, #db2777); }
+        .icon-cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .icon-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        /* Stats */
+        .stats-row {
+            display: flex;
+            gap: 40px;
+            margin: 25px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        /* Screenshot Frame */
+        .screenshot-frame {
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .screenshot-header {
+            background: #0f172a;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .screenshot-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .screenshot-dot.red { background: #ef4444; }
+        .screenshot-dot.yellow { background: #eab308; }
+        .screenshot-dot.green { background: #22c55e; }
+
+        .screenshot-url {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #64748b;
+            margin-left: 10px;
+        }
+
+        .screenshot-body {
+            padding: 0;
+            background: #0f172a;
+        }
+
+        .screenshot-body img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Mock UI for screenshots */
+        .mock-dashboard {
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
+
+        .mock-sidebar {
+            width: 200px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .mock-nav-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mock-nav-item.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+
+        .mock-main {
+            flex: 1;
+            padding-left: 20px;
+        }
+
+        .mock-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mock-stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mock-stat-card h4 {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .mock-stat-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+
+        /* Two column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        /* Financial highlight */
+        .money-box {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.1));
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .money-value {
+            font-size: 52px;
+            font-weight: 800;
+            color: #22c55e;
+        }
+
+        .money-label {
+            font-size: 16px;
+            color: #86efac;
+            margin-top: 5px;
+        }
+
+        /* Timeline compact */
+        .timeline-compact {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 30px 0;
+        }
+
+        .timeline-compact::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #22c55e);
+            border-radius: 2px;
+        }
+
+        .timeline-step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .timeline-dot {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 auto 10px;
+            border: 4px solid #0f172a;
+        }
+
+        .timeline-dot.active {
+            background: linear-gradient(135deg, #22c55e, #10b981);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+        }
+
+        .timeline-label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .timeline-desc {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        /* Savings list */
+        .savings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .saving-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border-left: 4px solid #22c55e;
+        }
+
+        .saving-icon {
+            font-size: 24px;
+        }
+
+        .saving-text {
+            flex: 1;
+        }
+
+        .saving-text h4 {
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .saving-text p {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .saving-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #22c55e;
+        }
+
+        /* Badges */
+        .badge-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .badge.highlight {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+
+        /* Title slide special */
+        .title-center {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title-center h1 {
+            font-size: 56px;
+            margin-bottom: 20px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 50px;
+            margin-top: 30px;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #60a5fa;
+        }
+
+        .hero-stat-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Feature list */
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .feature-check {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #22c55e, #10b981);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Problem/Solution */
+        .problem-card {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .problem-card h4 {
+            color: #f87171;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .problem-card p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* CTA Box */
+        .cta-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border: 2px solid rgba(59, 130, 246, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .cta-box h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .cta-box p {
+            font-size: 16px;
+            color: #94a3b8;
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .keyboard-hint kbd {
+            background: rgba(255,255,255,0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin: 0 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progress"></div>
+    
+    <div class="presentation">
+        <!-- SLIDE 1: Titre Impact -->
+        <div class="slide active slide-1" data-slide="1">
+            <div class="slide-content">
+                <div class="main-content title-center">
+                    <div class="logo" style="margin-bottom: 30px;">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    
+                    <h1>
+                        Transformez l'UNIKIN en<br>
+                        <span class="gradient">Université Digitale</span>
+                    </h1>
+                    
+                    <p class="subtitle" style="max-width: 600px;">
+                        Un système de gestion intégré déployé en <strong style="color: #22c55e;">3 mois</strong><br>
+                        En ligne dès la <strong style="color: #60a5fa;">première semaine</strong>
+                    </p>
+                    
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <div class="hero-stat-value">30 000+</div>
+                            <div class="hero-stat-label">Étudiants</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value">2 000+</div>
+                            <div class="hero-stat-label">Enseignants</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value">11</div>
+                            <div class="hero-stat-label">Facultés</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" style="color: #22c55e;">$500K+</div>
+                            <div class="hero-stat-label">Économies/an</div>
+                        </div>
+                    </div>
+                    
+                    <div class="badge-row" style="margin-top: 40px;">
+                        <span class="badge highlight">🚀 Prêt à déployer</span>
+                        <span class="badge">📱 Mobile Money intégré</span>
+                        <span class="badge">🤖 Intelligence Artificielle</span>
+                        <span class="badge">🔒 100% Sécurisé</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: Le Problème -->
+        <div class="slide slide-2" data-slide="2">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="logo">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    <span class="slide-number">02 / 10</span>
+                </div>
+                
+                <div class="main-content">
+                    <h2>😤 Les Problèmes Actuels</h2>
+                    <p class="subtitle">Ce que coûte le système actuel à l'UNIKIN</p>
+                    
+                    <div class="two-col">
+                        <div>
+                            <div class="problem-card">
+                                <h4>❌ Files d'attente interminables</h4>
+                                <p>Étudiants perdant 3-5 heures pour une simple inscription ou paiement</p>
+                            </div>
+                            <div class="problem-card">
+                                <h4>❌ Gestion papier coûteuse</h4>
+                                <p>Milliers de pages imprimées, risques de perte, archivage difficile</p>
+                            </div>
+                            <div class="problem-card">
+                                <h4>❌ Fraudes et erreurs</h4>
+                                <p>Falsification de documents, erreurs de saisie des notes, doublons</p>
+                            </div>
+                            <div class="problem-card">
+                                <h4>❌ Aucune visibilité temps réel</h4>
+                                <p>Impossible d'avoir des statistiques fiables et instantanées</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="money-box" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1)); border-color: rgba(239, 68, 68, 0.4);">
+                                <div class="money-value" style="color: #ef4444;">$800K+</div>
+                                <div class="money-label" style="color: #fca5a5;">Pertes annuelles estimées</div>
+                            </div>
+                            
+                            <div style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                                <p style="font-size: 14px; color: #94a3b8;">
+                                    <strong style="color: #f87171;">Incluant :</strong><br>
+                                    • Salaires personnel administratif surchargé<br>
+                                    • Coûts papier et impression<br>
+                                    • Pertes dues aux fraudes<br>
+                                    • Inefficacité des processus<br>
+                                    • Image négative de l'université
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: Économies Financières -->
+        <div class="slide slide-3" data-slide="3">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="logo">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    <span class="slide-number">03 / 10</span>
+                </div>
+                
+                <div class="main-content">
+                    <h2>💰 Économies Générées par NEXUS</h2>
+                    <p class="subtitle">Retour sur investissement dès la première année</p>
+                    
+                    <div class="two-col">
+                        <div class="savings-list">
+                            <div class="saving-item">
+                                <span class="saving-icon">📄</span>
+                                <div class="saving-text">
+                                    <h4>Réduction des coûts papier</h4>
+                                    <p>Zéro impression, documents numériques, archivage cloud</p>
+                                </div>
+                                <span class="saving-amount">+$80K/an</span>
+                            </div>
+                            
+                            <div class="saving-item">
+                                <span class="saving-icon">👥</span>
+                                <div class="saving-text">
+                                    <h4>Optimisation du personnel</h4>
+                                    <p>Automatisation des tâches répétitives, redéploiement productif</p>
+                                </div>
+                                <span class="saving-amount">+$150K/an</span>
+                            </div>
+                            
+                            <div class="saving-item">
+                                <span class="saving-icon">🔒</span>
+                                <div class="saving-text">
+                                    <h4>Élimination des fraudes</h4>
+                                    <p>Traçabilité complète, authentification sécurisée</p>
+                                </div>
+                                <span class="saving-amount">+$120K/an</span>
+                            </div>
+                            
+                            <div class="saving-item">
+                                <span class="saving-icon">⚡</span>
+                                <div class="saving-text">
+                                    <h4>Efficacité des processus</h4>
+                                    <p>Inscriptions en 5 min au lieu de 5 heures</p>
+                                </div>
+                                <span class="saving-amount">+$100K/an</span>
+                            </div>
+                            
+                            <div class="saving-item">
+                                <span class="saving-icon">📱</span>
+                                <div class="saving-text">
+                                    <h4>Paiements Mobile Money</h4>
+                                    <p>Réduction des impayés, traçabilité, reçus automatiques</p>
+                                </div>
+                                <span class="saving-amount">+$70K/an</span>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <div class="money-box">
+                                <div class="money-value">$520K+</div>
+                                <div class="money-label">Économies annuelles totales</div>
+                            </div>
+                            
+                            <div style="margin-top: 25px; padding: 20px; background: rgba(34, 197, 94, 0.1); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                                <p style="font-size: 28px; font-weight: 700; color: #22c55e;">ROI en 6 mois</p>
+                                <p style="font-size: 14px; color: #86efac; margin-top: 5px;">L'investissement est rentabilisé en moins d'un an</p>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <p style="font-size: 14px; color: #64748b;">
+                                    + Amélioration de l'image de l'UNIKIN<br>
+                                    + Attraction de nouveaux étudiants<br>
+                                    + Partenariats internationaux facilités
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: Aperçu Dashboard Admin -->
+        <div class="slide slide-4" data-slide="4">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="logo">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    <span class="slide-number">04 / 10</span>
+                </div>
+                
+                <div class="main-content">
+                    <h2>🖥️ Espace Administration</h2>
+                    <p class="subtitle">Vue complète et contrôle total en temps réel</p>
+                    
+                    <div class="screenshot-frame" style="margin-top: 15px;">
+                        <div class="screenshot-header">
+                            <div class="screenshot-dot red"></div>
+                            <div class="screenshot-dot yellow"></div>
+                            <div class="screenshot-dot green"></div>
+                            <div class="screenshot-url">🔒 https://nexus.unikin.ac.cd/admin/dashboard</div>
+                        </div>
+                        <div class="screenshot-body">
+                            <div class="mock-dashboard" style="display: flex; gap: 20px; min-height: 280px;">
+                                <div class="mock-sidebar">
+                                    <div style="padding: 10px; margin-bottom: 15px;">
+                                        <div style="font-weight: 700; font-size: 14px;">⚙️ Administration</div>
+                                    </div>
+                                    <div class="mock-nav-item active">📊 Tableau de bord</div>
+                                    <div class="mock-nav-item">👨‍🎓 Étudiants</div>
+                                    <div class="mock-nav-item">👨‍🏫 Enseignants</div>
+                                    <div class="mock-nav-item">💰 Finances</div>
+                                    <div class="mock-nav-item">📚 Académique</div>
+                                    <div class="mock-nav-item">📖 Bibliothèque</div>
+                                    <div class="mock-nav-item">📊 Statistiques</div>
+                                    <div class="mock-nav-item">⚙️ Paramètres</div>
+                                </div>
+                                <div class="mock-main">
+                                    <div class="mock-stats">
+                                        <div class="mock-stat-card">
+                                            <h4>ÉTUDIANTS INSCRITS</h4>
+                                            <div class="value">31,847</div>
+                                        </div>
+                                        <div class="mock-stat-card">
+                                            <h4>PAIEMENTS REÇUS</h4>
+                                            <div class="value" style="color: #22c55e;">$2.4M</div>
+                                        </div>
+                                        <div class="mock-stat-card">
+                                            <h4>TAUX DE PAIEMENT</h4>
+                                            <div class="value" style="color: #f59e0b;">87%</div>
+                                        </div>
+                                        <div class="mock-stat-card">
+                                            <h4>UTILISATEURS EN LIGNE</h4>
+                                            <div class="value" style="color: #8b5cf6;">1,234</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                                            <h4 style="font-size: 12px; color: #64748b; margin-bottom: 10px;">INSCRIPTIONS PAR FACULTÉ</h4>
+                                            <div style="display: flex; align-items: flex-end; gap: 8px; height: 100px;">
+                                                <div style="flex: 1; background: linear-gradient(to top, #3b82f6, #60a5fa); height: 80%; border-radius: 4px;"></div>
+                                                <div style="flex: 1; background: linear-gradient(to top, #3b82f6, #60a5fa); height: 65%; border-radius: 4px;"></div>
+                                                <div style="flex: 1; background: linear-gradient(to top, #3b82f6, #60a5fa); height: 90%; border-radius: 4px;"></div>
+                                                <div style="flex: 1; background: linear-gradient(to top, #3b82f6, #60a5fa); height: 55%; border-radius: 4px;"></div>
+                                                <div style="flex: 1; background: linear-gradient(to top, #3b82f6, #60a5fa); height: 70%; border-radius: 4px;"></div>
+                                                <div style="flex: 1; background: linear-gradient(to top, #8b5cf6, #a78bfa); height: 85%; border-radius: 4px;"></div>
+                                                <div style="flex: 1; background: linear-gradient(to top, #3b82f6, #60a5fa); height: 60%; border-radius: 4px;"></div>
+                                            </div>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                                            <h4 style="font-size: 12px; color: #64748b; margin-bottom: 10px;">ACTIVITÉ RÉCENTE</h4>
+                                            <div style="font-size: 11px; color: #94a3b8;">
+                                                <div style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">✅ 156 nouvelles inscriptions</div>
+                                                <div style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">💰 $45,200 paiements reçus</div>
+                                                <div style="padding: 6px 0;">📝 89 notes publiées</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Espace Étudiant -->
+        <div class="slide slide-5" data-slide="5">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="logo">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    <span class="slide-number">05 / 10</span>
+                </div>
+                
+                <div class="main-content">
+                    <h2>👨‍🎓 Espace Étudiant</h2>
+                    <p class="subtitle">Tout accessible en quelques clics, 24h/24</p>
+                    
+                    <div class="two-col" style="margin-top: 15px;">
+                        <div class="screenshot-frame">
+                            <div class="screenshot-header">
+                                <div class="screenshot-dot red"></div>
+                                <div class="screenshot-dot yellow"></div>
+                                <div class="screenshot-dot green"></div>
+                                <div class="screenshot-url">🔒 nexus.unikin.ac.cd/student</div>
+                            </div>
+                            <div class="screenshot-body">
+                                <div style="padding: 20px; background: linear-gradient(135deg, #0f172a, #1e293b);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                        <div>
+                                            <div style="font-size: 12px; color: #64748b;">Bienvenue,</div>
+                                            <div style="font-size: 18px; font-weight: 700;">Jean-Pierre MUKENDI</div>
+                                            <div style="font-size: 11px; color: #60a5fa;">L3 - Faculté des Sciences</div>
+                                        </div>
+                                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">👤</div>
+                                    </div>
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
+                                        <div style="background: rgba(34, 197, 94, 0.2); border-radius: 10px; padding: 12px; text-align: center; border: 1px solid rgba(34, 197, 94, 0.3);">
+                                            <div style="font-size: 11px; color: #86efac;">Frais payés</div>
+                                            <div style="font-size: 18px; font-weight: 700; color: #22c55e;">100%</div>
+                                        </div>
+                                        <div style="background: rgba(59, 130, 246, 0.2); border-radius: 10px; padding: 12px; text-align: center; border: 1px solid rgba(59, 130, 246, 0.3);">
+                                            <div style="font-size: 11px; color: #93c5fd;">Moyenne</div>
+                                            <div style="font-size: 18px; font-weight: 700; color: #60a5fa;">14.5/20</div>
+                                        </div>
+                                        <div style="background: rgba(139, 92, 246, 0.2); border-radius: 10px; padding: 12px; text-align: center; border: 1px solid rgba(139, 92, 246, 0.3);">
+                                            <div style="font-size: 11px; color: #c4b5fd;">Crédits</div>
+                                            <div style="font-size: 18px; font-weight: 700; color: #a78bfa;">45/60</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; text-align: center;">
+                                            <div style="font-size: 20px; margin-bottom: 5px;">📚</div>
+                                            <div style="font-size: 10px; color: #94a3b8;">Mes Cours</div>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; text-align: center;">
+                                            <div style="font-size: 20px; margin-bottom: 5px;">📝</div>
+                                            <div style="font-size: 10px; color: #94a3b8;">Notes</div>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; text-align: center;">
+                                            <div style="font-size: 20px; margin-bottom: 5px;">📅</div>
+                                            <div style="font-size: 10px; color: #94a3b8;">Emploi du temps</div>
+                                        </div>
+                                        <div style="background: linear-gradient(135deg, #22c55e, #10b981); border-radius: 10px; padding: 12px; text-align: center;">
+                                            <div style="font-size: 20px; margin-bottom: 5px;">💳</div>
+                                            <div style="font-size: 10px; color: white;">Payer</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 style="font-size: 18px; margin-bottom: 15px; color: #60a5fa;">Fonctionnalités Étudiant</h3>
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Consultation des notes en temps réel</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Emploi du temps interactif</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Paiement Mobile Money (M-Pesa, Orange)</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Demande de documents en ligne</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Évaluations en ligne (TP, TD, Examens)</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Accès bibliothèque numérique</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Chatbot IA assistant 24/7</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Notifications SMS et email</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: Espace Enseignant -->
+        <div class="slide slide-6" data-slide="6">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="logo">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    <span class="slide-number">06 / 10</span>
+                </div>
+                
+                <div class="main-content">
+                    <h2>👨‍🏫 Espace Enseignant</h2>
+                    <p class="subtitle">Outils modernes pour un enseignement efficace</p>
+                    
+                    <div class="two-col" style="margin-top: 15px;">
+                        <div>
+                            <h3 style="font-size: 18px; margin-bottom: 15px; color: #10b981;">Fonctionnalités Enseignant</h3>
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Saisie des notes simplifiée</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Création d'évaluations variées</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Système anti-plagiat intégré</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Gestion des présences</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Dépôt de ressources pédagogiques</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Communication avec les étudiants</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-check">✓</span>
+                                    <span>Statistiques de réussite</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px; padding: 15px; background: rgba(139, 92, 246, 0.1); border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.3);">
+                                <p style="font-size: 13px; color: #c4b5fd;">
+                                    <strong>6 types d'évaluations :</strong><br>
+                                    Examens • Interrogations • TP • TD • Projets • Oraux
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="screenshot-frame">
+                            <div class="screenshot-header">
+                                <div class="screenshot-dot red"></div>
+                                <div class="screenshot-dot yellow"></div>
+                                <div class="screenshot-dot green"></div>
+                                <div class="screenshot-url">🔒 nexus.unikin.ac.cd/teacher</div>
+                            </div>
+                            <div class="screenshot-body">
+                                <div style="padding: 20px; background: linear-gradient(135deg, #0f172a, #1e293b);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div>
+                                            <div style="font-size: 16px; font-weight: 700;">Mes Évaluations</div>
+                                            <div style="font-size: 11px; color: #64748b;">Année 2025-2026</div>
+                                        </div>
+                                        <div style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); padding: 8px 15px; border-radius: 8px; font-size: 12px;">+ Nouvelle</div>
+                                    </div>
+                                    
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #ef4444;">
+                                            <div>
+                                                <div style="font-size: 13px; font-weight: 600;">Examen Final - Analyse I</div>
+                                                <div style="font-size: 10px; color: #64748b;">L1 Sciences • 156 étudiants</div>
+                                            </div>
+                                            <div style="font-size: 10px; color: #f87171;">📅 25 Jan</div>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #f59e0b;">
+                                            <div>
+                                                <div style="font-size: 13px; font-weight: 600;">TP3 - Programmation</div>
+                                                <div style="font-size: 10px; color: #64748b;">L2 Informatique • 45 étudiants</div>
+                                            </div>
+                                            <div style="font-size: 10px; color: #fbbf24;">En cours</div>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #22c55e;">
+                                            <div>
+                                                <div style="font-size: 13px; font-weight: 600;">Interrogation 2 - Algèbre</div>
+                                                <div style="font-size: 10px; color: #64748b;">L1 Sciences • 180 étudiants</div>
+                                            </div>
+                                            <div style="font-size: 10px; color: #86efac;">✓ Corrigé</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-top: 15px; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                        <div style="font-size: 12px; font-weight: 600; color: #f87171; margin-bottom: 5px;">🔍 Détection Anti-Plagiat</div>
+                                        <div style="font-size: 11px; color: #94a3b8;">2 cas suspects détectés sur le TP3</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: Modules Clés -->
+        <div class="slide slide-7" data-slide="7">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="logo">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    <span class="slide-number">07 / 10</span>
+                </div>
+                
+                <div class="main-content">
+                    <h2>🧩 Modules Intégrés</h2>
+                    <p class="subtitle">Une plateforme complète pour tous les besoins</p>
+                    
+                    <div class="grid-4" style="margin-top: 20px;">
+                        <div class="card">
+                            <div class="card-icon icon-blue">📚</div>
+                            <div class="card-title">Académique</div>
+                            <div class="card-desc">Inscriptions, promotions, cours, crédits ECTS</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon icon-green">📝</div>
+                            <div class="card-title">Évaluations</div>
+                            <div class="card-desc">6 types + anti-plagiat automatique</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon icon-purple">📊</div>
+                            <div class="card-title">Notes</div>
+                            <div class="card-desc">Saisie, calcul, délibérations, PV</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon icon-orange">💰</div>
+                            <div class="card-title">Finances</div>
+                            <div class="card-desc">Mobile Money, suivi, reçus auto</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon icon-pink">📖</div>
+                            <div class="card-title">Bibliothèque</div>
+                            <div class="card-desc">Catalogue, emprunts, e-books</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon icon-cyan">📅</div>
+                            <div class="card-title">Emploi du temps</div>
+                            <div class="card-desc">Planning dynamique, alertes</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon icon-red">📄</div>
+                            <div class="card-title">Documents</div>
+                            <div class="card-desc">Génération auto, demandes en ligne</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">🤖</div>
+                            <div class="card-title">Assistant IA</div>
+                            <div class="card-desc">Chatbot intelligent 24/7</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
+                        <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid rgba(59, 130, 246, 0.3);">
+                            <div style="font-size: 28px; font-weight: 800; color: #60a5fa;">20+</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Modules intégrés</div>
+                        </div>
+                        <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid rgba(34, 197, 94, 0.3);">
+                            <div style="font-size: 28px; font-weight: 800; color: #22c55e;">100%</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Interconnectés</div>
+                        </div>
+                        <div style="background: rgba(139, 92, 246, 0.1); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid rgba(139, 92, 246, 0.3);">
+                            <div style="font-size: 28px; font-weight: 800; color: #a78bfa;">24/7</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Disponibilité</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: Calendrier 3 mois -->
+        <div class="slide slide-8" data-slide="8">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="logo">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    <span class="slide-number">08 / 10</span>
+                </div>
+                
+                <div class="main-content">
+                    <h2>📅 Déploiement en 3 Mois</h2>
+                    <p class="subtitle">En ligne dès la <strong style="color: #22c55e;">PREMIÈRE SEMAINE</strong></p>
+                    
+                    <div class="timeline-compact">
+                        <div class="timeline-step">
+                            <div class="timeline-dot active">🚀</div>
+                            <div class="timeline-label" style="color: #22c55e;">Semaine 1</div>
+                            <div class="timeline-desc">MISE EN LIGNE</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot">📋</div>
+                            <div class="timeline-label">Sem. 2-4</div>
+                            <div class="timeline-desc">Phase Pilote</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot">📈</div>
+                            <div class="timeline-label">Mois 2</div>
+                            <div class="timeline-desc">Extension</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot">✅</div>
+                            <div class="timeline-label">Mois 3</div>
+                            <div class="timeline-desc">Complet</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2" style="margin-top: 20px;">
+                        <div class="card" style="border-left: 4px solid #22c55e;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="font-size: 14px; font-weight: 700; color: #22c55e;">🚀 SEMAINE 1 - MISE EN LIGNE</span>
+                                <span style="background: #22c55e; color: white; padding: 3px 10px; border-radius: 10px; font-size: 11px;">IMMÉDIAT</span>
+                            </div>
+                            <div class="card-desc">
+                                • Plateforme accessible sur nexus.unikin.ac.cd<br>
+                                • Formation équipe administration centrale<br>
+                                • Import données existantes<br>
+                                • Tests avec 2 facultés pilotes
+                            </div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid #3b82f6;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="font-size: 14px; font-weight: 700; color: #60a5fa;">📋 SEMAINES 2-4 - PILOTE</span>
+                            </div>
+                            <div class="card-desc">
+                                • Faculté des Sciences + FASEG opérationnelles<br>
+                                • Formation enseignants et personnels<br>
+                                • Premiers paiements Mobile Money<br>
+                                • Corrections et ajustements
+                            </div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid #8b5cf6;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="font-size: 14px; font-weight: 700; color: #a78bfa;">📈 MOIS 2 - EXTENSION</span>
+                            </div>
+                            <div class="card-desc">
+                                • 6 facultés supplémentaires connectées<br>
+                                • Formations intensives utilisateurs<br>
+                                • Activation module bibliothèque<br>
+                                • Support renforcé
+                            </div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid #ec4899;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="font-size: 14px; font-weight: 700; color: #f472b6;">✅ MOIS 3 - DÉPLOIEMENT COMPLET</span>
+                            </div>
+                            <div class="card-desc">
+                                • 11 facultés 100% opérationnelles<br>
+                                • +30 000 utilisateurs actifs<br>
+                                • Tous les modules activés<br>
+                                • Transfert à l'équipe UNIKIN
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: Gestion & Maintenance -->
+        <div class="slide slide-9" data-slide="9">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="logo">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    <span class="slide-number">09 / 10</span>
+                </div>
+                
+                <div class="main-content">
+                    <h2>🔧 Gestion & Maintenance</h2>
+                    <p class="subtitle">Un système autonome avec support continu</p>
+                    
+                    <div class="grid-3" style="margin-top: 20px;">
+                        <div class="card">
+                            <div class="card-icon icon-blue">👥</div>
+                            <div class="card-title">Équipe Interne UNIKIN</div>
+                            <div class="card-desc">
+                                • 1 Admin système<br>
+                                • 2 Supports utilisateurs<br>
+                                • 1 Formateur<br>
+                                <span style="color: #60a5fa;">Formation complète incluse</span>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon icon-green">🔄</div>
+                            <div class="card-title">Maintenance Automatique</div>
+                            <div class="card-desc">
+                                • Sauvegardes quotidiennes<br>
+                                • Mises à jour sécurité<br>
+                                • Monitoring 24/7<br>
+                                <span style="color: #22c55e;">Alertes automatiques</span>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon icon-purple">📞</div>
+                            <div class="card-title">Support Continu</div>
+                            <div class="card-desc">
+                                • Assistance technique<br>
+                                • Évolutions sur demande<br>
+                                • Documentation complète<br>
+                                <span style="color: #a78bfa;">Chatbot IA intégré</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1)); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="font-size: 18px; margin-bottom: 8px;">☁️ Hébergement Sécurisé</h4>
+                                <p style="font-size: 14px; color: #94a3b8;">Serveurs cloud haute disponibilité avec backup en temps réel</p>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #60a5fa;">99.9%</div>
+                                    <div style="font-size: 11px; color: #64748b;">Disponibilité</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #22c55e;">SSL</div>
+                                    <div style="font-size: 11px; color: #64748b;">Chiffrement</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #a78bfa;">RGPD</div>
+                                    <div style="font-size: 11px; color: #64748b;">Conforme</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: Conclusion -->
+        <div class="slide slide-10" data-slide="10">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="logo">
+                        <div class="logo-icon">N</div>
+                        <div class="logo-text">NEXUS <span>UNIKIN</span></div>
+                    </div>
+                    <span class="slide-number">10 / 10</span>
+                </div>
+                
+                <div class="main-content title-center">
+                    <h1 style="font-size: 42px;">
+                        L'UNIKIN mérite le <span class="gradient">meilleur</span>
+                    </h1>
+                    
+                    <div style="display: flex; gap: 30px; margin: 30px 0;">
+                        <div style="text-align: center; padding: 20px 30px; background: rgba(34, 197, 94, 0.1); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                            <div style="font-size: 36px; font-weight: 800; color: #22c55e;">$520K+</div>
+                            <div style="font-size: 14px; color: #86efac;">Économies/an</div>
+                        </div>
+                        <div style="text-align: center; padding: 20px 30px; background: rgba(59, 130, 246, 0.1); border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                            <div style="font-size: 36px; font-weight: 800; color: #60a5fa;">3 mois</div>
+                            <div style="font-size: 14px; color: #93c5fd;">Déploiement</div>
+                        </div>
+                        <div style="text-align: center; padding: 20px 30px; background: rgba(139, 92, 246, 0.1); border-radius: 16px; border: 1px solid rgba(139, 92, 246, 0.3);">
+                            <div style="font-size: 36px; font-weight: 800; color: #a78bfa;">Sem. 1</div>
+                            <div style="font-size: 14px; color: #c4b5fd;">Mise en ligne</div>
+                        </div>
+                        <div style="text-align: center; padding: 20px 30px; background: rgba(236, 72, 153, 0.1); border-radius: 16px; border: 1px solid rgba(236, 72, 153, 0.3);">
+                            <div style="font-size: 36px; font-weight: 800; color: #f472b6;">30K+</div>
+                            <div style="font-size: 14px; color: #f9a8d4;">Utilisateurs</div>
+                        </div>
+                    </div>
+                    
+                    <div class="cta-box" style="max-width: 700px;">
+                        <h3>🏆 Première université digitale de RDC</h3>
+                        <p>Avec NEXUS, l'UNIKIN devient une référence en Afrique Centrale</p>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <p style="font-size: 20px; color: #60a5fa; font-weight: 600;">Prêts à démarrer ?</p>
+                        <p style="font-size: 16px; color: #64748b; margin-top: 10px;">La plateforme peut être en ligne cette semaine.</p>
+                    </div>
+                    
+                    <div style="margin-top: 30px; display: flex; gap: 30px; justify-content: center;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px;">🌐</div>
+                            <div style="font-size: 14px; color: #94a3b8;">nexus.unikin.ac.cd</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px;">📧</div>
+                            <div style="font-size: 14px; color: #94a3b8;">nexus@unikin.ac.cd</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="keyboard-hint">
+        Utilisez <kbd>←</kbd> <kbd>→</kbd> ou <kbd>Espace</kbd> pour naviguer
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="prevSlide()">← Précédent</button>
+        <span style="color: #64748b; font-size: 14px; align-self: center;" id="slideIndicator">1 / 10</span>
+        <button class="nav-btn primary" onclick="nextSlide()">Suivant →</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 10;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) currentSlide = 1;
+            if (n < 1) currentSlide = totalSlides;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            // Update progress bar
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            // Update slide indicator
+            document.getElementById('slideIndicator').textContent = currentSlide + ' / ' + totalSlides;
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'Home') {
+                currentSlide = 1;
+                showSlide(currentSlide);
+            } else if (e.key === 'End') {
+                currentSlide = totalSlides;
+                showSlide(currentSlide);
+            }
+        });
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) {
+                nextSlide();
+            } else if (touchEndX - touchStartX > 50) {
+                prevSlide();
+            }
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
