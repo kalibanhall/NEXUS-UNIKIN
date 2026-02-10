@@ -127,7 +127,8 @@ const evaluationTypeConfig: Record<EvaluationType, { label: string; color: strin
 }
 
 export default function StudentEvaluationsPage() {
-  const { user, studentInfo } = useAuth()
+  const { user } = useAuth()
+  const studentInfo = user?.profile
   const [evaluations, setEvaluations] = useState<Evaluation[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('upcoming')
@@ -181,7 +182,7 @@ export default function StudentEvaluationsPage() {
   const fetchEvaluations = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/evaluations?action=${activeTab}&student_id=${studentInfo?.id}`)
+      const response = await fetch(`/api/evaluations?action=${activeTab}&student_id=${user?.userId}`)
       if (response.ok) {
         const data = await response.json()
         setEvaluations(data.evaluations || [])
@@ -203,7 +204,7 @@ export default function StudentEvaluationsPage() {
         body: JSON.stringify({
           action: 'start',
           evaluationId: selectedEvaluation.id,
-          studentId: studentInfo?.id
+          studentId: user?.userId
         })
       })
 
