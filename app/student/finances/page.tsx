@@ -212,7 +212,7 @@ export default function StudentFinancesPage() {
             <Progress value={percentage} className="h-4" />
             <p className="text-sm text-gray-500 mt-2">
               {data?.student?.payment_status === 'PAID' 
-                ? '✅ Votre situation financière est régularisée' 
+                ? 'Votre situation financière est régularisée' 
                 : `Il vous reste $${remaining.toLocaleString()} à payer.`}
             </p>
           </div>

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { GraduationCap, Users, BookOpen, Shield, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { GraduationCap, Users, BookOpen, Shield, ArrowRight, CheckCircle2, Calendar, BarChart3, UserCheck, FileText, Wallet, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { UnikinLogo } from '@/components/ui/unikin-logo'
 
@@ -172,36 +172,36 @@ export default function HomePage() {
               {
                 title: 'Emploi du temps interactif',
                 description: 'Visualisez votre planning avec tous les détails : salle, professeur, horaires. Synchronisez avec votre calendrier.',
-                icon: '📅',
+                icon: Calendar,
               },
               {
                 title: 'Système de délibération',
                 description: 'Délibérations automatisées par département avec calcul des moyennes et attribution des mentions.',
-                icon: '📊',
+                icon: BarChart3,
               },
               {
                 title: 'Gestion des présences',
                 description: 'Code de validation unique généré par le professeur. Suivi en temps réel des présences.',
-                icon: '✅',
+                icon: UserCheck,
               },
               {
                 title: 'Documents numériques',
                 description: 'Générez attestations, relevés de notes et cartes étudiantes avec QR code de validation.',
-                icon: '📄',
+                icon: FileText,
               },
               {
                 title: 'Suivi financier',
                 description: 'Consultez vos frais académiques, effectuez des paiements et téléchargez vos reçus.',
-                icon: '💰',
+                icon: Wallet,
               },
               {
                 title: 'Notifications temps réel',
                 description: 'Restez informé des annonces, résultats et échéances importantes.',
-                icon: '🔔',
+                icon: Bell,
               },
             ].map((feature, i) => (
               <div key={i} className="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg card-hover">
-                <div className="text-4xl mb-4">{feature.icon}</div>
+                <feature.icon className="w-10 h-10 mb-4 text-blue-600 dark:text-blue-400" />
                 <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                   {feature.title}
                 </h4>

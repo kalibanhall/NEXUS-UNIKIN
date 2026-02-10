@@ -28,8 +28,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'UNIKIN IT Department' }],
   creator: 'Université de Kinshasa',
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
   },
 }
 

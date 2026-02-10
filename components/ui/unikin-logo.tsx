@@ -17,8 +17,7 @@ export function UnikinLogo({ className, size = 64, showText = false }: UnikinLog
       <img
         src={UNIKIN_LOGO_BASE64}
         alt="Logo UNIKIN"
-        width={size}
-        height={size}
+        style={{ width: size, height: 'auto', maxHeight: size }}
         className="drop-shadow-lg object-contain"
       />
       
