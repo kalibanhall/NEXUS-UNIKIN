@@ -44,11 +44,11 @@ export default function Error({
             Réessayer
           </button>
           <Link
-            href="/"
+            href="/auth/login"
             className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors font-medium"
           >
             <Home className="w-4 h-4" />
-            Accueil
+            Connexion
           </Link>
         </div>
       </div>

@@ -13,7 +13,6 @@ import { SESSION_COOKIE_NAME } from '@/lib/auth/constants'
 
 // Routes publiques qui ne nécessitent pas d'authentification
 const PUBLIC_ROUTES = [
-  '/',
   '/auth/login',
   '/auth/register',
   '/api/auth/login',
@@ -53,6 +52,28 @@ export function middleware(request: NextRequest) {
   // Vérifier la présence du cookie de session
   const sessionToken = request.cookies.get(SESSION_COOKIE_NAME)
 
+  // Gérer la page d'accueil - rediriger vers login ou dashboard
+  if (pathname === '/') {
+    if (!sessionToken) {
+      return NextResponse.redirect(new URL('/auth/login', request.url))
+    }
+    // Utilisateur connecté - rediriger vers son dashboard
+    try {
+      const payloadBase64 = sessionToken.value.split('.')[1]
+      if (payloadBase64) {
+        const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString())
+        const allowedRoutes = ROLE_ROUTES[payload.role] || []
+        const correctSpace = allowedRoutes[0]
+        if (correctSpace) {
+          return NextResponse.redirect(new URL(`${correctSpace}/dashboard`, request.url))
+        }
+      }
+    } catch {
+      // Token invalide, rediriger vers login
+    }
+    return NextResponse.redirect(new URL('/auth/login', request.url))
+  }
+
   if (!sessionToken) {
     // Rediriger vers la page de login pour les pages
     if (!pathname.startsWith('/api/')) {
@@ -86,7 +107,7 @@ export function middleware(request: NextRequest) {
         if (correctSpace) {
           return NextResponse.redirect(new URL(`${correctSpace}/dashboard`, request.url))
         }
-        return NextResponse.redirect(new URL('/', request.url))
+        return NextResponse.redirect(new URL('/auth/login', request.url))
       }
     }
   } catch {

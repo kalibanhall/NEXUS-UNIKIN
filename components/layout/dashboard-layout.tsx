@@ -20,13 +20,11 @@ import {
   ClipboardList,
   BarChart3,
   Shield,
-  Clock,
   UserCheck,
   FolderOpen,
   MessageSquare,
   CheckCheck,
   Wallet,
-  Target,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -77,7 +75,7 @@ const menuConfig: Record<'admin' | 'teacher' | 'student' | 'employee', MenuConfi
         ]
       },
       { icon: BookOpen, label: 'Cours & UE', href: '/admin/courses' },
-      { icon: ClipboardList, label: 'Délibérations', href: '/admin/deliberation' },
+      { icon: ClipboardList, label: 'Délibérations', href: '/admin/deliberations' },
       { icon: CreditCard, label: 'Finances', href: '/admin/finances' },
       { icon: BarChart3, label: 'Statistiques', href: '/admin/statistics' },
       { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
@@ -88,13 +86,6 @@ const menuConfig: Record<'admin' | 'teacher' | 'student' | 'employee', MenuConfi
       { icon: CheckCheck, label: 'Sondages', href: '/admin/surveys' },
       { icon: BookOpen, label: 'Recherche', href: '/admin/research' },
       { icon: Wallet, label: 'Bourses', href: '/admin/scholarships' },
-      { icon: Target, label: 'NEXUS Tracker', href: '/admin/tracker', badge: 'Projet',
-        children: [
-          { label: 'Dashboard', href: '/admin/tracker' },
-          { label: 'Tâches', href: '/admin/tracker/tasks' },
-          { label: 'Facultés', href: '/admin/tracker/faculties' },
-        ]
-      },
       { icon: Shield, label: 'Sécurité & Logs', href: '/admin/security' },
       { icon: Settings, label: 'Paramètres', href: '/admin/settings' },
     ],
@@ -163,13 +154,29 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, role, user }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const menu = menuConfig[role]
 
+  // Avertissement avant de quitter la page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = 'Êtes-vous sûr de vouloir quitter cette page ?'
+      return e.returnValue
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
+
   const handleLogout = async () => {
+    const confirmed = window.confirm('Êtes-vous sûr de vouloir vous déconnecter ?')
+    if (!confirmed) return
+    
     await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/auth/login')
+    window.location.href = '/auth/login'
   }
 
   return (
