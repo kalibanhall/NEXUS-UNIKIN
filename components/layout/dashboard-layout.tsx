@@ -151,6 +151,7 @@ interface DashboardLayoutProps {
   children: ReactNode
   role: 'admin' | 'teacher' | 'student' | 'employee'
   user: {
+    id?: number | string
     name: string
     email: string
     avatar?: string
@@ -315,7 +316,7 @@ export function DashboardLayout({ children, role, user }: DashboardLayoutProps) 
               <ThemeToggle />
 
               {/* Notifications */}
-              <NotificationDropdown userId={user.id} role={role} />
+              <NotificationDropdown userId={user.id ? Number(user.id) : undefined} role={role} />
 
               {/* User menu */}
               <DropdownMenu>
