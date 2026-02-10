@@ -37,24 +37,26 @@ export default function LoginPage() {
 
       toast.success('Connexion réussie!')
 
-      // Redirection selon le rôle
+      // Redirection selon le rôle - utiliser window.location pour forcer le rechargement
+      let redirectUrl = '/'
       switch (data.user.role) {
         case 'SUPER_ADMIN':
         case 'ADMIN':
-          router.push('/admin/dashboard')
+          redirectUrl = '/admin/dashboard'
           break
         case 'TEACHER':
-          router.push('/teacher/dashboard')
+          redirectUrl = '/teacher/dashboard'
           break
         case 'EMPLOYEE':
-          router.push('/employee/dashboard')
+          redirectUrl = '/employee/dashboard'
           break
         case 'STUDENT':
-          router.push('/student/dashboard')
+          redirectUrl = '/student/dashboard'
           break
-        default:
-          router.push('/')
       }
+      
+      // Force full page reload to ensure middleware sees the new cookie
+      window.location.href = redirectUrl
     } catch (error: any) {
       toast.error(error.message)
     } finally {

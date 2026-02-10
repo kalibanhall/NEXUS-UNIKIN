@@ -75,8 +75,7 @@ interface ExamSession {
 }
 
 export default function StudentExamsPage() {
-  const { user } = useAuth()
-  const studentInfo = user?.profile
+  const { user, studentInfo } = useAuth()
   const [exams, setExams] = useState<Exam[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('available')

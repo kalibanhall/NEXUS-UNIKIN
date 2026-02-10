@@ -76,9 +76,12 @@ export function verifySession(token: string): SessionPayload | null {
  * Options du cookie de session pour la production
  */
 export function getSessionCookieOptions() {
+  const isProduction = process.env.NODE_ENV === 'production'
+  const hasHttps = process.env.HTTPS === 'true' || process.env.NEXT_PUBLIC_HTTPS === 'true'
+  
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isProduction && hasHttps, // Only secure if HTTPS is configured
     sameSite: 'lax' as const,
     maxAge: 60 * 60 * 24 * 7, // 7 jours
     path: '/',

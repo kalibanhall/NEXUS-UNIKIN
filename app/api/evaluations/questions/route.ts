@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const evaluationId = searchParams.get('evaluation_id')
     const questionId = searchParams.get('question_id')
 
-    const client = await pool!.connect()
+    const client = await pool.connect()
 
     try {
       if (questionId) {
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    const client = await pool!.connect()
+    const client = await pool.connect()
 
     try {
       await client.query('BEGIN')
@@ -189,7 +189,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'question_id requis' }, { status: 400 })
     }
 
-    const client = await pool!.connect()
+    const client = await pool.connect()
 
     try {
       await client.query('BEGIN')
@@ -313,7 +313,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'question_id requis' }, { status: 400 })
     }
 
-    const client = await pool!.connect()
+    const client = await pool.connect()
 
     try {
       await client.query('BEGIN')
@@ -389,7 +389,7 @@ export async function PATCH(request: NextRequest) {
       }, { status: 400 })
     }
 
-    const client = await pool!.connect()
+    const client = await pool.connect()
 
     try {
       await client.query('BEGIN')

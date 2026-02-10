@@ -122,7 +122,7 @@ export default function MessagesPage() {
   })
 
   // Stats
-  const userId = user?.userId?.toString() || ''
+  const userId = user?.id?.toString() || ''
   const stats = {
     inbox: messages.filter(m => !m.is_archived && m.recipient_id === userId).length,
     unread: messages.filter(m => !m.is_read && m.recipient_id === userId).length,
@@ -139,7 +139,7 @@ export default function MessagesPage() {
   const fetchMessages = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/messages?user_id=${user?.userId}&folder=${activeTab}`)
+      const response = await fetch(`/api/messages?user_id=${user?.id}&folder=${activeTab}`)
       if (response.ok) {
         const data = await response.json()
         setMessages(data.messages || [])
@@ -181,7 +181,7 @@ export default function MessagesPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          senderId: user?.userId,
+          senderId: user?.id,
           recipientId: composeForm.recipientId,
           subject: composeForm.subject,
           content: composeForm.content,

@@ -150,7 +150,7 @@ export default function TeacherExamsPage() {
   const fetchExams = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/exams?action=my_exams&teacher_id=${user?.userId}`)
+      const response = await fetch(`/api/exams?action=my_exams&teacher_id=${user?.id}`)
       if (response.ok) {
         const data = await response.json()
         setExams(data.exams || [])

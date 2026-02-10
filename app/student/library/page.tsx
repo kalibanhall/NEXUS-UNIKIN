@@ -82,8 +82,7 @@ interface Reservation {
 }
 
 export default function StudentLibraryPage() {
-  const { user } = useAuth()
-  const studentInfo = user?.profile
+  const { user, studentInfo } = useAuth()
   const [resources, setResources] = useState<Resource[]>([])
   const [loans, setLoans] = useState<Loan[]>([])
   const [favorites, setFavorites] = useState<Resource[]>([])

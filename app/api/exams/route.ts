@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const studentId = searchParams.get('student_id')
     const teacherId = searchParams.get('teacher_id')
 
-    const client = await pool!.connect()
+    const client = await pool.connect()
 
     try {
       // Liste des examens disponibles pour un étudiant
@@ -308,7 +308,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { action } = body
 
-    const client = await pool!.connect()
+    const client = await pool.connect()
 
     try {
       await client.query('BEGIN')
@@ -531,7 +531,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { action, examId } = body
 
-    const client = await pool!.connect()
+    const client = await pool.connect()
 
     try {
       await client.query('BEGIN')
@@ -622,7 +622,7 @@ export async function DELETE(request: NextRequest) {
     const examId = searchParams.get('exam_id')
     const questionId = searchParams.get('question_id')
 
-    const client = await pool!.connect()
+    const client = await pool.connect()
 
     try {
       if (questionId) {
