@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
@@ -9,78 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
-import { UnikinLogo, UnikinLogoSimple } from '@/components/ui/unikin-logo'
-
-// Composant pour les logos flottants en filigrane
-function FloatingLogos() {
-  const [logos, setLogos] = useState<Array<{
-    id: number
-    x: number
-    y: number
-    size: number
-    duration: number
-    delay: number
-    opacity: number
-  }>>([])
-
-  useEffect(() => {
-    // Générer des logos aléatoires
-    const generateLogos = () => {
-      const newLogos = []
-      for (let i = 0; i < 15; i++) {
-        newLogos.push({
-          id: i,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size: 30 + Math.random() * 50,
-          duration: 15 + Math.random() * 20,
-          delay: Math.random() * 10,
-          opacity: 0.03 + Math.random() * 0.05,
-        })
-      }
-      setLogos(newLogos)
-    }
-    generateLogos()
-  }, [])
-
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {logos.map((logo) => (
-        <div
-          key={logo.id}
-          className="absolute animate-float text-blue-900/20 dark:text-blue-300/10"
-          style={{
-            left: `${logo.x}%`,
-            top: `${logo.y}%`,
-            opacity: logo.opacity,
-            animation: `float ${logo.duration}s ease-in-out infinite`,
-            animationDelay: `${logo.delay}s`,
-          }}
-        >
-          <UnikinLogoSimple size={logo.size} />
-        </div>
-      ))}
-      
-      {/* Styles pour l'animation */}
-      <style jsx global>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px) rotate(0deg) scale(1);
-          }
-          25% {
-            transform: translateY(-20px) rotate(5deg) scale(1.05);
-          }
-          50% {
-            transform: translateY(-10px) rotate(-3deg) scale(0.95);
-          }
-          75% {
-            transform: translateY(-25px) rotate(3deg) scale(1.02);
-          }
-        }
-      `}</style>
-    </div>
-  )
-}
+import { UnikinLogo } from '@/components/ui/unikin-logo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -133,32 +62,15 @@ export default function LoginPage() {
     }
   }
 
-  // Connexion rapide pour démo
-  const quickLogin = async (role: string) => {
-    const credentials: Record<string, { email: string; password: string }> = {
-      admin: { email: 'ADM-2024-001@unikin.ac.cd', password: 'Admin@2026' },
-      teacher: { email: 'PROF-2020-001@unikin.ac.cd', password: 'Prof@2026' },
-      student: { email: 'ETU-2025-001@unikin.ac.cd', password: 'Etudiant@2026' },
-      employee: { email: 'EMP-2022-001@unikin.ac.cd', password: 'Employe@2026' },
-    }
 
-    const cred = credentials[role]
-    if (cred) {
-      setEmail(cred.email)
-      setPassword(cred.password)
-    }
-  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 p-4 relative overflow-hidden">
-      {/* Logos flottants en filigrane */}
-      <FloatingLogos />
-      
-      <div className="w-full max-w-md relative z-10">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 p-4">
+      <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-4">
-            <UnikinLogo size={70} />
+          <Link href="/" className="inline-flex items-center gap-3">
+            <UnikinLogo size={56} />
             <div className="text-left">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white font-heading">
                 NEXUS UNIKIN
@@ -248,46 +160,7 @@ export default function LoginPage() {
                 )}
               </Button>
 
-              {/* Quick login for demo */}
-              <div className="w-full pt-4 border-t">
-                <p className="text-xs text-gray-500 text-center mb-3">
-                  Accès rapide (Démo)
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => quickLogin('admin')}
-                  >
-                    🛠️ Admin
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => quickLogin('teacher')}
-                  >
-                    👨🏽‍🏫 Enseignant
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => quickLogin('student')}
-                  >
-                    🎓 Étudiant
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => quickLogin('employee')}
-                  >
-                    👩🏽‍💼 Employé
-                  </Button>
-                </div>
-              </div>
+
             </CardFooter>
           </form>
         </Card>

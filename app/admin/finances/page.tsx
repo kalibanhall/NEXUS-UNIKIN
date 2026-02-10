@@ -280,7 +280,7 @@ export default function FinancesPage() {
               <div>
                 <p className="text-sm text-gray-500">Total collecté</p>
                 <p className="text-2xl font-bold text-green-600">
-                  ${stats?.totalRevenue?.toLocaleString() || 0}
+                  ${stats?.totalRevenue?.toLocaleString() || totalCollected.toLocaleString()}
                 </p>
               </div>
               <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">

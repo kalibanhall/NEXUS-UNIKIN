@@ -127,7 +127,8 @@ const evaluationTypeConfig: Record<EvaluationType, { label: string; color: strin
 }
 
 export default function StudentEvaluationsPage() {
-  const { user, studentInfo } = useAuth()
+  const { user } = useAuth()
+  const studentInfo = user?.profile
   const [evaluations, setEvaluations] = useState<Evaluation[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('upcoming')

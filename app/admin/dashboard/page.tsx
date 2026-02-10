@@ -8,25 +8,27 @@ import {
   BookOpen, 
   Building2,
   CreditCard,
+  TrendingUp,
   AlertTriangle,
   CheckCircle,
   Clock,
   ArrowRight,
+  Plus,
   UserPlus,
   FileText,
-  Activity,
-  RefreshCw,
+  Loader2,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 interface DashboardStats {
   students: number
   teachers: number
   courses: number
   faculties: number
+  totalRevenue: number
   paymentStats: {
     paid: number
     partial: number
@@ -34,7 +36,6 @@ interface DashboardStats {
     blocked: number
   }
   recentPayments: any[]
-  totalRevenue: number
   currentAcademicYear: any
 }
 
@@ -43,19 +44,19 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchDashboardStats()
+    fetchDashboardData()
   }, [])
 
-  const fetchDashboardStats = async () => {
+  const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/dashboard?role=SUPER_ADMIN')
-      if (response.ok) {
-        const data = await response.json()
+      const res = await fetch('/api/dashboard?role=SUPER_ADMIN')
+      if (res.ok) {
+        const data = await res.json()
         setStats(data)
       }
     } catch (error) {
-      console.error('Error fetching stats:', error)
+      console.error('Error fetching dashboard data:', error)
     } finally {
       setLoading(false)
     }
@@ -64,227 +65,298 @@ export default function AdminDashboard() {
   const statsCards = [
     {
       title: 'Total Étudiants',
-      value: stats?.students || 0,
+      value: stats ? stats.students.toLocaleString() : '...',
       icon: GraduationCap,
       color: 'from-blue-500 to-blue-600',
-      href: '/admin/students',
+      description: 'Étudiants actifs',
     },
     {
       title: 'Enseignants',
-      value: stats?.teachers || 0,
+      value: stats ? stats.teachers.toLocaleString() : '...',
       icon: Users,
       color: 'from-green-500 to-green-600',
-      href: '/admin/users?role=TEACHER',
+      description: 'Personnel actif',
     },
     {
       title: 'Cours Actifs',
-      value: stats?.courses || 0,
+      value: stats ? stats.courses.toLocaleString() : '...',
       icon: BookOpen,
       color: 'from-purple-500 to-purple-600',
-      href: '/admin/academic',
+      description: 'Ce semestre',
     },
     {
       title: 'Recettes',
-      value: `$${(stats?.totalRevenue || 0).toLocaleString()}`,
+      value: stats ? `$${stats.totalRevenue.toLocaleString()}` : '...',
       icon: CreditCard,
       color: 'from-amber-500 to-amber-600',
-      href: '/admin/finances',
+      description: 'Frais collectés',
     },
   ]
 
-  const paymentPercentage = stats?.paymentStats ? 
-    Math.round((stats.paymentStats.paid / (stats.students || 1)) * 100) : 0
+  const unpaidCount = stats?.paymentStats?.unpaid || 0
+  const blockedCount = stats?.paymentStats?.blocked || 0
+  const totalDebt = unpaidCount + blockedCount
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tableau de bord</h1>
-          <p className="text-gray-500 dark:text-gray-400">
-            Vue d'ensemble - {stats?.currentAcademicYear?.name || 'Année académique'}
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Tableau de bord administrateur
+          </h1>
+          <p className="text-gray-500">
+            {stats?.currentAcademicYear 
+              ? `Année académique ${stats.currentAcademicYear.name} — Vue d'ensemble`
+              : "Vue d'ensemble du système NEXUS UNIKIN"}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchDashboardStats}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Actualiser
+          <Button variant="outline">
+            <FileText className="w-4 h-4 mr-2" />
+            Rapport
           </Button>
-          <Button size="sm" asChild>
-            <Link href="/admin/users/new">
-              <UserPlus className="h-4 w-4 mr-2" />
-              Nouvel utilisateur
+          <Button className="gradient-primary" asChild>
+            <Link href="/admin/users">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouvelle action
             </Link>
           </Button>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statsCards.map((stat, index) => (
-          <Link key={index} href={stat.href}>
-            <Card className="card-hover cursor-pointer">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {statsCards.map((stat, index) => {
+          const Icon = stat.icon
+          return (
+            <Card key={index} className="overflow-hidden">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.title}</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
-                      {loading ? '...' : stat.value}
+                    <p className="text-sm font-medium text-gray-500">{stat.title}</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                      {loading ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                      ) : stat.value}
                     </p>
+                    <p className="text-gray-400 text-sm mt-2">{stat.description}</p>
                   </div>
                   <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color}`}>
-                    <stat.icon className="h-6 w-6 text-white" />
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </Link>
-        ))}
+          )
+        })}
       </div>
 
-      {/* Payment Status and Recent Payments */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Payment Status */}
-        <Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Payment Overview */}
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-primary" />
-              Statut des paiements
+              <CreditCard className="w-5 h-5" />
+              Situation des paiements
             </CardTitle>
-            <CardDescription>Répartition des étudiants par statut de paiement</CardDescription>
+            <CardDescription>
+              Répartition du statut de paiement des étudiants actifs
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Taux de paiement global</span>
-              <span className="font-bold text-lg">{paymentPercentage}%</span>
-            </div>
-            <Progress value={paymentPercentage} className="h-3" />
-            
-            <div className="grid grid-cols-2 gap-4 pt-4">
-              <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span className="text-sm font-medium">Soldé</span>
-                </div>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
-                  {stats?.paymentStats?.paid || 0}
-                </p>
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
               </div>
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-yellow-500" />
-                  <span className="text-sm font-medium">Partiel</span>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Étudiants soldés</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-gray-500">{stats?.paymentStats?.paid || 0} étudiants</span>
+                      <Badge variant="default">{stats?.students ? Math.round(((stats?.paymentStats?.paid || 0) / stats.students) * 100) : 0}%</Badge>
+                    </div>
+                  </div>
+                  <Progress value={stats?.students ? ((stats?.paymentStats?.paid || 0) / stats.students) * 100 : 0} className="h-2" />
                 </div>
-                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">
-                  {stats?.paymentStats?.partial || 0}
-                </p>
-              </div>
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
-                  <span className="text-sm font-medium">Impayé</span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Paiements partiels</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-gray-500">{stats?.paymentStats?.partial || 0} étudiants</span>
+                      <Badge variant="secondary">{stats?.students ? Math.round(((stats?.paymentStats?.partial || 0) / stats.students) * 100) : 0}%</Badge>
+                    </div>
+                  </div>
+                  <Progress value={stats?.students ? ((stats?.paymentStats?.partial || 0) / stats.students) * 100 : 0} className="h-2" />
                 </div>
-                <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">
-                  {stats?.paymentStats?.unpaid || 0}
-                </p>
-              </div>
-              <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm font-medium">Bloqué</span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Impayés</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-gray-500">{stats?.paymentStats?.unpaid || 0} étudiants</span>
+                      <Badge variant="destructive">{stats?.students ? Math.round(((stats?.paymentStats?.unpaid || 0) / stats.students) * 100) : 0}%</Badge>
+                    </div>
+                  </div>
+                  <Progress value={stats?.students ? ((stats?.paymentStats?.unpaid || 0) / stats.students) * 100 : 0} className="h-2" />
                 </div>
-                <p className="text-2xl font-bold text-gray-600 dark:text-gray-400 mt-1">
-                  {stats?.paymentStats?.blocked || 0}
-                </p>
-              </div>
-            </div>
+              </>
+            )}
           </CardContent>
+          <CardFooter>
+            <Link href="/admin/finances" className="text-blue-600 hover:underline text-sm flex items-center gap-1">
+              Voir la gestion financière
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </CardFooter>
         </Card>
 
         {/* Recent Payments */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              Paiements récents
+              <Clock className="w-5 h-5" />
+              Derniers paiements
             </CardTitle>
-            <CardDescription>Dernières transactions enregistrées</CardDescription>
+            <CardDescription>
+              Transactions récentes
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {stats?.recentPayments?.length ? stats.recentPayments.map((payment: any, index: number) => (
-                <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <Avatar>
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xs">
-                      {payment.student_name?.split(' ').map((n: string) => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
+          <CardContent className="space-y-3">
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              </div>
+            ) : stats?.recentPayments && stats.recentPayments.length > 0 ? (
+              stats.recentPayments.map((payment: any, index: number) => (
+                <div 
+                  key={index} 
+                  className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
+                >
+                  <div className="w-2 h-2 rounded-full mt-2 bg-green-500" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                       {payment.student_name}
                     </p>
-                    <p className="text-xs text-gray-500">{payment.matricule}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-green-600 dark:text-green-400">
-                      ${parseFloat(payment.amount).toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(payment.payment_date).toLocaleDateString('fr-FR')}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-gray-500">{payment.matricule}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        ${parseFloat(payment.amount).toLocaleString()}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              )) : (
-                <p className="text-center text-gray-500 py-8">Aucun paiement récent</p>
-              )}
-            </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-4">Aucun paiement récent</p>
+            )}
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="/admin/finances">
+            <Link href="/admin/finances" className="w-full">
+              <Button variant="outline" className="w-full">
                 Voir tous les paiements
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </CardFooter>
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Actions rapides</CardTitle>
-          <CardDescription>Accès direct aux fonctions principales</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/admin/students">
-              <div className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer text-center">
-                <GraduationCap className="h-8 w-8 mx-auto text-blue-500 mb-2" />
-                <p className="text-sm font-medium">Gérer étudiants</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Actions rapides</CardTitle>
+            <CardDescription>
+              Accédez rapidement aux fonctionnalités clés
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              <Link href="/admin/users">
+                <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
+                  <UserPlus className="w-6 h-6 text-blue-600" />
+                  <span>Utilisateurs</span>
+                </Button>
+              </Link>
+              <Link href="/admin/courses">
+                <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
+                  <BookOpen className="w-6 h-6 text-green-600" />
+                  <span>Cours</span>
+                </Button>
+              </Link>
+              <Link href="/admin/deliberations">
+                <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
+                  <CheckCircle className="w-6 h-6 text-purple-600" />
+                  <span>Délibérations</span>
+                </Button>
+              </Link>
+              <Link href="/admin/announcements">
+                <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
+                  <AlertTriangle className="w-6 h-6 text-amber-600" />
+                  <span>Annonces</span>
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Alerts */}
+        <Card className="border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <AlertTriangle className="w-5 h-5" />
+              Attention requise
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
               </div>
-            </Link>
-            <Link href="/admin/academic">
-              <div className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer text-center">
-                <Building2 className="h-8 w-8 mx-auto text-green-500 mb-2" />
-                <p className="text-sm font-medium">Structure académique</p>
+            ) : (
+              <div className="space-y-3">
+                {totalDebt > 0 && (
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="w-4 h-4 text-amber-600" />
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      <strong>{totalDebt} étudiant{totalDebt > 1 ? 's' : ''}</strong> {totalDebt > 1 ? 'ont' : 'a'} des dettes impayées
+                    </p>
+                  </div>
+                )}
+                {(stats?.paymentStats?.partial || 0) > 0 && (
+                  <div className="flex items-center gap-3">
+                    <Clock className="w-4 h-4 text-amber-600" />
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      <strong>{stats?.paymentStats?.partial} étudiant{(stats?.paymentStats?.partial || 0) > 1 ? 's' : ''}</strong> en paiement partiel
+                    </p>
+                  </div>
+                )}
+                {totalDebt === 0 && (stats?.paymentStats?.partial || 0) === 0 && (
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <p className="text-sm text-green-700 dark:text-green-300">
+                      Tout est en ordre ! Aucune alerte.
+                    </p>
+                  </div>
+                )}
+                <div className="flex gap-2 mt-3">
+                  <Link href="/admin/finances">
+                    <Button size="sm" variant="outline" className="border-amber-400 text-amber-700 hover:bg-amber-100">
+                      Gérer les finances
+                    </Button>
+                  </Link>
+                  <Link href="/admin/students">
+                    <Button size="sm" variant="outline" className="border-amber-400 text-amber-700 hover:bg-amber-100">
+                      Voir les étudiants
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </Link>
-            <Link href="/admin/deliberation">
-              <div className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer text-center">
-                <FileText className="h-8 w-8 mx-auto text-purple-500 mb-2" />
-                <p className="text-sm font-medium">Délibérations</p>
-              </div>
-            </Link>
-            <Link href="/admin/finances">
-              <div className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer text-center">
-                <CreditCard className="h-8 w-8 mx-auto text-amber-500 mb-2" />
-                <p className="text-sm font-medium">Finances</p>
-              </div>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

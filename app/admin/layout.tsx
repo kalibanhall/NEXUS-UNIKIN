@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
+import { verifySession, SESSION_COOKIE_NAME } from '@/lib/auth/jwt'
 
 export default async function AdminLayout({
   children,
@@ -8,16 +9,15 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get('nexus-session')
+  const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)
 
   if (!sessionCookie) {
     redirect('/auth/login')
   }
 
-  let session
-  try {
-    session = JSON.parse(sessionCookie.value)
-  } catch {
+  const session = verifySession(sessionCookie.value)
+
+  if (!session) {
     redirect('/auth/login')
   }
 
@@ -26,6 +26,7 @@ export default async function AdminLayout({
   }
 
   const user = {
+    id: session.userId,
     name: `${session.firstName || ''} ${session.lastName || ''}`.trim() || 'Admin',
     email: session.email,
     role: session.role,

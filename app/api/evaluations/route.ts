@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const teacherId = searchParams.get('teacher_id')
     const evaluationId = searchParams.get('evaluation_id')
 
-    const client = await pool.connect()
+    const client = await pool!.connect()
 
     try {
       // Évaluations disponibles pour un étudiant
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { action } = body
 
-    const client = await pool.connect()
+    const client = await pool!.connect()
 
     try {
       // Créer une nouvelle évaluation
@@ -358,7 +358,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { action, evaluationId } = body
 
-    const client = await pool.connect()
+    const client = await pool!.connect()
 
     try {
       // Publier une évaluation
@@ -405,7 +405,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'ID requis' }, { status: 400 })
     }
 
-    const client = await pool.connect()
+    const client = await pool!.connect()
 
     try {
       // Vérifier qu'il n'y a pas de soumissions

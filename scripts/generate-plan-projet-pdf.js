@@ -1,0 +1,1796 @@
+const fs = require('fs');
+const path = require('path');
+
+// Fonction pour générer le contenu HTML du document
+function generateHTML() {
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS UNIKIN - Plan de Projet et Calendrier de Realisation</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 15mm 20mm 15mm;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 11pt;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background: white;
+    }
+    
+    .page {
+      page-break-after: always;
+      min-height: 100vh;
+      padding: 0;
+    }
+    
+    .page:last-child {
+      page-break-after: auto;
+    }
+    
+    /* Page de garde */
+    .cover-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #1e3a5f 0%, #0d1f33 100%);
+      color: white;
+    }
+    
+    .cover-logo {
+      width: 120px;
+      height: 120px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 40px;
+      font-size: 48px;
+      font-weight: bold;
+      color: #1e3a5f;
+    }
+    
+    .cover-title {
+      font-size: 36pt;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+    
+    .cover-subtitle {
+      font-size: 18pt;
+      font-weight: 400;
+      margin-bottom: 60px;
+      opacity: 0.9;
+    }
+    
+    .cover-info {
+      font-size: 12pt;
+      opacity: 0.8;
+      margin-top: 40px;
+    }
+    
+    .cover-date {
+      font-size: 14pt;
+      margin-top: 20px;
+      padding: 10px 30px;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 5px;
+    }
+    
+    /* Contenu */
+    .content-page {
+      padding: 20px 0;
+    }
+    
+    h1 {
+      font-size: 22pt;
+      color: #1e3a5f;
+      border-bottom: 3px solid #1e3a5f;
+      padding-bottom: 10px;
+      margin-bottom: 25px;
+      margin-top: 0;
+    }
+    
+    h2 {
+      font-size: 16pt;
+      color: #2c5282;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      padding-left: 10px;
+      border-left: 4px solid #2c5282;
+    }
+    
+    h3 {
+      font-size: 13pt;
+      color: #3d7aab;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      margin-bottom: 12px;
+      text-align: justify;
+    }
+    
+    ul, ol {
+      margin-left: 25px;
+      margin-bottom: 15px;
+    }
+    
+    li {
+      margin-bottom: 6px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0 25px 0;
+      font-size: 10pt;
+    }
+    
+    th {
+      background: #1e3a5f;
+      color: white;
+      padding: 10px 8px;
+      text-align: left;
+      font-weight: 600;
+    }
+    
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    
+    tr:hover {
+      background: #edf2f7;
+    }
+    
+    .phase-box {
+      background: #f0f7ff;
+      border: 1px solid #bee3f8;
+      border-left: 5px solid #2c5282;
+      padding: 15px 20px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .phase-title {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 5px;
+    }
+    
+    .phase-duration {
+      font-size: 10pt;
+      color: #4a5568;
+    }
+    
+    .highlight-box {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+    }
+    
+    .info-box {
+      background: #e6fffa;
+      border: 1px solid #38b2ac;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+    }
+    
+    .warning-box {
+      background: #fff5f5;
+      border: 1px solid #fc8181;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+    }
+    
+    .gantt-bar {
+      height: 25px;
+      margin: 5px 0;
+      display: flex;
+      align-items: center;
+    }
+    
+    .gantt-label {
+      width: 200px;
+      font-size: 10pt;
+      padding-right: 10px;
+    }
+    
+    .gantt-track {
+      flex: 1;
+      background: #e2e8f0;
+      height: 20px;
+      border-radius: 3px;
+      position: relative;
+    }
+    
+    .gantt-fill {
+      height: 100%;
+      border-radius: 3px;
+      position: absolute;
+    }
+    
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .summary-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    
+    .summary-card h4 {
+      color: #2c5282;
+      font-size: 11pt;
+      margin-bottom: 8px;
+    }
+    
+    .summary-card p {
+      font-size: 10pt;
+      margin: 0;
+    }
+    
+    .toc {
+      margin: 30px 0;
+    }
+    
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dotted #cbd5e0;
+    }
+    
+    .toc-item:hover {
+      background: #f7fafc;
+    }
+    
+    .footer {
+      text-align: center;
+      font-size: 9pt;
+      color: #718096;
+      margin-top: 40px;
+      padding-top: 15px;
+      border-top: 1px solid #e2e8f0;
+    }
+    
+    .page-number {
+      text-align: center;
+      font-size: 10pt;
+      color: #718096;
+      margin-top: 20px;
+    }
+    
+    .checklist {
+      list-style: none;
+      margin-left: 0;
+    }
+    
+    .checklist li {
+      padding: 5px 0 5px 25px;
+      position: relative;
+    }
+    
+    .checklist li::before {
+      content: "\\2610";
+      position: absolute;
+      left: 0;
+      color: #2c5282;
+    }
+    
+    @media print {
+      .page {
+        page-break-after: always;
+      }
+      
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PAGE DE GARDE -->
+<div class="page cover-page">
+  <div class="cover-logo">N</div>
+  <div class="cover-title">NEXUS UNIKIN</div>
+  <div class="cover-subtitle">Plateforme Numerique de Gestion Universitaire</div>
+  <div class="cover-info">
+    PLAN DE PROJET ET CALENDRIER DE REALISATION<br>
+    Universite de Kinshasa
+  </div>
+  <div class="cover-date">Janvier - Avril 2026</div>
+</div>
+
+<!-- TABLE DES MATIERES -->
+<div class="page content-page">
+  <h1>Table des Matières</h1>
+  
+  <div class="toc">
+    <div class="toc-item"><span>1. Présentation du Projet</span><span>3</span></div>
+    <div class="toc-item"><span>2. Objectifs du Projet</span><span>4</span></div>
+    <div class="toc-item"><span>3. Modules de la Plateforme</span><span>5</span></div>
+    <div class="toc-item"><span>4. Phases du Projet</span><span>7</span></div>
+    <div class="toc-item"><span>5. Calendrier Détaillé</span><span>9</span></div>
+    <div class="toc-item"><span>6. Tâches par Semaine</span><span>11</span></div>
+    <div class="toc-item"><span>7. Livrables Attendus</span><span>17</span></div>
+    <div class="toc-item"><span>8. Ressources Requises</span><span>18</span></div>
+    <div class="toc-item"><span>9. Indicateurs de Suivi</span><span>19</span></div>
+    <div class="toc-item"><span>10. Risques et Mesures d'Atténuation</span><span>20</span></div>
+  </div>
+</div>
+
+<!-- PRESENTATION DU PROJET -->
+<div class="page content-page">
+  <h1>1. Présentation du Projet</h1>
+  
+  <h2>1.1 Contexte</h2>
+  <p>L'Université de Kinshasa (UNIKIN), première institution d'enseignement supérieur de la République Démocratique du Congo, entreprend une transformation numérique majeure de ses processus administratifs et académiques. Cette initiative vise à moderniser la gestion de l'institution pour répondre aux défis contemporains de l'enseignement supérieur.</p>
+  
+  <h2>1.2 Définition</h2>
+  <p>NEXUS UNIKIN est une plateforme numérique intégrée permettant la gestion centralisée de l'ensemble des opérations universitaires. Elle couvre les domaines académiques, administratifs, financiers et communicationnels de l'institution.</p>
+  
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h4>Institution</h4>
+      <p>Université de Kinshasa (UNIKIN)</p>
+    </div>
+    <div class="summary-card">
+      <h4>Durée du projet</h4>
+      <p>12 semaines (3 mois)</p>
+    </div>
+    <div class="summary-card">
+      <h4>Date de lancement</h4>
+      <p>30 janvier 2026</p>
+    </div>
+    <div class="summary-card">
+      <h4>Date de clôture</h4>
+      <p>10 avril 2026</p>
+    </div>
+  </div>
+  
+  <h2>1.3 Bénéficiaires</h2>
+  <table>
+    <tr>
+      <th>Catégorie</th>
+      <th>Nombre estimé</th>
+      <th>Usage principal</th>
+    </tr>
+    <tr>
+      <td>Étudiants</td>
+      <td>35 000+</td>
+      <td>Consultation notes, emplois du temps, paiements</td>
+    </tr>
+    <tr>
+      <td>Enseignants</td>
+      <td>2 500+</td>
+      <td>Saisie notes, gestion présences, communication</td>
+    </tr>
+    <tr>
+      <td>Personnel administratif</td>
+      <td>1 500+</td>
+      <td>Gestion dossiers, inscriptions, finances</td>
+    </tr>
+    <tr>
+      <td>Direction</td>
+      <td>100+</td>
+      <td>Supervision, rapports, décisions</td>
+    </tr>
+  </table>
+</div>
+
+<!-- OBJECTIFS -->
+<div class="page content-page">
+  <h1>2. Objectifs du Projet</h1>
+  
+  <h2>2.1 Objectif Général</h2>
+  <p>Déployer une infrastructure numérique complète permettant la gestion intégrée et efficace de l'ensemble des opérations de l'Université de Kinshasa.</p>
+  
+  <h2>2.2 Objectifs Spécifiques</h2>
+  
+  <h3>A. Gestion Académique</h3>
+  <ul>
+    <li>Centraliser la gestion des inscriptions et dossiers étudiants</li>
+    <li>Automatiser le traitement des notes et délibérations</li>
+    <li>Numériser les emplois du temps et la gestion des présences</li>
+    <li>Faciliter la communication entre enseignants et étudiants</li>
+  </ul>
+  
+  <h3>B. Gestion Administrative</h3>
+  <ul>
+    <li>Dématérialiser les processus de demande de documents</li>
+    <li>Centraliser les informations des facultés et départements</li>
+    <li>Automatiser la génération des rapports et statistiques</li>
+    <li>Optimiser le flux de travail du personnel administratif</li>
+  </ul>
+  
+  <h3>C. Gestion Financière</h3>
+  <ul>
+    <li>Suivre en temps réel les paiements des frais académiques</li>
+    <li>Générer automatiquement les reçus et attestations de paiement</li>
+    <li>Produire des rapports financiers détaillés et consolidés</li>
+    <li>Connecter les modules de suivi et gestion des finances déjà existants</li>
+  </ul>
+  
+  <h3>D. Communication</h3>
+  <ul>
+    <li>Établir un système de messagerie interne sécurisé</li>
+    <li>Diffuser les annonces officielles de manière ciblée</li>
+    <li>Envoyer des notifications automatiques aux utilisateurs</li>
+    <li>Assurer la traçabilité des communications</li>
+  </ul>
+  
+  <div class="highlight-box">
+    <strong>Indicateurs de succès</strong><br>
+    - 100% des facultés connectées à la plateforme<br>
+    - 80% des étudiants inscrits et actifs sur la plateforme<br>
+    - 90% des enseignants formés à l'utilisation<br>
+    - Réduction de 50% du temps de traitement des documents
+  </div>
+</div>
+
+<!-- MODULES -->
+<div class="page content-page">
+  <h1>3. Modules de la Plateforme</h1>
+  
+  <h2>3.1 Module Administratif</h2>
+  <table>
+    <tr>
+      <th>Fonctionnalité</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>Gestion des utilisateurs</td>
+      <td>Création, modification et désactivation des comptes utilisateurs</td>
+    </tr>
+    <tr>
+      <td>Gestion des rôles</td>
+      <td>Attribution des permissions selon les profils (admin, enseignant, étudiant)</td>
+    </tr>
+    <tr>
+      <td>Tableau de bord</td>
+      <td>Vue synthétique des indicateurs clés de l'institution</td>
+    </tr>
+    <tr>
+      <td>Annonces</td>
+      <td>Publication et diffusion des communications officielles</td>
+    </tr>
+    <tr>
+      <td>Sécurité</td>
+      <td>Gestion des accès, journalisation des actions, protection des données</td>
+    </tr>
+  </table>
+  
+  <h2>3.2 Module Académique</h2>
+  <table>
+    <tr>
+      <th>Fonctionnalité</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>Gestion des facultés</td>
+      <td>Organisation hiérarchique : facultés, départements, promotions</td>
+    </tr>
+    <tr>
+      <td>Gestion des cours</td>
+      <td>Catalogue des enseignements, affectation aux enseignants</td>
+    </tr>
+    <tr>
+      <td>Gestion des notes</td>
+      <td>Saisie TP/TD/Examens, calcul automatique des moyennes</td>
+    </tr>
+    <tr>
+      <td>Délibérations</td>
+      <td>Processus de validation des résultats académiques</td>
+    </tr>
+    <tr>
+      <td>Statistiques</td>
+      <td>Taux de réussite, moyennes, indicateurs de performance</td>
+    </tr>
+  </table>
+  
+  <h2>3.3 Module Enseignant</h2>
+  <table>
+    <tr>
+      <th>Fonctionnalité</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>Emploi du temps</td>
+      <td>Visualisation des cours programmés</td>
+    </tr>
+    <tr>
+      <td>Gestion des présences</td>
+      <td>Appel numérique avec code de présence</td>
+    </tr>
+    <tr>
+      <td>Saisie des cotes</td>
+      <td>Interface de saisie manuelle ou import Excel/CSV</td>
+    </tr>
+    <tr>
+      <td>Liste des étudiants</td>
+      <td>Accès aux informations des étudiants inscrits</td>
+    </tr>
+    <tr>
+      <td>Ressources pédagogiques</td>
+      <td>Partage de documents et supports de cours</td>
+    </tr>
+  </table>
+</div>
+
+<!-- MODULES SUITE -->
+<div class="page content-page">
+  <h2>3.4 Module Étudiant</h2>
+  <table>
+    <tr>
+      <th>Fonctionnalité</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>Consultation des notes</td>
+      <td>Accès aux résultats des évaluations et examens</td>
+    </tr>
+    <tr>
+      <td>Emploi du temps</td>
+      <td>Planning des cours personnalisé</td>
+    </tr>
+    <tr>
+      <td>Situation financière</td>
+      <td>Suivi des paiements effectués et solde restant</td>
+    </tr>
+    <tr>
+      <td>Demande de documents</td>
+      <td>Attestations, relevés de notes, certificats</td>
+    </tr>
+    <tr>
+      <td>Notifications</td>
+      <td>Alertes pour notes, paiements, annonces</td>
+    </tr>
+  </table>
+  
+  <h2>3.5 Module Financier</h2>
+  <table>
+    <tr>
+      <th>Fonctionnalité</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>Enregistrement des paiements</td>
+      <td>Saisie des paiements par multiple modes</td>
+    </tr>
+    <tr>
+      <td>Génération de reçus</td>
+      <td>Reçus automatiques avec QR code de vérification</td>
+    </tr>
+    <tr>
+      <td>Suivi des soldes</td>
+      <td>État des paiements par étudiant et par promotion</td>
+    </tr>
+    <tr>
+      <td>Rapports financiers</td>
+      <td>Synthèses journalières, mensuelles, annuelles</td>
+    </tr>
+    <tr>
+      <td>Connexion modules finances</td>
+      <td>Intégration avec les systèmes de gestion financière existants</td>
+    </tr>
+  </table>
+  
+  <h2>3.6 Module Employé</h2>
+  <table>
+    <tr>
+      <th>Fonctionnalité</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>Gestion des tâches</td>
+      <td>Attribution et suivi des tâches administratives</td>
+    </tr>
+    <tr>
+      <td>Traitement documents</td>
+      <td>Workflow de validation des demandes</td>
+    </tr>
+    <tr>
+      <td>Recherche étudiants</td>
+      <td>Accès aux dossiers pour traitement</td>
+    </tr>
+    <tr>
+      <td>Statistiques</td>
+      <td>Indicateurs de productivité et d'activité</td>
+    </tr>
+  </table>
+</div>
+
+<!-- PHASES DU PROJET -->
+<div class="page content-page">
+  <h1>4. Phases du Projet</h1>
+  
+  <p>Le projet NEXUS UNIKIN est structuré en quatre phases distinctes, chacune avec des objectifs et livrables spécifiques.</p>
+  
+  <div class="phase-box">
+    <div class="phase-title">PHASE 1 : Déploiement et Lancement</div>
+    <div class="phase-duration">Semaine 1 : 30 janvier - 5 février 2026</div>
+  </div>
+  
+  <table>
+    <tr>
+      <th>Tâche</th>
+      <th>Description</th>
+      <th>Livrable</th>
+    </tr>
+    <tr>
+      <td>1.1 Configuration environnement</td>
+      <td>Préparation des serveurs de production</td>
+      <td>Serveurs configurés</td>
+    </tr>
+    <tr>
+      <td>1.2 Déploiement plateforme</td>
+      <td>Mise en ligne de l'application</td>
+      <td>Plateforme accessible</td>
+    </tr>
+    <tr>
+      <td>1.3 Configuration domaine</td>
+      <td>DNS, SSL, sous-domaine</td>
+      <td>URL sécurisée active</td>
+    </tr>
+    <tr>
+      <td>1.4 Tests de charge</td>
+      <td>Vérification de la capacité</td>
+      <td>Rapport de tests</td>
+    </tr>
+    <tr>
+      <td>1.5 Lancement officiel</td>
+      <td>Ouverture au public</td>
+      <td>Plateforme opérationnelle</td>
+    </tr>
+  </table>
+  
+  <div class="phase-box">
+    <div class="phase-title">PHASE 2 : Encodage et Formation Opérateurs</div>
+    <div class="phase-duration">Semaines 2-5 : 6 février - 5 mars 2026</div>
+  </div>
+  
+  <table>
+    <tr>
+      <th>Tâche</th>
+      <th>Description</th>
+      <th>Livrable</th>
+    </tr>
+    <tr>
+      <td>2.1 Sélection opérateurs</td>
+      <td>Identification et recrutement du personnel</td>
+      <td>Équipe constituée</td>
+    </tr>
+    <tr>
+      <td>2.2 Formation opérateurs</td>
+      <td>Sessions de formation intensive</td>
+      <td>Personnel formé</td>
+    </tr>
+    <tr>
+      <td>2.3 Encodage enseignants</td>
+      <td>Saisie des données du corps enseignant</td>
+      <td>Base enseignants complète</td>
+    </tr>
+    <tr>
+      <td>2.4 Encodage étudiants</td>
+      <td>Saisie par faculté et promotion</td>
+      <td>Base étudiants progressive</td>
+    </tr>
+    <tr>
+      <td>2.5 Distribution identifiants</td>
+      <td>Création et envoi des comptes</td>
+      <td>Utilisateurs actifs</td>
+    </tr>
+  </table>
+</div>
+
+<!-- PHASES SUITE -->
+<div class="page content-page">
+  <div class="phase-box">
+    <div class="phase-title">PHASE 3 : Sensibilisation et Déploiement Terrain</div>
+    <div class="phase-duration">Semaines 6-9 : 6 mars - 2 avril 2026</div>
+  </div>
+  
+  <table>
+    <tr>
+      <th>Tâche</th>
+      <th>Description</th>
+      <th>Livrable</th>
+    </tr>
+    <tr>
+      <td>3.1 Campagne communication</td>
+      <td>Affiches, dépliants, réseaux sociaux</td>
+      <td>Supports diffusés</td>
+    </tr>
+    <tr>
+      <td>3.2 Formation enseignants</td>
+      <td>Sessions par faculté</td>
+      <td>Enseignants formés</td>
+    </tr>
+    <tr>
+      <td>3.3 Formation étudiants</td>
+      <td>Démonstrations aux promotions</td>
+      <td>Étudiants initiés</td>
+    </tr>
+    <tr>
+      <td>3.4 Stands d'information</td>
+      <td>Présence dans les facultés</td>
+      <td>Rapports de présence</td>
+    </tr>
+    <tr>
+      <td>3.5 Encodage continu</td>
+      <td>Nouvelles inscriptions</td>
+      <td>Base mise à jour</td>
+    </tr>
+  </table>
+  
+  <div class="phase-box">
+    <div class="phase-title">PHASE 4 : Stabilisation et Clôture</div>
+    <div class="phase-duration">Semaines 10-12 : 3 - 30 avril 2026</div>
+  </div>
+  
+  <table>
+    <tr>
+      <th>Tâche</th>
+      <th>Description</th>
+      <th>Livrable</th>
+    </tr>
+    <tr>
+      <td>4.1 Monitoring continu</td>
+      <td>Surveillance des performances</td>
+      <td>Tableaux de bord</td>
+    </tr>
+    <tr>
+      <td>4.2 Corrections anomalies</td>
+      <td>Résolution des bugs signalés</td>
+      <td>Plateforme stable</td>
+    </tr>
+    <tr>
+      <td>4.3 Finalisation encodage</td>
+      <td>Complétion des données</td>
+      <td>Base complète</td>
+    </tr>
+    <tr>
+      <td>4.4 Transfert compétences</td>
+      <td>Documentation et formation finale</td>
+      <td>Documentation complète</td>
+    </tr>
+    <tr>
+      <td>4.5 Clôture projet</td>
+      <td>Validation et réception</td>
+      <td>PV de réception</td>
+    </tr>
+  </table>
+  
+  <h2>Calendrier Synthétique</h2>
+  
+  <div style="margin: 20px 0;">
+    <div class="gantt-bar">
+      <div class="gantt-label">Phase 1 - Deploiement</div>
+      <div class="gantt-track">
+        <div class="gantt-fill" style="width: 8%; left: 0; background: #2c5282;"></div>
+      </div>
+    </div>
+    <div class="gantt-bar">
+      <div class="gantt-label">Phase 2 - Encodage</div>
+      <div class="gantt-track">
+        <div class="gantt-fill" style="width: 33%; left: 8%; background: #38a169;"></div>
+      </div>
+    </div>
+    <div class="gantt-bar">
+      <div class="gantt-label">Phase 3 - Sensibilisation</div>
+      <div class="gantt-track">
+        <div class="gantt-fill" style="width: 33%; left: 42%; background: #d69e2e;"></div>
+      </div>
+    </div>
+    <div class="gantt-bar">
+      <div class="gantt-label">Phase 4 - Stabilisation</div>
+      <div class="gantt-track">
+        <div class="gantt-fill" style="width: 25%; left: 75%; background: #e53e3e;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDRIER DETAILLE -->
+<div class="page content-page">
+  <h1>5. Calendrier Detaille</h1>
+  
+  <h2>Vue d'ensemble par semaine</h2>
+  
+  <table>
+    <tr>
+      <th>Semaine</th>
+      <th>Dates</th>
+      <th>Phase</th>
+      <th>Objectif principal</th>
+    </tr>
+    <tr>
+      <td>Semaine 1</td>
+      <td>30 jan - 5 fev</td>
+      <td>Phase 1</td>
+      <td>Deploiement et lancement officiel</td>
+    </tr>
+    <tr>
+      <td>Semaine 2</td>
+      <td>6 - 12 fev</td>
+      <td>Phase 2</td>
+      <td>Selection et formation operateurs</td>
+    </tr>
+    <tr>
+      <td>Semaine 3</td>
+      <td>13 - 19 fev</td>
+      <td>Phase 2</td>
+      <td>Encodage Faculte 1 et 2</td>
+    </tr>
+    <tr>
+      <td>Semaine 4</td>
+      <td>20 - 26 fev</td>
+      <td>Phase 2</td>
+      <td>Encodage Faculte 3 et 4</td>
+    </tr>
+    <tr>
+      <td>Semaine 5</td>
+      <td>27 fev - 5 mar</td>
+      <td>Phase 2</td>
+      <td>Encodage Faculte 5 et 6</td>
+    </tr>
+    <tr>
+      <td>Semaine 6</td>
+      <td>6 - 12 mar</td>
+      <td>Phase 3</td>
+      <td>Lancement campagne sensibilisation</td>
+    </tr>
+    <tr>
+      <td>Semaine 7</td>
+      <td>13 - 19 mar</td>
+      <td>Phase 3</td>
+      <td>Formation enseignants (groupe 1)</td>
+    </tr>
+    <tr>
+      <td>Semaine 8</td>
+      <td>20 - 26 mar</td>
+      <td>Phase 3</td>
+      <td>Formation enseignants (groupe 2)</td>
+    </tr>
+    <tr>
+      <td>Semaine 9</td>
+      <td>27 mar - 2 avr</td>
+      <td>Phase 3</td>
+      <td>Formation etudiants et stands</td>
+    </tr>
+    <tr>
+      <td>Semaine 10</td>
+      <td>3 - 9 avr</td>
+      <td>Phase 4</td>
+      <td>Monitoring et corrections</td>
+    </tr>
+    <tr>
+      <td>Semaine 11</td>
+      <td>10 - 16 avr</td>
+      <td>Phase 4</td>
+      <td>Transfert de competences</td>
+    </tr>
+    <tr>
+      <td>Semaine 12</td>
+      <td>17 - 30 avr</td>
+      <td>Phase 4</td>
+      <td>Cloture et reception definitive</td>
+    </tr>
+  </table>
+  
+  <h2>Jalons Cles</h2>
+  
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Jalon</th>
+      <th>Critere de validation</th>
+    </tr>
+    <tr>
+      <td>30 janvier 2026</td>
+      <td>Lancement officiel</td>
+      <td>Plateforme accessible au public</td>
+    </tr>
+    <tr>
+      <td>5 mars 2026</td>
+      <td>Fin encodage initial</td>
+      <td>80% des utilisateurs encodes</td>
+    </tr>
+    <tr>
+      <td>2 avril 2026</td>
+      <td>Fin sensibilisation</td>
+      <td>Toutes les facultes couvertes</td>
+    </tr>
+    <tr>
+      <td>30 avril 2026</td>
+      <td>Reception definitive</td>
+      <td>PV de reception signe</td>
+    </tr>
+  </table>
+</div>
+
+<!-- TACHES PAR SEMAINE -->
+<div class="page content-page">
+  <h1>6. Tâches par Semaine</h1>
+  
+  <h2>Semaine 1 : Déploiement (30 jan - 5 fév)</h2>
+  
+  <table>
+    <tr>
+      <th>Jour</th>
+      <th>Tâche</th>
+      <th>Scope de travail</th>
+      <th>Responsable</th>
+    </tr>
+    <tr>
+      <td>Jeudi 30</td>
+      <td>Vérification finale de la plateforme</td>
+      <td>Tests fonctionnels complets de tous les modules, vérification des formulaires, validation des workflows, contrôle des permissions utilisateurs</td>
+      <td>Équipe technique</td>
+    </tr>
+    <tr>
+      <td>Jeudi 30</td>
+      <td>Configuration serveurs de production</td>
+      <td>Installation Node.js, PostgreSQL, configuration Nginx, paramétrage des variables d'environnement, allocation mémoire et CPU</td>
+      <td>Équipe technique</td>
+    </tr>
+    <tr>
+      <td>Vendredi 31</td>
+      <td>Déploiement de l'application</td>
+      <td>Transfert du code source, installation des dépendances npm, build de production, migration de la base de données, configuration des sauvegardes automatiques</td>
+      <td>Équipe technique</td>
+    </tr>
+    <tr>
+      <td>Samedi 1</td>
+      <td>Configuration DNS et SSL</td>
+      <td>Enregistrement du domaine nexus.unikin.ac.cd, configuration des enregistrements A et CNAME, installation certificat SSL Let's Encrypt, redirection HTTP vers HTTPS</td>
+      <td>Équipe technique</td>
+    </tr>
+    <tr>
+      <td>Lundi 3</td>
+      <td>Tests de charge et sécurité</td>
+      <td>Simulation de 1000 utilisateurs simultanés, tests de pénétration, vérification injection SQL/XSS, audit des endpoints API, test de récupération après panne</td>
+      <td>Équipe technique</td>
+    </tr>
+    <tr>
+      <td>Mardi 4</td>
+      <td>Corrections bugs critiques</td>
+      <td>Résolution des problèmes identifiés lors des tests, optimisation des requêtes lentes, correction des erreurs d'affichage, mise à jour de la documentation</td>
+      <td>Équipe technique</td>
+    </tr>
+    <tr>
+      <td>Mercredi 5</td>
+      <td>Lancement officiel</td>
+      <td>Cérémonie de présentation aux autorités, démonstration live des fonctionnalités, création des comptes administrateurs UNIKIN, remise des accès</td>
+      <td>Direction + Équipe</td>
+    </tr>
+  </table>
+</div>
+
+<!-- SEMAINE 2 -->
+<div class="page content-page">
+  <h2>Semaine 2 : Formation Opérateurs (6 - 12 fév)</h2>
+  
+  <table>
+    <tr>
+      <th>Jour</th>
+      <th>Tâche</th>
+      <th>Scope de travail</th>
+      <th>Responsable</th>
+    </tr>
+    <tr>
+      <td>Jeudi 6</td>
+      <td>Sélection des opérateurs</td>
+      <td>Identification de 15-20 agents par faculté, vérification des compétences informatiques de base, signature des engagements de confidentialité, attribution des rôles</td>
+      <td>Chef de projet</td>
+    </tr>
+    <tr>
+      <td>Vendredi 7</td>
+      <td>Préparation supports de formation</td>
+      <td>Création des manuels utilisateurs PDF, préparation des présentations PowerPoint, configuration de l'environnement de test, préparation des exercices pratiques</td>
+      <td>Équipe technique</td>
+    </tr>
+    <tr>
+      <td>Lundi 10</td>
+      <td>Formation Module Administration</td>
+      <td>Gestion des utilisateurs (création, modification, désactivation), attribution des rôles et permissions, publication des annonces, consultation des logs système</td>
+      <td>Formateur</td>
+    </tr>
+    <tr>
+      <td>Mardi 11</td>
+      <td>Formation Module Académique</td>
+      <td>Encodage des facultés/départements/promotions, gestion des cours et affectations, saisie des cotes (manuelle et import Excel), processus de délibération</td>
+      <td>Formateur</td>
+    </tr>
+    <tr>
+      <td>Mercredi 12</td>
+      <td>Formation Module Financier</td>
+      <td>Enregistrement des paiements, génération des reçus avec QR code, suivi des soldes étudiants, génération des rapports financiers journaliers/mensuels</td>
+      <td>Formateur</td>
+    </tr>
+  </table>
+  
+  <h2>Semaine 3 : Encodage Facultés 1-2 (13 - 19 fév)</h2>
+  
+  <table>
+    <tr>
+      <th>Jour</th>
+      <th>Tâche</th>
+      <th>Scope de travail</th>
+      <th>Volume</th>
+    </tr>
+    <tr>
+      <td>Jeudi 13</td>
+      <td>Encodage Faculté de Droit - Enseignants</td>
+      <td>Saisie des informations personnelles (nom, prénom, matricule), affectation aux départements, attribution des cours, génération des identifiants de connexion</td>
+      <td>150 enseignants</td>
+    </tr>
+    <tr>
+      <td>Vendredi 14</td>
+      <td>Encodage Faculté de Droit - Étudiants</td>
+      <td>Import des listes Excel par promotion, vérification des doublons, attribution des numéros matricules, affectation aux promotions et options, création des comptes</td>
+      <td>3000 étudiants</td>
+    </tr>
+    <tr>
+      <td>Lundi 17</td>
+      <td>Encodage Faculté de Médecine - Enseignants</td>
+      <td>Saisie des informations personnelles, spécialités médicales, affectation aux services hospitaliers et départements, attribution des cours théoriques et pratiques</td>
+      <td>200 enseignants</td>
+    </tr>
+    <tr>
+      <td>Mardi 18</td>
+      <td>Encodage Faculté de Médecine - Étudiants</td>
+      <td>Import des listes par année d'étude, vérification des prérequis académiques, affectation aux groupes de stage, création des comptes avec accès spécifiques</td>
+      <td>2500 étudiants</td>
+    </tr>
+    <tr>
+      <td>Mercredi 19</td>
+      <td>Vérification et corrections</td>
+      <td>Contrôle qualité des données saisies, correction des erreurs de frappe, vérification des affectations, test de connexion d'un échantillon d'utilisateurs</td>
+      <td>Qualité données</td>
+    </tr>
+  </table>
+</div>
+
+<!-- TACHES PAR SEMAINE SUITE -->
+<div class="page content-page">
+  <h2>Semaine 4 : Encodage Facultés 3-4 (20 - 26 fév)</h2>
+  
+  <table>
+    <tr>
+      <th>Jour</th>
+      <th>Tâche</th>
+      <th>Scope de travail</th>
+      <th>Volume</th>
+    </tr>
+    <tr>
+      <td>Jeudi 20</td>
+      <td>Encodage Faculté Sciences - Enseignants</td>
+      <td>Saisie des profils enseignants, spécialités scientifiques (Math, Physique, Chimie, Biologie), affectation aux laboratoires et départements</td>
+      <td>180 enseignants</td>
+    </tr>
+    <tr>
+      <td>Vendredi 21</td>
+      <td>Encodage Faculté Sciences - Étudiants</td>
+      <td>Import par filière scientifique, vérification des orientations, affectation aux groupes de TP, génération des accès aux ressources laboratoires</td>
+      <td>2800 étudiants</td>
+    </tr>
+    <tr>
+      <td>Lundi 24</td>
+      <td>Encodage Faculté Lettres - Enseignants</td>
+      <td>Saisie des profils, spécialités littéraires et linguistiques, affectation aux sections (Français, Anglais, Histoire, Philosophie)</td>
+      <td>160 enseignants</td>
+    </tr>
+    <tr>
+      <td>Mardi 25</td>
+      <td>Encodage Faculté Lettres - Étudiants</td>
+      <td>Import des listes par département, vérification des options choisies, affectation aux groupes de TD, configuration des accès bibliothèque numérique</td>
+      <td>2200 étudiants</td>
+    </tr>
+    <tr>
+      <td>Mercredi 26</td>
+      <td>Vérification et corrections</td>
+      <td>Audit qualité des 4 facultés encodées, correction des anomalies, génération du rapport d'avancement, préparation de la semaine suivante</td>
+      <td>Qualité données</td>
+    </tr>
+  </table>
+</div>
+
+<!-- SEMAINE 5 -->
+<div class="page content-page">
+  <h2>Semaine 5 : Encodage Facultés 5-6 (27 fév - 5 mar)</h2>
+  
+  <table>
+    <tr>
+      <th>Jour</th>
+      <th>Tâche</th>
+      <th>Scope de travail</th>
+      <th>Volume</th>
+    </tr>
+    <tr>
+      <td>Jeudi 27</td>
+      <td>Encodage Polytechnique - Enseignants</td>
+      <td>Saisie des profils ingénieurs, spécialités techniques (Génie Civil, Électrique, Mécanique, Informatique), liens avec les entreprises partenaires</td>
+      <td>140 enseignants</td>
+    </tr>
+    <tr>
+      <td>Vendredi 28</td>
+      <td>Encodage Polytechnique - Étudiants</td>
+      <td>Import par filière d'ingénierie, affectation aux ateliers et laboratoires, configuration des accès aux équipements, planification des stages</td>
+      <td>1800 étudiants</td>
+    </tr>
+    <tr>
+      <td>Lundi 3</td>
+      <td>Encodage Économie - Enseignants</td>
+      <td>Saisie des profils économistes et gestionnaires, spécialités (Gestion, Comptabilité, Marketing, Finance), expériences professionnelles</td>
+      <td>170 enseignants</td>
+    </tr>
+    <tr>
+      <td>Mardi 4</td>
+      <td>Encodage Économie - Étudiants</td>
+      <td>Import massif par promotion (plus grande faculté), vérification des parcours, affectation aux options de spécialisation, accès aux cas pratiques</td>
+      <td>3500 étudiants</td>
+    </tr>
+    <tr>
+      <td>Mercredi 5</td>
+      <td>Distribution identifiants</td>
+      <td>Génération des courriers avec login/mot de passe, impression des fiches individuelles, organisation de la distribution par faculté, activation des comptes</td>
+      <td>Tous utilisateurs</td>
+    </tr>
+  </table>
+  
+  <h2>Semaine 6 : Campagne Sensibilisation (6 - 12 mar)</h2>
+  
+  <table>
+    <tr>
+      <th>Jour</th>
+      <th>Tâche</th>
+      <th>Scope de travail</th>
+      <th>Livrable</th>
+    </tr>
+    <tr>
+      <td>Jeudi 6</td>
+      <td>Conception supports communication</td>
+      <td>Design des affiches A3, création des dépliants explicatifs, rédaction des messages clés, traduction en langues locales si nécessaire</td>
+      <td>Affiches, dépliants</td>
+    </tr>
+    <tr>
+      <td>Vendredi 7</td>
+      <td>Impression et distribution</td>
+      <td>Impression en masse chez l'imprimeur, contrôle qualité, répartition par faculté, livraison aux points de distribution stratégiques</td>
+      <td>1000 affiches</td>
+    </tr>
+    <tr>
+      <td>Lundi 10</td>
+      <td>Installation stands Faculté 1-2</td>
+      <td>Montage des stands avec bannières NEXUS, installation des ordinateurs de démo, formation des animateurs, début des inscriptions assistées</td>
+      <td>2 stands actifs</td>
+    </tr>
+    <tr>
+      <td>Mardi 11</td>
+      <td>Installation stands Faculté 3-4</td>
+      <td>Déploiement dans les halls des facultés Sciences et Lettres, sessions de démonstration aux heures de pointe, distribution des guides</td>
+      <td>2 stands actifs</td>
+    </tr>
+    <tr>
+      <td>Mercredi 12</td>
+      <td>Installation stands Faculté 5-6</td>
+      <td>Couverture complète du campus, coordination avec les délégués étudiants, collecte des premiers retours utilisateurs, ajustements</td>
+      <td>2 stands actifs</td>
+    </tr>
+  </table>
+</div>
+  
+  <h2>Semaines 7-8 : Formation Enseignants (13 - 26 mar)</h2>
+  
+  <table>
+    <tr>
+      <th>Période</th>
+      <th>Activité</th>
+      <th>Scope de travail</th>
+      <th>Public cible</th>
+    </tr>
+    <tr>
+      <td>13-14 mar</td>
+      <td>Formation Droit + Médecine</td>
+      <td>Prise en main de l'interface enseignant, saisie des cotes (TP 30% + Examen 70%), import Excel des résultats, gestion des présences avec code QR, consultation des statistiques</td>
+      <td>350 enseignants</td>
+    </tr>
+    <tr>
+      <td>17-18 mar</td>
+      <td>Formation Sciences + Lettres</td>
+      <td>Navigation dans le tableau de bord, gestion des groupes de TP/TD, partage de ressources pédagogiques, communication avec les étudiants via messagerie intégrée</td>
+      <td>340 enseignants</td>
+    </tr>
+    <tr>
+      <td>20-21 mar</td>
+      <td>Formation Polytechnique + Économie</td>
+      <td>Fonctionnalités avancées : export des données, génération des PV de délibération, suivi de la progression des étudiants, paramétrage des évaluations</td>
+      <td>310 enseignants</td>
+    </tr>
+    <tr>
+      <td>24-26 mar</td>
+      <td>Sessions de rattrapage</td>
+      <td>Reprise pour les absents, approfondissement sur demande, résolution des problèmes rencontrés, certification des compétences acquises, remise des attestations</td>
+      <td>Absents + Questions</td>
+    </tr>
+  </table>
+</div>
+
+<!-- TACHES PAR SEMAINE FIN -->
+<div class="page content-page">
+  <h2>Semaine 9 : Formation Étudiants (27 mar - 2 avr)</h2>
+  
+  <table>
+    <tr>
+      <th>Jour</th>
+      <th>Activité</th>
+      <th>Scope de travail</th>
+      <th>Public cible</th>
+    </tr>
+    <tr>
+      <td>Jeudi 27</td>
+      <td>Démonstration délégués Droit + Médecine</td>
+      <td>Formation des représentants étudiants : connexion au compte, consultation des cotes, suivi de la situation financière, demande de documents en ligne, notifications</td>
+      <td>60 délégués</td>
+    </tr>
+    <tr>
+      <td>Vendredi 28</td>
+      <td>Démonstration délégués Sciences + Lettres</td>
+      <td>Idem avec focus sur l'emploi du temps interactif, accès aux ressources de cours, inscription aux évaluations, consultation des annonces de la faculté</td>
+      <td>50 délégués</td>
+    </tr>
+    <tr>
+      <td>Lundi 31</td>
+      <td>Démonstration délégués Polytech + Éco</td>
+      <td>Session complète avec exercices pratiques, simulation de demande d'attestation, vérification de paiement, utilisation du chatbot d'assistance</td>
+      <td>55 délégués</td>
+    </tr>
+    <tr>
+      <td>Mardi 1</td>
+      <td>Sessions questions/réponses</td>
+      <td>Permanences dans chaque faculté, réponses aux problèmes de connexion, réinitialisation des mots de passe oubliés, collecte des suggestions d'amélioration</td>
+      <td>Tous intéressés</td>
+    </tr>
+    <tr>
+      <td>Mercredi 2</td>
+      <td>Clôture campagne terrain</td>
+      <td>Démontage des stands, bilan des inscriptions activées, rapport de sensibilisation, identification des utilisateurs non-activés pour relance, archivage supports</td>
+      <td>Bilan activités</td>
+    </tr>
+  </table>
+  
+  <h2>Semaines 10-11 : Stabilisation (3 - 16 avr)</h2>
+  
+  <table>
+    <tr>
+      <th>Période</th>
+      <th>Activité</th>
+      <th>Scope de travail</th>
+      <th>Objectif</th>
+    </tr>
+    <tr>
+      <td>3-5 avr</td>
+      <td>Analyse des retours utilisateurs</td>
+      <td>Compilation des tickets de support, catégorisation des problèmes (bug, ergonomie, fonctionnalité), priorisation selon l'impact, planification des corrections</td>
+      <td>Liste des bugs et améliorations</td>
+    </tr>
+    <tr>
+      <td>7-9 avr</td>
+      <td>Corrections prioritaires</td>
+      <td>Développement des correctifs pour bugs bloquants, tests unitaires, déploiement en production, vérification post-déploiement, communication aux utilisateurs</td>
+      <td>Bugs critiques résolus</td>
+    </tr>
+    <tr>
+      <td>10-11 avr</td>
+      <td>Optimisation performances</td>
+      <td>Analyse des requêtes lentes, optimisation des index de base de données, mise en cache des données fréquentes, compression des assets, CDN pour fichiers statiques</td>
+      <td>Temps de réponse amélioré</td>
+    </tr>
+    <tr>
+      <td>14-16 avr</td>
+      <td>Documentation finale</td>
+      <td>Rédaction des guides utilisateurs définitifs, création des vidéos tutoriels, mise à jour de la FAQ, documentation technique pour l'équipe UNIKIN</td>
+      <td>Guides utilisateurs complets</td>
+    </tr>
+  </table>
+  
+  <h2>Semaine 12 : Clôture (17 - 30 avr)</h2>
+  
+  <table>
+    <tr>
+      <th>Jour</th>
+      <th>Activité</th>
+      <th>Scope de travail</th>
+      <th>Livrable</th>
+    </tr>
+    <tr>
+      <td>17-18 avr</td>
+      <td>Transfert de compétences final</td>
+      <td>Formation approfondie de l'équipe IT UNIKIN : administration système, gestion de la base de données, procédures de sauvegarde/restauration, monitoring</td>
+      <td>Équipe UNIKIN autonome</td>
+    </tr>
+    <tr>
+      <td>21-23 avr</td>
+      <td>Tests de recette</td>
+      <td>Vérification de toutes les fonctionnalités selon le cahier des charges, tests par les utilisateurs finaux, validation des cas d'usage critiques, checklist complète</td>
+      <td>Rapport de conformité</td>
+    </tr>
+    <tr>
+      <td>24-25 avr</td>
+      <td>Corrections finales</td>
+      <td>Résolution des derniers points de non-conformité, ajustements mineurs demandés, vérification finale, gel du code pour livraison</td>
+      <td>Plateforme validée</td>
+    </tr>
+    <tr>
+      <td>28 avr</td>
+      <td>Préparation PV de réception</td>
+      <td>Rédaction du procès-verbal de réception définitive, annexes (liste des livrables, attestations de formation, rapports de tests), préparation de la cérémonie</td>
+      <td>Document officiel</td>
+    </tr>
+    <tr>
+      <td>30 avr</td>
+      <td>Signature réception définitive</td>
+      <td>Cérémonie officielle avec les autorités, signature du PV par les deux parties, remise des codes sources et documentation, début de la période de garantie</td>
+      <td>Projet clôturé</td>
+    </tr>
+  </table>
+</div>
+
+<!-- LIVRABLES -->
+<div class="page content-page">
+  <h1>7. Livrables Attendus</h1>
+  
+  <h2>7.1 Livrables Techniques</h2>
+  
+  <table>
+    <tr>
+      <th>Livrable</th>
+      <th>Description</th>
+      <th>Date</th>
+    </tr>
+    <tr>
+      <td>Plateforme déployée</td>
+      <td>Application web accessible via URL sécurisée</td>
+      <td>5 fév 2026</td>
+    </tr>
+    <tr>
+      <td>Base de données</td>
+      <td>Structure complète avec données initiales</td>
+      <td>5 mar 2026</td>
+    </tr>
+    <tr>
+      <td>Documentation technique</td>
+      <td>Architecture, API, procédures de maintenance</td>
+      <td>16 avr 2026</td>
+    </tr>
+    <tr>
+      <td>Code source</td>
+      <td>Repository avec historique complet</td>
+      <td>30 avr 2026</td>
+    </tr>
+    <tr>
+      <td>Sauvegardes</td>
+      <td>Système de backup automatisé</td>
+      <td>5 fév 2026</td>
+    </tr>
+  </table>
+  
+  <h2>7.2 Livrables Formation</h2>
+  
+  <table>
+    <tr>
+      <th>Livrable</th>
+      <th>Description</th>
+      <th>Date</th>
+    </tr>
+    <tr>
+      <td>Guide administrateur</td>
+      <td>Manuel de gestion de la plateforme</td>
+      <td>12 fév 2026</td>
+    </tr>
+    <tr>
+      <td>Guide enseignant</td>
+      <td>Tutoriel saisie cotes et présences</td>
+      <td>26 mar 2026</td>
+    </tr>
+    <tr>
+      <td>Guide étudiant</td>
+      <td>Manuel de consultation et demandes</td>
+      <td>2 avr 2026</td>
+    </tr>
+    <tr>
+      <td>Vidéos tutorielles</td>
+      <td>Démonstrations des fonctionnalités clés</td>
+      <td>16 avr 2026</td>
+    </tr>
+    <tr>
+      <td>FAQ</td>
+      <td>Réponses aux questions fréquentes</td>
+      <td>16 avr 2026</td>
+    </tr>
+  </table>
+  
+  <h2>7.3 Livrables Administratifs</h2>
+  
+  <table>
+    <tr>
+      <th>Livrable</th>
+      <th>Description</th>
+      <th>Date</th>
+    </tr>
+    <tr>
+      <td>Rapport d'avancement</td>
+      <td>Rapport hebdomadaire de progrès</td>
+      <td>Hebdomadaire</td>
+    </tr>
+    <tr>
+      <td>Rapport d'encodage</td>
+      <td>Statistiques des utilisateurs encodés</td>
+      <td>5 mar 2026</td>
+    </tr>
+    <tr>
+      <td>Rapport de formation</td>
+      <td>Bilan des sessions de formation</td>
+      <td>2 avr 2026</td>
+    </tr>
+    <tr>
+      <td>PV de réception provisoire</td>
+      <td>Validation Phase 3</td>
+      <td>2 avr 2026</td>
+    </tr>
+    <tr>
+      <td>PV de réception définitive</td>
+      <td>Clôture officielle du projet</td>
+      <td>30 avr 2026</td>
+    </tr>
+  </table>
+</div>
+
+<!-- RESSOURCES -->
+<div class="page content-page">
+  <h1>8. Ressources Requises</h1>
+  
+  <h2>8.1 Ressources Humaines</h2>
+  
+  <table>
+    <tr>
+      <th>Rôle</th>
+      <th>Nombre</th>
+      <th>Responsabilités</th>
+    </tr>
+    <tr>
+      <td>Chef de projet</td>
+      <td>1</td>
+      <td>Coordination, suivi, reporting</td>
+    </tr>
+    <tr>
+      <td>Développeur senior</td>
+      <td>1</td>
+      <td>Maintenance, corrections, évolutions</td>
+    </tr>
+    <tr>
+      <td>Opérateurs encodage</td>
+      <td>4</td>
+      <td>Saisie des données utilisateurs</td>
+    </tr>
+    <tr>
+      <td>Formateurs</td>
+      <td>2</td>
+      <td>Sessions de formation</td>
+    </tr>
+    <tr>
+      <td>Support technique</td>
+      <td>2</td>
+      <td>Assistance utilisateurs</td>
+    </tr>
+  </table>
+  
+  <h2>8.2 Ressources Matérielles</h2>
+  
+  <table>
+    <tr>
+      <th>Élément</th>
+      <th>Quantité</th>
+      <th>Usage</th>
+    </tr>
+    <tr>
+      <td>Ordinateurs de bureau</td>
+      <td>5</td>
+      <td>Encodage et développement</td>
+    </tr>
+    <tr>
+      <td>Ordinateurs portables</td>
+      <td>2</td>
+      <td>Formations terrain</td>
+    </tr>
+    <tr>
+      <td>Imprimante multifonction</td>
+      <td>1</td>
+      <td>Documents et supports</td>
+    </tr>
+    <tr>
+      <td>Connexion Internet</td>
+      <td>1</td>
+      <td>Fibre optique 50 Mbps</td>
+    </tr>
+    <tr>
+      <td>Vidéoprojecteur</td>
+      <td>1</td>
+      <td>Formations et présentations</td>
+    </tr>
+  </table>
+</div>
+
+<!-- INDICATEURS -->
+<div class="page content-page">
+  <h1>9. Indicateurs de Suivi</h1>
+  
+  <h2>9.1 Indicateurs de Progrès</h2>
+  
+  <table>
+    <tr>
+      <th>Indicateur</th>
+      <th>Cible</th>
+      <th>Fréquence mesure</th>
+    </tr>
+    <tr>
+      <td>Taux d'avancement global</td>
+      <td>100% à la fin</td>
+      <td>Hebdomadaire</td>
+    </tr>
+    <tr>
+      <td>Nombre de facultés connectées</td>
+      <td>12 facultés</td>
+      <td>Hebdomadaire</td>
+    </tr>
+    <tr>
+      <td>Étudiants encodés</td>
+      <td>35 000</td>
+      <td>Journalier</td>
+    </tr>
+    <tr>
+      <td>Enseignants encodés</td>
+      <td>2 500</td>
+      <td>Journalier</td>
+    </tr>
+    <tr>
+      <td>Taux de complétion encodage</td>
+      <td>95%</td>
+      <td>Hebdomadaire</td>
+    </tr>
+  </table>
+  
+  <h2>9.2 Indicateurs de Qualité</h2>
+  
+  <table>
+    <tr>
+      <th>Indicateur</th>
+      <th>Cible</th>
+      <th>Fréquence mesure</th>
+    </tr>
+    <tr>
+      <td>Disponibilité plateforme</td>
+      <td>99.5%</td>
+      <td>Continue</td>
+    </tr>
+    <tr>
+      <td>Temps de réponse moyen</td>
+      <td>< 2 secondes</td>
+      <td>Continue</td>
+    </tr>
+    <tr>
+      <td>Bugs critiques ouverts</td>
+      <td>0</td>
+      <td>Journalier</td>
+    </tr>
+    <tr>
+      <td>Satisfaction utilisateurs</td>
+      <td>> 80%</td>
+      <td>Mensuel</td>
+    </tr>
+    <tr>
+      <td>Taux de formation réussie</td>
+      <td>90%</td>
+      <td>Par session</td>
+    </tr>
+  </table>
+  
+  <h2>9.3 Indicateurs d'Adoption</h2>
+  
+  <table>
+    <tr>
+      <th>Indicateur</th>
+      <th>Cible fin projet</th>
+      <th>Fréquence mesure</th>
+    </tr>
+    <tr>
+      <td>Utilisateurs actifs quotidiens</td>
+      <td>5 000</td>
+      <td>Journalier</td>
+    </tr>
+    <tr>
+      <td>Connexions mensuelles</td>
+      <td>20 000</td>
+      <td>Mensuel</td>
+    </tr>
+    <tr>
+      <td>Cotes saisies via plateforme</td>
+      <td>50%</td>
+      <td>Mensuel</td>
+    </tr>
+    <tr>
+      <td>Paiements enregistres</td>
+      <td>1 000</td>
+      <td>Mensuel</td>
+    </tr>
+    <tr>
+      <td>Documents demandes en ligne</td>
+      <td>500</td>
+      <td>Mensuel</td>
+    </tr>
+  </table>
+</div>
+
+<!-- RISQUES -->
+<div class="page content-page">
+  <h1>10. Risques et Mesures d'Attenuation</h1>
+  
+  <h2>10.1 Risques Techniques</h2>
+  
+  <table>
+    <tr>
+      <th>Risque</th>
+      <th>Probabilite</th>
+      <th>Impact</th>
+      <th>Mesure d'attenuation</th>
+    </tr>
+    <tr>
+      <td>Panne serveur</td>
+      <td>Faible</td>
+      <td>Eleve</td>
+      <td>Serveur de backup, monitoring 24/7</td>
+    </tr>
+    <tr>
+      <td>Perte de donnees</td>
+      <td>Faible</td>
+      <td>Critique</td>
+      <td>Sauvegardes quotidiennes automatisees</td>
+    </tr>
+    <tr>
+      <td>Surcharge serveur</td>
+      <td>Moyenne</td>
+      <td>Moyen</td>
+      <td>Auto-scaling, mise en cache</td>
+    </tr>
+    <tr>
+      <td>Faille de securite</td>
+      <td>Faible</td>
+      <td>Critique</td>
+      <td>Audits reguliers, SSL, cryptage</td>
+    </tr>
+  </table>
+  
+  <h2>10.2 Risques Organisationnels</h2>
+  
+  <table>
+    <tr>
+      <th>Risque</th>
+      <th>Probabilite</th>
+      <th>Impact</th>
+      <th>Mesure d'attenuation</th>
+    </tr>
+    <tr>
+      <td>Retard encodage</td>
+      <td>Moyenne</td>
+      <td>Moyen</td>
+      <td>Equipe supplementaire, heures sup</td>
+    </tr>
+    <tr>
+      <td>Resistance au changement</td>
+      <td>Elevee</td>
+      <td>Moyen</td>
+      <td>Sensibilisation intensive, support</td>
+    </tr>
+    <tr>
+      <td>Absence donnees sources</td>
+      <td>Moyenne</td>
+      <td>Eleve</td>
+      <td>Identification prealable, alternatives</td>
+    </tr>
+    <tr>
+      <td>Turnover equipe</td>
+      <td>Faible</td>
+      <td>Moyen</td>
+      <td>Documentation, transfert competences</td>
+    </tr>
+  </table>
+  
+  <h2>10.3 Risques Externes</h2>
+  
+  <table>
+    <tr>
+      <th>Risque</th>
+      <th>Probabilite</th>
+      <th>Impact</th>
+      <th>Mesure d'attenuation</th>
+    </tr>
+    <tr>
+      <td>Coupure Internet</td>
+      <td>Moyenne</td>
+      <td>Moyen</td>
+      <td>Connexion backup 4G</td>
+    </tr>
+    <tr>
+      <td>Coupure electricite</td>
+      <td>Elevee</td>
+      <td>Moyen</td>
+      <td>Onduleurs, groupe electrogene</td>
+    </tr>
+    <tr>
+      <td>Retard paiement</td>
+      <td>Moyenne</td>
+      <td>Eleve</td>
+      <td>Echeancier clair, communication</td>
+    </tr>
+  </table>
+  
+  <div class="footer">
+    <p>Document confidentiel - NEXUS UNIKIN</p>
+  </div>
+</div>
+
+</body>
+</html>`;
+}
+
+// Ecrire le fichier HTML
+const htmlContent = generateHTML();
+const outputPath = path.join(__dirname, 'NEXUS_UNIKIN_Plan_Projet.html');
+fs.writeFileSync(outputPath, htmlContent, 'utf8');
+
+console.log('Document genere avec succes !');
+console.log('Fichier : ' + outputPath);
+console.log('');
+console.log('Pour convertir en PDF :');
+console.log('1. Ouvrez le fichier HTML dans votre navigateur');
+console.log('2. Appuyez sur Ctrl+P (ou Cmd+P sur Mac)');
+console.log('3. Selectionnez "Enregistrer en PDF"');
+console.log('4. Configurez les marges sur "Aucune" ou "Minimum"');
+console.log('5. Cochez "Graphiques d\'arriere-plan"');
+console.log('6. Cliquez sur "Enregistrer"');

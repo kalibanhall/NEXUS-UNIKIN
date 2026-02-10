@@ -14,14 +14,14 @@ export default function TeacherCoursesPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.userId) {
       fetchCourses()
     }
-  }, [user?.id])
+  }, [user?.userId])
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch(`/api/dashboard?role=TEACHER&user_id=${user?.id}`)
+      const response = await fetch(`/api/dashboard?role=TEACHER&user_id=${user?.userId}`)
       if (response.ok) {
         const data = await response.json()
         setCourses(data.courses || [])

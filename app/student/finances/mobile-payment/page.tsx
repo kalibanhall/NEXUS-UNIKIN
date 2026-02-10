@@ -125,7 +125,8 @@ const PAYMENT_METHODS: PaymentMethod[] = [
 ]
 
 export default function MobilePaymentPage() {
-  const { user, studentInfo } = useAuth()
+  const { user } = useAuth()
+  const studentInfo = user?.profile
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null)
   const [amount, setAmount] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')

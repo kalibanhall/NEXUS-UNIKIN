@@ -40,7 +40,8 @@ import { toast } from 'sonner'
 import { useAuth } from '@/lib/auth/auth-context'
 
 export default function StudentFinancesPage() {
-  const { user, studentInfo } = useAuth()
+  const { user } = useAuth()
+  const studentInfo = user?.profile
   const [data, setData] = useState<any>(null)
   const [finances, setFinances] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -60,15 +61,15 @@ export default function StudentFinancesPage() {
   })
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.userId) {
       fetchData()
     }
-  }, [user?.id])
+  }, [user?.userId])
 
   const fetchData = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/dashboard?role=STUDENT&user_id=${user?.id}`)
+      const response = await fetch(`/api/dashboard?role=STUDENT&user_id=${user?.userId}`)
       if (response.ok) {
         const result = await response.json()
         setData(result)

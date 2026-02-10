@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { queryOne, query } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
+import { signSession, SESSION_COOKIE_NAME, getSessionCookieOptions } from '@/lib/auth/jwt'
+import { checkRateLimit, recordFailedAttempt, resetRateLimit } from '@/lib/auth/rate-limit'
 
 interface UserRow {
   id: number
@@ -45,6 +47,23 @@ interface EmployeeRow {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting basé sur l'IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
+      || request.headers.get('x-real-ip') 
+      || 'unknown'
+    
+    const rateLimit = checkRateLimit(ip)
+    if (!rateLimit.allowed) {
+      const retryAfterSeconds = Math.ceil(rateLimit.retryAfterMs / 1000)
+      return NextResponse.json(
+        { error: `Trop de tentatives de connexion. Réessayez dans ${Math.ceil(retryAfterSeconds / 60)} minute(s).` },
+        { 
+          status: 429,
+          headers: { 'Retry-After': String(retryAfterSeconds) }
+        }
+      )
+    }
+
     const body = await request.json()
     const { email, password } = body
 
@@ -72,6 +91,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!user) {
+      recordFailedAttempt(ip)
       return NextResponse.json(
         { error: 'Email ou mot de passe incorrect' },
         { status: 401 }
@@ -89,11 +109,15 @@ export async function POST(request: NextRequest) {
     // Vérification du mot de passe
     const isValidPassword = await bcrypt.compare(password, user.password)
     if (!isValidPassword) {
+      recordFailedAttempt(ip)
       return NextResponse.json(
         { error: 'Email ou mot de passe incorrect' },
         { status: 401 }
       )
     }
+
+    // Login réussi — réinitialiser le rate limit
+    resetRateLimit(ip)
 
     // Récupérer le profil selon le rôle
     let profile: any = null
@@ -150,7 +174,7 @@ export async function POST(request: NextRequest) {
       console.error('Failed to update lastLogin:', e)
     }
 
-    // Créer la session
+    // Créer le JWT signé
     const sessionData = {
       userId: user.id,
       email: user.email,
@@ -160,15 +184,11 @@ export async function POST(request: NextRequest) {
       profile,
     }
 
-    // Stocker dans un cookie sécurisé
+    const token = signSession(sessionData)
+
+    // Stocker le JWT dans un cookie httpOnly sécurisé
     const cookieStore = await cookies()
-    cookieStore.set('nexus-session', JSON.stringify(sessionData), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 jours
-      path: '/',
-    })
+    cookieStore.set(SESSION_COOKIE_NAME, token, getSessionCookieOptions())
 
     return NextResponse.json({
       success: true,

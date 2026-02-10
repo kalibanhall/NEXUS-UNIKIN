@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GraduationCap, Users, BookOpen, Shield, ArrowRight, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { UnikinLogo } from '@/components/ui/unikin-logo'
 
 export default function HomePage() {
   return (
@@ -9,9 +10,7 @@ export default function HomePage() {
       <header className="fixed top-0 left-0 right-0 z-50 glass border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center">
-              <GraduationCap className="w-7 h-7 text-white" />
-            </div>
+            <UnikinLogo size={48} />
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white font-heading">
                 NEXUS UNIKIN
@@ -241,9 +240,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-                  <GraduationCap className="w-6 h-6 text-white" />
-                </div>
+                <UnikinLogo size={40} />
                 <span className="font-bold text-white font-heading">NEXUS UNIKIN</span>
               </div>
               <p className="text-sm">

@@ -39,10 +39,10 @@ export default function StudentCoursesPage() {
   const [semesterFilter, setSemesterFilter] = useState<string>('all')
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.userId) {
       fetchCourses()
     }
-  }, [user?.id])
+  }, [user?.userId])
 
   useEffect(() => {
     filterCourses()
@@ -50,7 +50,7 @@ export default function StudentCoursesPage() {
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch(`/api/dashboard?role=STUDENT&user_id=${user?.id}`)
+      const response = await fetch(`/api/dashboard?role=STUDENT&user_id=${user?.userId}`)
       if (response.ok) {
         const data = await response.json()
         setCourses(data.courses || [])

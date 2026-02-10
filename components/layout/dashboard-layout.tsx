@@ -26,6 +26,7 @@ import {
   MessageSquare,
   CheckCheck,
   Wallet,
+  Target,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -87,6 +88,13 @@ const menuConfig: Record<'admin' | 'teacher' | 'student' | 'employee', MenuConfi
       { icon: CheckCheck, label: 'Sondages', href: '/admin/surveys' },
       { icon: BookOpen, label: 'Recherche', href: '/admin/research' },
       { icon: Wallet, label: 'Bourses', href: '/admin/scholarships' },
+      { icon: Target, label: 'NEXUS Tracker', href: '/admin/tracker', badge: 'Projet',
+        children: [
+          { label: 'Dashboard', href: '/admin/tracker' },
+          { label: 'Tâches', href: '/admin/tracker/tasks' },
+          { label: 'Facultés', href: '/admin/tracker/faculties' },
+        ]
+      },
       { icon: Shield, label: 'Sécurité & Logs', href: '/admin/security' },
       { icon: Settings, label: 'Paramètres', href: '/admin/settings' },
     ],

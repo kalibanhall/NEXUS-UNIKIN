@@ -74,10 +74,10 @@ export default function CourseDetailPage() {
   const courseId = params.id as string
 
   useEffect(() => {
-    if (courseId && user?.id) {
+    if (courseId && user?.userId) {
       fetchCourseDetails()
     }
-  }, [courseId, user?.id])
+  }, [courseId, user?.userId])
 
   const fetchCourseDetails = async () => {
     try {
@@ -91,7 +91,7 @@ export default function CourseDetailPage() {
       }
 
       // Récupérer les notes de l'étudiant pour ce cours
-      const gradesRes = await fetch(`/api/grades?course_id=${courseId}&user_id=${user?.id}`)
+      const gradesRes = await fetch(`/api/grades?course_id=${courseId}&user_id=${user?.userId}`)
       if (gradesRes.ok) {
         const gradesData = await gradesRes.json()
         setGrades(gradesData)
@@ -105,7 +105,7 @@ export default function CourseDetailPage() {
       }
 
       // Récupérer les statistiques de présence
-      const attendanceRes = await fetch(`/api/attendance?course_id=${courseId}&user_id=${user?.id}&stats=true`)
+      const attendanceRes = await fetch(`/api/attendance?course_id=${courseId}&user_id=${user?.userId}&stats=true`)
       if (attendanceRes.ok) {
         const attendanceData = await attendanceRes.json()
         setAttendanceStats(attendanceData)

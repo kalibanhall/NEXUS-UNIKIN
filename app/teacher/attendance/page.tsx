@@ -37,10 +37,10 @@ export default function TeacherAttendancePage() {
   const [activeCode, setActiveCode] = useState<string | null>(null)
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.userId) {
       fetchCourses()
     }
-  }, [user?.id])
+  }, [user?.userId])
 
   useEffect(() => {
     if (courseIdParam && courses.length > 0) {
@@ -50,7 +50,7 @@ export default function TeacherAttendancePage() {
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch(`/api/dashboard?role=TEACHER&user_id=${user?.id}`)
+      const response = await fetch(`/api/dashboard?role=TEACHER&user_id=${user?.userId}`)
       if (response.ok) {
         const data = await response.json()
         setCourses(data.courses || [])

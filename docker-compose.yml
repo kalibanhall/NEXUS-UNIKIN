@@ -1,0 +1,65 @@
+# NEXUS UNIKIN - Docker Compose
+version: '3.8'
+
+services:
+  # Application Next.js
+  app:
+    build: .
+    container_name: nexus-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://nexus_admin:NexusUnikin2026!@db:5432/nexus_unikin
+      - JWT_SECRET=${JWT_SECRET:-Nexus2026UnikinSecretKeyForJWTAuthentication!SuperSecure}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nexus-network
+
+  # Base de données PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: nexus-db
+    restart: always
+    environment:
+      - POSTGRES_DB=nexus_unikin
+      - POSTGRES_USER=nexus_admin
+      - POSTGRES_PASSWORD=NexusUnikin2026!
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema-init.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed-init.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexus_admin -d nexus_unikin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nexus-network
+
+  # Nginx reverse proxy (optionnel mais recommandé)
+  nginx:
+    image: nginx:alpine
+    container_name: nexus-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - app
+    networks:
+      - nexus-network
+
+networks:
+  nexus-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

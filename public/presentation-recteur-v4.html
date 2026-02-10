@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS UNIKIN — Suivi de Projet | Février 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background: #0a0f1e; color: white; }
+
+        /* ─── SLIDES ─── */
+        .slide {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: none;
+            padding: 35px 55px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .slide.active { display: flex; flex-direction: column; opacity: 1; }
+        .slide.bg-dark { background: linear-gradient(160deg, #0a0f1e 0%, #111827 50%, #0f172a 100%); }
+        .slide.bg-grid {
+            background:
+                linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px),
+                linear-gradient(160deg, #0a0f1e, #111827);
+            background-size: 40px 40px, 40px 40px, 100% 100%;
+        }
+
+        /* ─── HEADER ─── */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-shrink: 0;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 15px;
+            box-shadow: 0 0 20px rgba(59,130,246,0.3);
+        }
+        .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+        .logo-text span { color: #60a5fa; }
+        .badge-phase {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.08));
+            border: 1px solid rgba(34,197,94,0.3);
+            padding: 5px 14px; border-radius: 20px;
+            font-size: 11px; font-weight: 600; color: #4ade80;
+        }
+        .badge-phase .dot { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; animation: blink 2s infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .slide-num { color: #475569; font-size: 12px; font-weight: 500; }
+
+        /* ─── CONTENT ─── */
+        .content { flex: 1; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+        h1 { font-size: 42px; font-weight: 900; line-height: 1.1; letter-spacing: -1px; }
+        h2 { font-size: 28px; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 10px; }
+        .blue { color: #60a5fa; } .green { color: #4ade80; } .purple { color: #a78bfa; }
+        .amber { color: #fbbf24; } .red { color: #f87171; } .cyan { color: #22d3ee; }
+        .subtitle { font-size: 16px; color: #64748b; margin-bottom: 18px; line-height: 1.5; }
+        .center { text-align: center; align-items: center; }
+
+        /* ─── PROGRESS RING ─── */
+        .ring-container { position: relative; width: 130px; height: 130px; }
+        .ring-container svg { transform: rotate(-90deg); }
+        .ring-bg { fill: none; stroke: #1e293b; stroke-width: 8; }
+        .ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.5s ease-out; }
+        .ring-label {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .ring-value { font-size: 28px; font-weight: 900; display: block; }
+        .ring-text { font-size: 9px; color: #64748b; display: block; margin-top: 2px; }
+
+        /* ─── CARDS ─── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 18px;
+            transition: all 0.3s;
+        }
+        .card:hover { border-color: rgba(59,130,246,0.2); background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+        .card-icon { font-size: 24px; margin-bottom: 10px; display: block; }
+        .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .card p { font-size: 11px; color: #64748b; line-height: 1.4; }
+        .card .card-value { font-size: 26px; font-weight: 900; display: block; margin-bottom: 2px; }
+
+        .card-accent { border-top: 3px solid; }
+        .card-accent.blue-accent { border-top-color: #3b82f6; }
+        .card-accent.green-accent { border-top-color: #22c55e; }
+        .card-accent.amber-accent { border-top-color: #f59e0b; }
+        .card-accent.purple-accent { border-top-color: #8b5cf6; }
+        .card-accent.red-accent { border-top-color: #ef4444; }
+
+        /* ─── STAT MINI ─── */
+        .stat-mini {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px; padding: 14px 16px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .stat-mini-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .stat-mini-icon.blue { background: rgba(59,130,246,0.15); }
+        .stat-mini-icon.green { background: rgba(34,197,94,0.15); }
+        .stat-mini-icon.purple { background: rgba(139,92,246,0.15); }
+        .stat-mini-icon.amber { background: rgba(245,158,11,0.15); }
+        .stat-mini-icon.cyan { background: rgba(6,182,212,0.15); }
+        .stat-mini-icon.red { background: rgba(239,68,68,0.15); }
+        .stat-mini-value { font-size: 22px; font-weight: 800; line-height: 1; }
+        .stat-mini-label { font-size: 10px; color: #64748b; margin-top: 2px; }
+
+        /* ─── MODULE LIST ─── */
+        .module-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 14px; border-radius: 10px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            margin-bottom: 6px;
+            transition: all 0.2s;
+        }
+        .module-item:hover { background: rgba(255,255,255,0.05); }
+        .module-icon { font-size: 18px; width: 28px; text-align: center; }
+        .module-name { font-size: 12px; font-weight: 600; flex: 1; }
+        .module-status {
+            font-size: 9px; font-weight: 700; padding: 3px 10px;
+            border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .module-status.done { background: rgba(34,197,94,0.15); color: #4ade80; }
+        .module-status.progress { background: rgba(59,130,246,0.15); color: #60a5fa; }
+        .module-status.planned { background: rgba(100,116,139,0.15); color: #94a3b8; }
+        .module-status.testing { background: rgba(245,158,11,0.15); color: #fbbf24; }
+
+        .progress-bar {
+            height: 6px; background: #1e293b; border-radius: 3px;
+            overflow: hidden; margin-top: 6px;
+        }
+        .progress-bar-fill { height: 100%; border-radius: 3px; transition: width 1.5s ease-out; }
+        .progress-bar-fill.blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .progress-bar-fill.green { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .progress-bar-fill.amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+        /* ─── TIMELINE ─── */
+        .timeline-h { display: flex; justify-content: space-between; align-items: flex-start; position: relative; margin: 20px 0; }
+        .timeline-h::before {
+            content: ''; position: absolute; top: 20px; left: 8%; right: 8%;
+            height: 3px; background: #1e293b; border-radius: 2px;
+        }
+        .timeline-h::after {
+            content: ''; position: absolute; top: 20px; left: 8%;
+            height: 3px; border-radius: 2px;
+            background: linear-gradient(90deg, #22c55e, #3b82f6);
+            width: 35%;
+        }
+        .tl-item { text-align: center; flex: 1; position: relative; z-index: 1; }
+        .tl-dot {
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; margin: 0 auto 10px;
+            border: 3px solid #0a0f1e;
+        }
+        .tl-dot.done { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .tl-dot.current { background: linear-gradient(135deg, #3b82f6, #6366f1); animation: pulse-blue 2s infinite; }
+        .tl-dot.future { background: #1e293b; border-color: #334155; }
+        @keyframes pulse-blue { 0%,100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); } 50% { box-shadow: 0 0 0 10px rgba(59,130,246,0); } }
+        .tl-label { font-size: 12px; font-weight: 700; }
+        .tl-label.done-text { color: #4ade80; }
+        .tl-label.current-text { color: #60a5fa; }
+        .tl-label.future-text { color: #475569; }
+        .tl-desc { font-size: 10px; color: #475569; margin-top: 3px; line-height: 1.3; }
+
+        /* ─── HIGHLIGHT BOX ─── */
+        .highlight {
+            border-radius: 12px; padding: 16px 20px; margin-top: 12px;
+        }
+        .highlight.green-box {
+            background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(16,185,129,0.05));
+            border: 1px solid rgba(34,197,94,0.25);
+        }
+        .highlight.blue-box {
+            background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.05));
+            border: 1px solid rgba(59,130,246,0.25);
+        }
+        .highlight.amber-box {
+            background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(217,119,6,0.05));
+            border: 1px solid rgba(245,158,11,0.25);
+        }
+        .highlight.red-box {
+            background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.05));
+            border: 1px solid rgba(239,68,68,0.25);
+        }
+        .highlight h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .highlight p { font-size: 12px; line-height: 1.4; }
+
+        /* ─── MOCK SCREENSHOTS ─── */
+        .mock-screen {
+            background: #f8fafc; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            font-family: 'Inter', sans-serif; color: #1e293b; font-size: 11px;
+        }
+        .mock-topbar {
+            background: white; padding: 8px 14px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .mock-topbar-left { display: flex; align-items: center; gap: 8px; }
+        .mock-topbar-logo {
+            width: 26px; height: 26px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 800; font-size: 10px;
+        }
+        .mock-topbar-title { font-weight: 600; font-size: 12px; }
+        .mock-topbar-title span { color: #64748b; font-weight: 400; }
+        .mock-avatar {
+            width: 26px; height: 26px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 600; font-size: 10px;
+        }
+        .mock-body { display: flex; }
+        .mock-sidebar {
+            width: 155px; background: white; padding: 12px 8px;
+            border-right: 1px solid #e2e8f0;
+        }
+        .mock-sidebar-section { font-size: 9px; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; padding-left: 8px; letter-spacing: 0.5px; }
+        .mock-nav-item {
+            padding: 6px 10px; border-radius: 7px; margin-bottom: 3px;
+            display: flex; align-items: center; gap: 6px; font-size: 11px; color: #64748b;
+        }
+        .mock-nav-item.active { background: linear-gradient(135deg, #3b82f6, #60a5fa); color: white; }
+        .mock-main { flex: 1; padding: 14px; background: #f1f5f9; }
+        .mock-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+        .mock-stat-card {
+            background: white; border-radius: 8px; padding: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .mock-stat-card .label { font-size: 9px; color: #64748b; margin-bottom: 3px; }
+        .mock-stat-card .value { font-size: 18px; font-weight: 800; color: #1e293b; }
+        .mock-stat-card .value.blue { color: #3b82f6; }
+        .mock-stat-card .value.green { color: #22c55e; }
+        .mock-stat-card .value.purple { color: #8b5cf6; }
+        .mock-stat-card .value.orange { color: #f59e0b; }
+        .mock-stat-icon {
+            width: 28px; height: 28px; border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; float: right;
+        }
+        .mock-stat-icon.blue { background: #dbeafe; }
+        .mock-stat-icon.green { background: #dcfce7; }
+        .mock-stat-icon.purple { background: #f3e8ff; }
+        .mock-stat-icon.orange { background: #fef3c7; }
+        .mock-section {
+            background: white; border-radius: 8px; padding: 10px;
+            border: 1px solid #e2e8f0; margin-bottom: 8px;
+        }
+        .mock-section-title { font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+        .mock-progress-bar { height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .mock-progress-fill { height: 100%; border-radius: 4px; }
+        .mock-student-card {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border-radius: 10px; padding: 12px 16px; color: white;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+        }
+        .mock-student-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+        .mock-student-card p { font-size: 10px; opacity: 0.9; }
+        .mock-badge { padding: 3px 8px; border-radius: 8px; font-size: 9px; font-weight: 600; }
+        .mock-badge.green { background: #22c55e; color: white; }
+        .mock-two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; }
+        .mock-payment {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 8px; background: #f8fafc; border-radius: 6px; margin-bottom: 4px;
+        }
+        .mock-payment-avatar {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; font-weight: 600; color: white;
+        }
+        .mock-payment-info { flex: 1; }
+        .mock-payment-name { font-weight: 600; font-size: 10px; }
+        .mock-payment-id { font-size: 8px; color: #64748b; }
+        .mock-payment-amount { font-weight: 700; color: #22c55e; font-size: 11px; }
+
+        /* ─── TWO COLUMNS ─── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; }
+
+        /* ─── NAV ─── */
+        .nav {
+            position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; gap: 12px; z-index: 100;
+            background: rgba(15,23,42,0.9); backdrop-filter: blur(12px);
+            padding: 8px 16px; border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .nav-btn {
+            padding: 8px 20px; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
+            color: white; font-size: 12px; font-weight: 500;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.12); }
+        .nav-btn.primary { background: linear-gradient(135deg, #3b82f6, #6366f1); border: none; }
+        .nav-indicator { color: #475569; font-size: 12px; font-weight: 500; min-width: 40px; text-align: center; }
+        .progress-top { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6); transition: width 0.4s ease; z-index: 200; }
+        .kbd-hint { position: fixed; bottom: 56px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #334155; }
+        kbd { background: rgba(255,255,255,0.06); padding: 2px 5px; border-radius: 3px; font-size: 10px; }
+
+        /* ─── TECH STACK ─── */
+        .tech-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 6px 12px; border-radius: 8px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            font-size: 11px; font-weight: 600;
+        }
+
+        /* ─── TEAM ─── */
+        .team-card {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px; border-radius: 12px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+        }
+        .team-avatar {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 14px; color: white;
+        }
+        .team-name { font-size: 13px; font-weight: 700; }
+        .team-role { font-size: 10px; color: #64748b; }
+
+        /* ─── RESPONSIVE SCROLL FOR OVERFLOW ─── */
+        .scroll-content { overflow-y: auto; flex: 1; padding-right: 5px; }
+        .scroll-content::-webkit-scrollbar { width: 3px; }
+        .scroll-content::-webkit-scrollbar-track { background: transparent; }
+        .scroll-content::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="progress-top" id="progress"></div>
+
+    <!-- ══════════ SLIDE 1: COVER ══════════ -->
+    <div class="slide bg-grid active" data-slide="1">
+        <div class="content center">
+            <div class="logo" style="justify-content: center; margin-bottom: 30px;">
+                <div class="logo-icon">N</div>
+                <div class="logo-text" style="font-size: 22px;">NEXUS <span>UNIKIN</span></div>
+            </div>
+            <h1 style="font-size: 48px;">Suivi de Projet<br><span class="blue">Février 2026</span></h1>
+            <p class="subtitle" style="max-width: 600px; margin: 18px auto 0;">
+                Plateforme intégrée de gestion universitaire<br>
+                <strong style="color: #e2e8f0;">Université de Kinshasa</strong>
+            </p>
+            <div class="grid-4" style="max-width: 700px; margin: 30px auto 0;">
+                <div class="stat-mini">
+                    <div class="stat-mini-icon green">✅</div>
+                    <div>
+                        <div class="stat-mini-value green">72%</div>
+                        <div class="stat-mini-label">Avancement</div>
+                    </div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-icon blue">📦</div>
+                    <div>
+                        <div class="stat-mini-value blue">18</div>
+                        <div class="stat-mini-label">Modules livrés</div>
+                    </div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-icon purple">🗃️</div>
+                    <div>
+                        <div class="stat-mini-value purple">14</div>
+                        <div class="stat-mini-label">Tables BD</div>
+                    </div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-icon amber">👥</div>
+                    <div>
+                        <div class="stat-mini-value amber">5</div>
+                        <div class="stat-mini-label">Rôles actifs</div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 28px;">
+                <div class="badge-phase"><div class="dot"></div> Phase 2 — Intégration Backbone</div>
+            </div>
+            <p style="margin-top: 20px; font-size: 12px; color: #334155;">Mise à jour : 10 Février 2026 • Confidentiel</p>
+        </div>
+    </div>
+
+    <!-- ══════════ SLIDE 2: ÉTAT D'AVANCEMENT ══════════ -->
+    <div class="slide bg-dark" data-slide="2">
+        <div class="header">
+            <div class="logo"><div class="logo-icon">N</div><div class="logo-text">NEXUS <span>UNIKIN</span></div></div>
+            <div class="badge-phase"><div class="dot"></div> En cours</div>
+            <span class="slide-num">2 / 10</span>
+        </div>
+        <div class="content">
+            <h2>📊 État d'Avancement Global</h2>
+            <p class="subtitle">Vue synthétique de la progression du projet au 10 février 2026</p>
+
+            <div class="grid-3" style="margin-bottom: 15px;">
+                <div class="card" style="text-align: center;">
+                    <div class="ring-container" style="margin: 0 auto 8px;">
+                        <svg width="130" height="130" viewBox="0 0 130 130">
+                            <circle class="ring-bg" cx="65" cy="65" r="55"></circle>
+                            <circle class="ring-fill" cx="65" cy="65" r="55" stroke="#22c55e"
+                                stroke-dasharray="345.6" stroke-dashoffset="96.8"></circle>
+                        </svg>
+                        <div class="ring-label"><span class="ring-value green">72%</span><span class="ring-text">GLOBAL</span></div>
+                    </div>
+                    <p style="font-size: 11px; color: #64748b;">Avancement total du projet</p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <div class="ring-container" style="margin: 0 auto 8px;">
+                        <svg width="130" height="130" viewBox="0 0 130 130">
+                            <circle class="ring-bg" cx="65" cy="65" r="55"></circle>
+                            <circle class="ring-fill" cx="65" cy="65" r="55" stroke="#3b82f6"
+                                stroke-dasharray="345.6" stroke-dashoffset="55.3"></circle>
+                        </svg>
+                        <div class="ring-label"><span class="ring-value blue">84%</span><span class="ring-text">BACKEND</span></div>
+                    </div>
+                    <p style="font-size: 11px; color: #64748b;">API + Base de données</p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <div class="ring-container" style="margin: 0 auto 8px;">
+                        <svg width="130" height="130" viewBox="0 0 130 130">
+                            <circle class="ring-bg" cx="65" cy="65" r="55"></circle>
+                            <circle class="ring-fill" cx="65" cy="65" r="55" stroke="#a78bfa"
+                                stroke-dasharray="345.6" stroke-dashoffset="138.2"></circle>
+                        </svg>
+                        <div class="ring-label"><span class="ring-value purple">60%</span><span class="ring-text">FRONTEND</span></div>
+                    </div>
+                    <p style="font-size: 11px; color: #64748b;">Interfaces utilisateur</p>
+                </div>
+            </div>
+
+            <div class="grid-5">
+                <div class="stat-mini"><div class="stat-mini-icon green">✅</div><div><div class="stat-mini-value" style="font-size: 18px; color: #4ade80;">18</div><div class="stat-mini-label">Modules livrés</div></div></div>
+                <div class="stat-mini"><div class="stat-mini-icon blue">🔧</div><div><div class="stat-mini-value" style="font-size: 18px; color: #60a5fa;">4</div><div class="stat-mini-label">En cours</div></div></div>
+                <div class="stat-mini"><div class="stat-mini-icon amber">📋</div><div><div class="stat-mini-value" style="font-size: 18px; color: #fbbf24;">3</div><div class="stat-mini-label">Planifiés</div></div></div>
+                <div class="stat-mini"><div class="stat-mini-icon purple">🗃️</div><div><div class="stat-mini-value" style="font-size: 18px; color: #a78bfa;">14</div><div class="stat-mini-label">Tables BD</div></div></div>
+                <div class="stat-mini"><div class="stat-mini-icon cyan">🌐</div><div><div class="stat-mini-value" style="font-size: 18px; color: #22d3ee;">25+</div><div class="stat-mini-label">API Routes</div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ SLIDE 3: MODULES RÉALISÉS ══════════ -->
+    <div class="slide bg-dark" data-slide="3">
+        <div class="header">
+            <div class="logo"><div class="logo-icon">N</div><div class="logo-text">NEXUS <span>UNIKIN</span></div></div>
+            <span class="slide-num">3 / 10</span>
+        </div>
+        <div class="scroll-content">
+            <h2>✅ Modules Réalisés</h2>
+            <p class="subtitle">Fonctionnalités livrées et opérationnelles</p>
+
+            <div class="grid-2">
+                <div>
+                    <h4 style="font-size: 13px; color: #4ade80; margin-bottom: 8px;">🔐 AUTHENTIFICATION & SÉCURITÉ</h4>
+                    <div class="module-item"><span class="module-icon">🔑</span><span class="module-name">Connexion JWT sécurisée (bcrypt)</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">👥</span><span class="module-name">Gestion 5 rôles (Admin, Prof, Étudiant...)</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">🛡️</span><span class="module-name">Middleware de protection des routes</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">🚪</span><span class="module-name">Redirection par rôle après login</span><span class="module-status done">Livré</span></div>
+
+                    <h4 style="font-size: 13px; color: #4ade80; margin: 14px 0 8px;">📊 DASHBOARDS</h4>
+                    <div class="module-item"><span class="module-icon">🎛️</span><span class="module-name">Dashboard Admin (stats dynamiques)</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">🎓</span><span class="module-name">Dashboard Étudiant</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">👨‍🏫</span><span class="module-name">Dashboard Enseignant</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">👔</span><span class="module-name">Dashboard Employé</span><span class="module-status done">Livré</span></div>
+                </div>
+                <div>
+                    <h4 style="font-size: 13px; color: #4ade80; margin-bottom: 8px;">🏛️ GESTION ACADÉMIQUE</h4>
+                    <div class="module-item"><span class="module-icon">🏫</span><span class="module-name">Structure Facultés / Départements</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">📚</span><span class="module-name">Gestion des cours & crédits</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">📅</span><span class="module-name">Emploi du temps dynamique</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">📝</span><span class="module-name">Notes TP/TD/Examen + validation jury</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">✋</span><span class="module-name">Suivi des présences</span><span class="module-status done">Livré</span></div>
+
+                    <h4 style="font-size: 13px; color: #4ade80; margin: 14px 0 8px;">💰 FINANCES & DIVERS</h4>
+                    <div class="module-item"><span class="module-icon">💳</span><span class="module-name">Paiements (Cash, Banque, Mobile Money)</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">🔔</span><span class="module-name">Notifications en temps réel</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">📈</span><span class="module-name">Analytics et statistiques</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">💬</span><span class="module-name">Chatbot IA intégré</span><span class="module-status done">Livré</span></div>
+                    <div class="module-item"><span class="module-icon">📄</span><span class="module-name">Documentation BD complète (PDF)</span><span class="module-status done">Livré</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ SLIDE 4: EN COURS & PLANIFIÉ ══════════ -->
+    <div class="slide bg-dark" data-slide="4">
+        <div class="header">
+            <div class="logo"><div class="logo-icon">N</div><div class="logo-text">NEXUS <span>UNIKIN</span></div></div>
+            <span class="slide-num">4 / 10</span>
+        </div>
+        <div class="content">
+            <h2>🔧 En cours de développement</h2>
+            <p class="subtitle">Modules en cours d'implémentation ou en phase de test</p>
+
+            <div class="grid-2" style="margin-bottom: 18px;">
+                <div>
+                    <h4 style="font-size: 13px; color: #60a5fa; margin-bottom: 10px;">🔄 EN COURS</h4>
+                    <div class="module-item"><span class="module-icon">🤝</span><span class="module-name">Intégration Backbone UNIKIN</span><span class="module-status progress">En cours</span></div>
+                    <div style="padding: 0 14px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b;"><span>Migration des données</span><span>40%</span></div>
+                        <div class="progress-bar"><div class="progress-bar-fill blue" style="width: 40%;"></div></div>
+                    </div>
+                    <div class="module-item"><span class="module-icon">📋</span><span class="module-name">Module Délibérations</span><span class="module-status progress">En cours</span></div>
+                    <div style="padding: 0 14px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b;"><span>Calcul automatique PV</span><span>65%</span></div>
+                        <div class="progress-bar"><div class="progress-bar-fill blue" style="width: 65%;"></div></div>
+                    </div>
+                    <div class="module-item"><span class="module-icon">📑</span><span class="module-name">Génération documents officiels</span><span class="module-status progress">En cours</span></div>
+                    <div style="padding: 0 14px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b;"><span>Attestations, relevés</span><span>50%</span></div>
+                        <div class="progress-bar"><div class="progress-bar-fill blue" style="width: 50%;"></div></div>
+                    </div>
+                    <div class="module-item"><span class="module-icon">📊</span><span class="module-name">Sondages & enquêtes</span><span class="module-status progress">En cours</span></div>
+                    <div style="padding: 0 14px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b;"><span>Formulaires dynamiques</span><span>30%</span></div>
+                        <div class="progress-bar"><div class="progress-bar-fill blue" style="width: 30%;"></div></div>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="font-size: 13px; color: #94a3b8; margin-bottom: 10px;">📋 PLANIFIÉS (Phase 3)</h4>
+                    <div class="module-item"><span class="module-icon">📖</span><span class="module-name">Bibliothèque numérique</span><span class="module-status planned">Planifié</span></div>
+                    <div class="module-item"><span class="module-icon">🔬</span><span class="module-name">Module Recherche scientifique</span><span class="module-status planned">Planifié</span></div>
+                    <div class="module-item"><span class="module-icon">🎓</span><span class="module-name">Bourses & aides financières</span><span class="module-status planned">Planifié</span></div>
+
+                    <div class="highlight amber-box" style="margin-top: 20px;">
+                        <h4 style="color: #fbbf24;">⚠️ Point d'attention</h4>
+                        <p style="color: #fcd34d;">La réunion avec l'équipe Backbone du 05/02 a défini le format des matricules pour la migration. La phase d'import des données réelles est critique.</p>
+                    </div>
+                    <div class="highlight blue-box" style="margin-top: 10px;">
+                        <h4 style="color: #60a5fa;">📅 Prochaine étape clé</h4>
+                        <p style="color: #93c5fd;">Import pilote de 500 étudiants de la Faculté des Sciences pour validation du workflow.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ SLIDE 5: ARCHITECTURE TECHNIQUE ══════════ -->
+    <div class="slide bg-dark" data-slide="5">
+        <div class="header">
+            <div class="logo"><div class="logo-icon">N</div><div class="logo-text">NEXUS <span>UNIKIN</span></div></div>
+            <span class="slide-num">5 / 10</span>
+        </div>
+        <div class="content">
+            <h2>🏗️ Architecture Technique</h2>
+            <p class="subtitle">Stack technologique et infrastructure du système</p>
+
+            <div class="grid-2" style="margin-bottom: 15px;">
+                <div>
+                    <h4 style="font-size: 13px; color: #60a5fa; margin-bottom: 12px;">Stack Applicatif</h4>
+                    <div class="card" style="margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 20px;">⚡</span>
+                            <div><h4 style="font-size: 13px;">Next.js 14.1.0</h4><p>Framework React — App Router, Server Components</p></div>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 20px;">🐘</span>
+                            <div><h4 style="font-size: 13px;">PostgreSQL 15+</h4><p>14 tables, 16 index, 8 triggers automatiques</p></div>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 20px;">🔐</span>
+                            <div><h4 style="font-size: 13px;">JWT + bcryptjs</h4><p>Sessions sécurisées, hash coût 10, cookies HttpOnly</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="font-size: 13px; color: #a78bfa; margin-bottom: 12px;">Interface Utilisateur</h4>
+                    <div class="card" style="margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 20px;">🎨</span>
+                            <div><h4 style="font-size: 13px;">Tailwind CSS + Radix UI</h4><p>Design system accessible, composants shadcn/ui</p></div>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 20px;">📱</span>
+                            <div><h4 style="font-size: 13px;">Responsive Design</h4><p>Desktop, tablette, mobile — expérience unifiée</p></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 20px;">🤖</span>
+                            <div><h4 style="font-size: 13px;">Chatbot IA</h4><p>Assistant intelligent pour les utilisateurs</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="highlight green-box"><h4 style="color: #4ade80;">🗃️ Base de données</h4><p style="color: #86efac;">14 tables • 16 index • 8 triggers • 3NF</p></div>
+                <div class="highlight blue-box"><h4 style="color: #60a5fa;">🌐 API REST</h4><p style="color: #93c5fd;">25+ routes • Validation • Auth middleware</p></div>
+                <div class="highlight" style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25);"><h4 style="color: #a78bfa;">🔒 Sécurité</h4><p style="color: #c4b5fd;">RBAC • Sessions JWT • Audit trail</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ SLIDE 6: DASHBOARD ÉTUDIANT ══════════ -->
+    <div class="slide bg-dark" data-slide="6">
+        <div class="header">
+            <div class="logo"><div class="logo-icon">N</div><div class="logo-text">NEXUS <span>UNIKIN</span></div></div>
+            <span class="slide-num">6 / 10</span>
+        </div>
+        <div class="content">
+            <div class="two-col">
+                <div>
+                    <h2>🎓 Espace Étudiant</h2>
+                    <p class="subtitle">Accès complet aux informations académiques et financières</p>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 32px; height: 32px; background: rgba(59,130,246,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center;">📊</div><div><h4 style="font-size: 13px;">Moyenne & cours en temps réel</h4><p style="font-size: 11px; color: #64748b;">Plus besoin d'attendre le babillard</p></div></div>
+                        <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 32px; height: 32px; background: rgba(34,197,94,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center;">💰</div><div><h4 style="font-size: 13px;">Suivi financier détaillé</h4><p style="font-size: 11px; color: #64748b;">Montants payés, restant dû, reçus</p></div></div>
+                        <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 32px; height: 32px; background: rgba(139,92,246,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center;">📅</div><div><h4 style="font-size: 13px;">Emploi du temps interactif</h4><p style="font-size: 11px; color: #64748b;">Salles, horaires, type CM/TD/TP</p></div></div>
+                        <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 32px; height: 32px; background: rgba(245,158,11,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center;">📱</div><div><h4 style="font-size: 13px;">Paiement Mobile Money</h4><p style="font-size: 11px; color: #64748b;">M-Pesa, Orange Money, Airtel Money</p></div></div>
+                    </div>
+                </div>
+                <div class="mock-screen">
+                    <div class="mock-topbar">
+                        <div class="mock-topbar-left"><div class="mock-topbar-logo">N</div><div class="mock-topbar-title">NEXUS <span>UNIKIN</span></div></div>
+                        <div style="display: flex; align-items: center; gap: 6px;"><span style="font-size: 11px; color: #64748b;">Chris Ngozulu</span><div class="mock-avatar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">CN</div></div>
+                    </div>
+                    <div class="mock-body">
+                        <div class="mock-sidebar">
+                            <div class="mock-sidebar-section">Espace Étudiant</div>
+                            <div class="mock-nav-item active">📊 Tableau de bord</div>
+                            <div class="mock-nav-item">📚 Mes cours</div>
+                            <div class="mock-nav-item">📝 Évaluations</div>
+                            <div class="mock-nav-item">📋 Notes & Résultats</div>
+                            <div class="mock-nav-item">📅 Emploi du temps</div>
+                            <div class="mock-nav-item">✋ Présences</div>
+                            <div class="mock-nav-item">💳 Finances</div>
+                            <div class="mock-nav-item">📖 Bibliothèque</div>
+                        </div>
+                        <div class="mock-main">
+                            <div class="mock-student-card">
+                                <div><h3 style="font-size: 14px;">Chris NGOZULU</h3><p>ETU-2025-001 • L1 Informatique</p></div>
+                                <div class="mock-badge green">Soldé</div>
+                            </div>
+                            <div class="mock-stats">
+                                <div class="mock-stat-card"><div class="mock-stat-icon blue">📚</div><div class="label">Cours</div><div class="value blue" style="font-size: 16px;">4</div></div>
+                                <div class="mock-stat-card"><div class="mock-stat-icon green">📈</div><div class="label">Moyenne</div><div class="value green" style="font-size: 16px;">15.8</div></div>
+                                <div class="mock-stat-card"><div class="mock-stat-icon purple">✓</div><div class="label">Présence</div><div class="value purple" style="font-size: 16px;">100%</div></div>
+                                <div class="mock-stat-card"><div class="mock-stat-icon orange">💳</div><div class="label">Payé</div><div class="value orange" style="font-size: 16px;">$500</div></div>
+                            </div>
+                            <div class="mock-two-col">
+                                <div class="mock-section">
+                                    <div class="mock-section-title">📚 Cours du semestre</div>
+                                    <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f1f5f9;">
+                                        <div><span style="font-weight: 600; color: #3b82f6; font-size: 10px;">INFO101</span><span style="font-size: 10px; color: #64748b;"> — Algo & Prog I</span></div>
+                                        <span style="font-weight: 700; color: #22c55e; font-size: 11px;">16.2</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                                        <div><span style="font-weight: 600; color: #3b82f6; font-size: 10px;">INFO104</span><span style="font-size: 10px; color: #64748b;"> — Base de Données</span></div>
+                                        <span style="font-weight: 700; color: #22c55e; font-size: 11px;">17.2</span>
+                                    </div>
+                                </div>
+                                <div class="mock-section">
+                                    <div class="mock-section-title">💳 Finances</div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 4px;"><span>Progression</span><span style="font-weight: 600;">38%</span></div>
+                                    <div class="mock-progress-bar"><div class="mock-progress-fill" style="width: 38%; background: linear-gradient(90deg, #3b82f6, #60a5fa);"></div></div>
+                                    <div style="font-size: 9px; color: #64748b; margin-top: 4px;">Payé: $500 / $1,300</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ SLIDE 7: DASHBOARD ADMIN ══════════ -->
+    <div class="slide bg-dark" data-slide="7">
+        <div class="header">
+            <div class="logo"><div class="logo-icon">N</div><div class="logo-text">NEXUS <span>UNIKIN</span></div></div>
+            <span class="slide-num">7 / 10</span>
+        </div>
+        <div class="content">
+            <div class="two-col">
+                <div class="mock-screen">
+                    <div class="mock-topbar">
+                        <div class="mock-topbar-left"><div class="mock-topbar-logo">N</div><div class="mock-topbar-title">NEXUS <span>UNIKIN</span></div></div>
+                        <div style="display: flex; align-items: center; gap: 6px;"><span style="font-size: 11px; color: #64748b;">Admin</span><div class="mock-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">JP</div></div>
+                    </div>
+                    <div class="mock-body">
+                        <div class="mock-sidebar">
+                            <div class="mock-sidebar-section">Administration</div>
+                            <div class="mock-nav-item active" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">📊 Tableau de bord</div>
+                            <div class="mock-nav-item">👥 Utilisateurs</div>
+                            <div class="mock-nav-item">🏛️ Struct. académique</div>
+                            <div class="mock-nav-item">📚 Cours & UE</div>
+                            <div class="mock-nav-item">📋 Délibérations</div>
+                            <div class="mock-nav-item">💰 Finances</div>
+                            <div class="mock-nav-item">📈 Statistiques</div>
+                            <div class="mock-nav-item">🔒 Sécurité</div>
+                        </div>
+                        <div class="mock-main">
+                            <div style="font-size: 14px; font-weight: 700; margin-bottom: 2px;">Tableau de bord</div>
+                            <div style="font-size: 9px; color: #64748b; margin-bottom: 10px;">Vue d'ensemble — 2025-2026</div>
+                            <div class="mock-stats">
+                                <div class="mock-stat-card"><div class="mock-stat-icon blue">🎓</div><div class="label">Étudiants</div><div class="value blue" style="font-size: 16px;">1,250</div></div>
+                                <div class="mock-stat-card"><div class="mock-stat-icon green">👨‍🏫</div><div class="label">Enseignants</div><div class="value green" style="font-size: 16px;">85</div></div>
+                                <div class="mock-stat-card"><div class="mock-stat-icon purple">📚</div><div class="label">Cours</div><div class="value purple" style="font-size: 16px;">142</div></div>
+                                <div class="mock-stat-card"><div class="mock-stat-icon orange">💰</div><div class="label">Recettes</div><div class="value orange" style="font-size: 16px;">$85K</div></div>
+                            </div>
+                            <div class="mock-two-col">
+                                <div class="mock-section">
+                                    <div class="mock-section-title">💳 Taux de paiement</div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 4px;"><span>Global</span><span style="font-weight: 700;">73%</span></div>
+                                    <div class="mock-progress-bar"><div class="mock-progress-fill" style="width: 73%; background: linear-gradient(90deg, #22c55e, #4ade80);"></div></div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
+                                        <div style="background: #f0fdf4; padding: 6px; border-radius: 6px; text-align: center;"><div style="font-size: 9px; color: #16a34a;">✓ Soldé</div><div style="font-size: 16px; font-weight: 800; color: #22c55e;">913</div></div>
+                                        <div style="background: #fefce8; padding: 6px; border-radius: 6px; text-align: center;"><div style="font-size: 9px; color: #ca8a04;">⏳ Partiel</div><div style="font-size: 16px; font-weight: 800; color: #eab308;">337</div></div>
+                                    </div>
+                                </div>
+                                <div class="mock-section">
+                                    <div class="mock-section-title">⚡ Derniers paiements</div>
+                                    <div class="mock-payment"><div class="mock-payment-avatar" style="background: #3b82f6;">CN</div><div class="mock-payment-info"><div class="mock-payment-name">Chris Ngozulu</div><div class="mock-payment-id">ETU-2025-001</div></div><div class="mock-payment-amount">$250</div></div>
+                                    <div class="mock-payment"><div class="mock-payment-avatar" style="background: #8b5cf6;">GM</div><div class="mock-payment-info"><div class="mock-payment-name">Grace Mbala</div><div class="mock-payment-id">ETU-2025-004</div></div><div class="mock-payment-amount">$100</div></div>
+                                    <div class="mock-payment"><div class="mock-payment-avatar" style="background: #22c55e;">JK</div><div class="mock-payment-info"><div class="mock-payment-name">Josué Kalala</div><div class="mock-payment-id">ETU-2025-005</div></div><div class="mock-payment-amount">$500</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2>⚙️ Panel Administrateur</h2>
+                    <p class="subtitle">Contrôle total sur l'ensemble de la plateforme</p>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 32px; height: 32px; background: rgba(59,130,246,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center;">📈</div><div><h4 style="font-size: 13px;">Statistiques temps réel</h4><p style="font-size: 11px; color: #64748b;">Inscrits, taux de paiement, recettes</p></div></div>
+                        <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 32px; height: 32px; background: rgba(34,197,94,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center;">💳</div><div><h4 style="font-size: 13px;">Suivi des paiements</h4><p style="font-size: 11px; color: #64748b;">Qui a payé, qui doit encore payer</p></div></div>
+                        <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 32px; height: 32px; background: rgba(245,158,11,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center;">📄</div><div><h4 style="font-size: 13px;">Documents automatiques</h4><p style="font-size: 11px; color: #64748b;">Attestations, relevés en 1 clic</p></div></div>
+                        <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 32px; height: 32px; background: rgba(139,92,246,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center;">🔒</div><div><h4 style="font-size: 13px;">Audit & sécurité</h4><p style="font-size: 11px; color: #64748b;">Chaque action est tracée</p></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ SLIDE 8: BASE DE DONNÉES ══════════ -->
+    <div class="slide bg-dark" data-slide="8">
+        <div class="header">
+            <div class="logo"><div class="logo-icon">N</div><div class="logo-text">NEXUS <span>UNIKIN</span></div></div>
+            <span class="slide-num">8 / 10</span>
+        </div>
+        <div class="content">
+            <h2>🗃️ Base de Données PostgreSQL</h2>
+            <p class="subtitle">14 tables normalisées, relations et contraintes d'intégrité</p>
+
+            <div class="grid-2" style="margin-bottom: 12px;">
+                <div>
+                    <div class="grid-2" style="gap: 8px; margin-bottom: 10px;">
+                        <div class="card card-accent blue-accent" style="padding: 12px;">
+                            <h4 style="font-size: 11px; color: #60a5fa;">Référence</h4>
+                            <p style="font-size: 10px;">academic_years, users, faculties, departments, promotions</p>
+                        </div>
+                        <div class="card card-accent green-accent" style="padding: 12px;">
+                            <h4 style="font-size: 11px; color: #4ade80;">Profils</h4>
+                            <p style="font-size: 10px;">admins, teachers, students, employees</p>
+                        </div>
+                        <div class="card card-accent purple-accent" style="padding: 12px;">
+                            <h4 style="font-size: 11px; color: #a78bfa;">Académique</h4>
+                            <p style="font-size: 10px;">courses, course_schedules, enrollments, grades, attendance</p>
+                        </div>
+                        <div class="card card-accent amber-accent" style="padding: 12px;">
+                            <h4 style="font-size: 11px; color: #fbbf24;">Opérationnel</h4>
+                            <p style="font-size: 10px;">payments, notifications</p>
+                        </div>
+                    </div>
+                    <div class="grid-3" style="gap: 6px;">
+                        <div class="stat-mini" style="padding: 10px;"><div class="stat-mini-icon blue" style="width: 30px; height: 30px; font-size: 14px;">📊</div><div><div class="stat-mini-value" style="font-size: 16px; color: #60a5fa;">14</div><div class="stat-mini-label">Tables</div></div></div>
+                        <div class="stat-mini" style="padding: 10px;"><div class="stat-mini-icon green" style="width: 30px; height: 30px; font-size: 14px;">⚡</div><div><div class="stat-mini-value" style="font-size: 16px; color: #4ade80;">16</div><div class="stat-mini-label">Index</div></div></div>
+                        <div class="stat-mini" style="padding: 10px;"><div class="stat-mini-icon purple" style="width: 30px; height: 30px; font-size: 14px;">🔄</div><div><div class="stat-mini-value" style="font-size: 16px; color: #a78bfa;">8</div><div class="stat-mini-label">Triggers</div></div></div>
+                    </div>
+                </div>
+                <div class="card" style="background: #0d1117; border-color: #30363d; padding: 16px; font-family: 'Courier New', monospace; font-size: 9.5px; line-height: 1.6;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #21262d;">
+                        <div style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></div>
+                        <span style="color: #8b949e; font-family: Inter, sans-serif; font-size: 10px; font-weight: 600;">schema.sql — Extrait</span>
+                    </div>
+                    <div><span style="color: #ff7b72;">CREATE TABLE</span> <span style="color: #79c0ff;">users</span> (</div>
+                    <div>  id          <span style="color: #7ee787;">SERIAL PRIMARY KEY</span>,</div>
+                    <div>  email       <span style="color: #7ee787;">VARCHAR(255)</span> <span style="color: #79c0ff;">NOT NULL UNIQUE</span>,</div>
+                    <div>  password    <span style="color: #7ee787;">VARCHAR(255)</span> <span style="color: #79c0ff;">NOT NULL</span>,</div>
+                    <div>  role        <span style="color: #7ee787;">VARCHAR(20)</span> <span style="color: #79c0ff;">NOT NULL</span></div>
+                    <div>              <span style="color: #ffa657;">CHECK</span> (role <span style="color: #ffa657;">IN</span></div>
+                    <div>              (<span style="color: #a5d6ff;">'SUPER_ADMIN'</span>,<span style="color: #a5d6ff;">'ADMIN'</span>,</div>
+                    <div>               <span style="color: #a5d6ff;">'TEACHER'</span>,<span style="color: #a5d6ff;">'STUDENT'</span>,</div>
+                    <div>               <span style="color: #a5d6ff;">'EMPLOYEE'</span>)),</div>
+                    <div>  is_active   <span style="color: #7ee787;">BOOLEAN DEFAULT TRUE</span>,</div>
+                    <div>  created_at  <span style="color: #7ee787;">TIMESTAMP</span></div>
+                    <div>              <span style="color: #79c0ff;">DEFAULT CURRENT_TIMESTAMP</span></div>
+                    <div>);</div>
+                    <div style="margin-top: 6px; color: #484f58;">-- 23 clés étrangères</div>
+                    <div style="color: #484f58;">-- Normalisation 3NF</div>
+                </div>
+            </div>
+            <div class="highlight green-box">
+                <h4 style="color: #4ade80;">📄 Documentation complète générée</h4>
+                <p style="color: #86efac;">Un PDF de 25+ pages avec schéma détaillé de chaque table, relations FK, index, triggers et comptes par défaut est disponible.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ SLIDE 9: CALENDRIER ══════════ -->
+    <div class="slide bg-dark" data-slide="9">
+        <div class="header">
+            <div class="logo"><div class="logo-icon">N</div><div class="logo-text">NEXUS <span>UNIKIN</span></div></div>
+            <span class="slide-num">9 / 10</span>
+        </div>
+        <div class="content">
+            <h2>📅 Calendrier de Déploiement</h2>
+            <p class="subtitle">Plan de mise en production et déploiement progressif</p>
+
+            <div class="timeline-h">
+                <div class="tl-item"><div class="tl-dot done">✅</div><div class="tl-label done-text">Phase 1</div><div class="tl-desc">Déc–Jan 2026<br>Développement core<br><strong style="color: #4ade80;">TERMINÉE</strong></div></div>
+                <div class="tl-item"><div class="tl-dot current">🔧</div><div class="tl-label current-text">Phase 2</div><div class="tl-desc">Fév 2026<br>Intégration Backbone<br><strong style="color: #60a5fa;">EN COURS</strong></div></div>
+                <div class="tl-item"><div class="tl-dot future">🧪</div><div class="tl-label future-text">Phase 3</div><div class="tl-desc">Mars 2026<br>Tests pilotes<br>2 facultés</div></div>
+                <div class="tl-item"><div class="tl-dot future">📈</div><div class="tl-label future-text">Phase 4</div><div class="tl-desc">Avril 2026<br>Extension<br>6 facultés</div></div>
+                <div class="tl-item"><div class="tl-dot future">🚀</div><div class="tl-label future-text">Phase 5</div><div class="tl-desc">Mai 2026<br>Déploiement complet<br>13 facultés</div></div>
+            </div>
+
+            <div class="grid-3" style="margin-top: 15px;">
+                <div class="card" style="border-left: 3px solid #22c55e;">
+                    <h4 style="font-size: 13px; margin-bottom: 6px;">✅ Phase 1 — Terminée</h4>
+                    <p style="font-size: 10px; line-height: 1.5;">• Architecture & base de données<br>• Système d'authentification<br>• 4 dashboards (Admin, Prof, Étudiant, Employé)<br>• 18 modules fonctionnels<br>• API REST complète</p>
+                </div>
+                <div class="card" style="border-left: 3px solid #3b82f6;">
+                    <h4 style="font-size: 13px; margin-bottom: 6px; color: #60a5fa;">🔧 Phase 2 — En cours</h4>
+                    <p style="font-size: 10px; line-height: 1.5;">• Réunion Backbone (05/02) ✅<br>• Convention matricules définie<br>• Import pilote 500 étudiants<br>• Module délibérations<br>• Documents automatiques</p>
+                </div>
+                <div class="card" style="border-left: 3px solid #64748b;">
+                    <h4 style="font-size: 13px; margin-bottom: 6px; color: #94a3b8;">📋 Phases 3-5 — Planifiées</h4>
+                    <p style="font-size: 10px; line-height: 1.5;">• Tests pilotes Fac. Sciences & FSEG<br>• Formation des utilisateurs<br>• Extension progressive<br>• Bibliothèque numérique<br>• Module recherche</p>
+                </div>
+            </div>
+
+            <div class="highlight amber-box" style="margin-top: 12px;">
+                <h4 style="color: #fbbf24;">🎯 Objectif : mise en production début Mars 2026</h4>
+                <p style="color: #fcd34d;">Pilote avec la Faculté des Sciences (informatique) et la FSEG pour valider le workflow complet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ SLIDE 10: CONCLUSION ══════════ -->
+    <div class="slide bg-grid" data-slide="10">
+        <div class="header">
+            <div class="logo"><div class="logo-icon">N</div><div class="logo-text">NEXUS <span>UNIKIN</span></div></div>
+            <span class="slide-num">10 / 10</span>
+        </div>
+        <div class="content center">
+            <h1 style="font-size: 40px; margin-bottom: 20px;">Ce que l'UNIKIN <span class="green">gagne</span><br>avec NEXUS</h1>
+            <div class="grid-4" style="max-width: 850px; margin: 0 auto 20px;">
+                <div class="card" style="text-align: center;"><span class="card-icon">⏱️</span><h4>Du temps</h4><p>Processus automatisés, zéro file d'attente</p></div>
+                <div class="card" style="text-align: center;"><span class="card-icon">📊</span><h4>De la visibilité</h4><p>Statistiques et suivi en temps réel</p></div>
+                <div class="card" style="text-align: center;"><span class="card-icon">🔒</span><h4>De la sécurité</h4><p>Traçabilité complète, fin des fraudes</p></div>
+                <div class="card" style="text-align: center;"><span class="card-icon">🌟</span><h4>Une image moderne</h4><p>1ère université digitale de RDC</p></div>
+            </div>
+            <div style="background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15)); border: 2px solid rgba(59,130,246,0.3); border-radius: 16px; padding: 25px 40px; max-width: 650px;">
+                <h3 style="font-size: 20px; margin-bottom: 6px;">🚀 72% du projet est livré</h3>
+                <p style="font-size: 14px; color: #94a3b8;">Phase pilote prévue en Mars 2026 avec 2 facultés.</p>
+            </div>
+
+            <div class="grid-2" style="max-width: 600px; margin: 24px auto 0; gap: 14px;">
+                <div class="team-card">
+                    <div class="team-avatar" style="background: linear-gradient(135deg, #3b82f6, #6366f1);">CN</div>
+                    <div><div class="team-name">Chris Ngozulu Kasongo</div><div class="team-role">Chef de Projet NEXUS</div></div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar" style="background: linear-gradient(135deg, #22c55e, #16a34a);">AT</div>
+                    <div><div class="team-name">Alphonse Tamina</div><div class="team-role">Administrateur BD Backbone</div></div>
+                </div>
+            </div>
+
+            <p style="margin-top: 24px; font-size: 16px; color: #60a5fa; font-weight: 600;">Des questions ?</p>
+            <p style="margin-top: 6px; font-size: 12px; color: #334155;">Université de Kinshasa • Février 2026</p>
+        </div>
+    </div>
+
+    <!-- NAV -->
+    <div class="kbd-hint"><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Espace</kbd> pour naviguer</div>
+    <div class="nav">
+        <button class="nav-btn" onclick="prevSlide()">← Précédent</button>
+        <span class="nav-indicator" id="indicator">1 / 10</span>
+        <button class="nav-btn primary" onclick="nextSlide()">Suivant →</button>
+    </div>
+
+    <script>
+        let current = 1;
+        const total = 10;
+
+        function showSlide(n) {
+            if (n > total) current = 1;
+            if (n < 1) current = total;
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach(s => { s.classList.remove('active'); s.style.opacity = '0'; });
+            const target = slides[current - 1];
+            target.classList.add('active');
+            requestAnimationFrame(() => { target.style.opacity = '1'; });
+            document.getElementById('progress').style.width = (current / total * 100) + '%';
+            document.getElementById('indicator').textContent = current + ' / ' + total;
+        }
+
+        function nextSlide() { current++; showSlide(current); }
+        function prevSlide() { current--; showSlide(current); }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+        });
+
+        let touchX = 0;
+        document.addEventListener('touchstart', e => touchX = e.changedTouches[0].screenX);
+        document.addEventListener('touchend', e => {
+            const diff = touchX - e.changedTouches[0].screenX;
+            if (diff > 50) nextSlide();
+            else if (diff < -50) prevSlide();
+        });
+
+        showSlide(current);
+    </script>
+</body>
+</html>

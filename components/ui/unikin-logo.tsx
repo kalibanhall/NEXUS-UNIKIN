@@ -2,6 +2,9 @@
 
 import { cn } from '@/lib/utils'
 
+// Logo UNIKIN encodé en base64
+const UNIKIN_LOGO_BASE64 = 'data:image/png;base64,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'
+
 interface UnikinLogoProps {
   className?: string
   size?: number
@@ -10,80 +13,14 @@ interface UnikinLogoProps {
 
 export function UnikinLogo({ className, size = 64, showText = false }: UnikinLogoProps) {
   return (
-    <div className={cn("flex flex-col items-center", className)}>
-      <svg
+    <div className={`flex flex-col items-center ${className || ''}`}>
+      <img
+        src={UNIKIN_LOGO_BASE64}
+        alt="Logo UNIKIN"
         width={size}
         height={size}
-        viewBox="0 0 200 220"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="drop-shadow-lg"
-      >
-        {/* Fond du blason - forme de bouclier */}
-        <path
-          d="M10 10 L190 10 L190 140 C190 180 100 210 100 210 C100 210 10 180 10 140 Z"
-          fill="#1E3A8A"
-          stroke="#0F172A"
-          strokeWidth="3"
-        />
-        
-        {/* Triangle jaune à droite */}
-        <path
-          d="M190 10 L190 140 C190 160 160 180 130 195 L190 10 Z"
-          fill="#FBBF24"
-        />
-        
-        {/* Triangle rouge/orange */}
-        <path
-          d="M150 10 L190 10 L190 80 Z"
-          fill="#EF4444"
-        />
-        
-        {/* Livre ouvert - partie gauche */}
-        <path
-          d="M40 120 L100 100 L100 160 L40 145 Z"
-          fill="white"
-          stroke="#0F172A"
-          strokeWidth="1"
-        />
-        
-        {/* Livre ouvert - partie droite */}
-        <path
-          d="M100 100 L160 120 L160 145 L100 160 Z"
-          fill="#E5E7EB"
-          stroke="#0F172A"
-          strokeWidth="1"
-        />
-        
-        {/* Plume/Stylo */}
-        <path
-          d="M100 45 L100 110"
-          stroke="#0F172A"
-          strokeWidth="4"
-          strokeLinecap="round"
-        />
-        <path
-          d="M95 45 L100 30 L105 45 Z"
-          fill="#0F172A"
-        />
-        
-        {/* Étoiles */}
-        <g fill="#FBBF24">
-          {/* Étoile gauche */}
-          <polygon points="55,55 58,65 68,65 60,72 63,82 55,75 47,82 50,72 42,65 52,65" />
-          {/* Étoile centrale */}
-          <polygon points="100,65 103,75 113,75 105,82 108,92 100,85 92,92 95,82 87,75 97,75" />
-          {/* Étoile droite */}
-          <polygon points="145,55 148,65 158,65 150,72 153,82 145,75 137,82 140,72 132,65 142,65" />
-        </g>
-        
-        {/* Petites étoiles jaunes dans le triangle */}
-        <g fill="#FBBF24">
-          <polygon points="165,140 167,145 172,145 168,149 170,154 165,151 160,154 162,149 158,145 163,145" transform="scale(0.7) translate(70, 60)" />
-          <polygon points="165,140 167,145 172,145 168,149 170,154 165,151 160,154 162,149 158,145 163,145" transform="scale(0.7) translate(85, 90)" />
-          <polygon points="165,140 167,145 172,145 168,149 170,154 165,151 160,154 162,149 158,145 163,145" transform="scale(0.7) translate(100, 120)" />
-        </g>
-      </svg>
+        className="drop-shadow-lg object-contain"
+      />
       
       {showText && (
         <p className="mt-2 text-xs font-semibold text-center text-gray-600 dark:text-gray-400 tracking-wider">
@@ -97,43 +34,15 @@ export function UnikinLogo({ className, size = 64, showText = false }: UnikinLog
 // Version simplifiée pour les filigranes
 export function UnikinLogoSimple({ className, size = 40 }: { className?: string; size?: number }) {
   return (
-    <svg
+    <img
+      src={UNIKIN_LOGO_BASE64}
+      alt="Logo UNIKIN"
       width={size}
-      height={size * 1.1}
-      viewBox="0 0 200 220"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-    >
-      {/* Fond du blason simplifié */}
-      <path
-        d="M10 10 L190 10 L190 140 C190 180 100 210 100 210 C100 210 10 180 10 140 Z"
-        fill="currentColor"
-        opacity="0.15"
-      />
-      
-      {/* Triangle */}
-      <path
-        d="M190 10 L190 140 C190 160 160 180 130 195 L190 10 Z"
-        fill="currentColor"
-        opacity="0.25"
-      />
-      
-      {/* Étoiles */}
-      <g fill="currentColor" opacity="0.3">
-        <polygon points="55,55 58,65 68,65 60,72 63,82 55,75 47,82 50,72 42,65 52,65" />
-        <polygon points="100,65 103,75 113,75 105,82 108,92 100,85 92,92 95,82 87,75 97,75" />
-        <polygon points="145,55 148,65 158,65 150,72 153,82 145,75 137,82 140,72 132,65 142,65" />
-      </g>
-      
-      {/* Plume */}
-      <path
-        d="M100 45 L100 110"
-        stroke="currentColor"
-        strokeWidth="4"
-        strokeLinecap="round"
-        opacity="0.2"
-      />
-    </svg>
+      height={size}
+      className={`object-contain opacity-20 ${className || ''}`}
+    />
   )
 }
+
+// Export du base64 pour utilisation ailleurs
+export const UNIKIN_LOGO = UNIKIN_LOGO_BASE64

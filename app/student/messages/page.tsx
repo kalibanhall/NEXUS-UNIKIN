@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { 
   MessageCircle, Send, Search, Plus, MoreVertical, 
   Phone, Video, Info, Smile, Paperclip, Image,
-  Check, CheckCheck, Circle, User, Users, RefreshCw
+  Check, CheckCheck, Circle, User, Users, RefreshCw, Loader2, UserPlus
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -37,24 +37,34 @@ import { cn } from '@/lib/utils'
 
 interface Contact {
   id: string
+  contact_id?: number
   name: string
+  contact_name?: string
   email: string
   role: string
+  contact_role?: string
   avatar?: string
   isOnline: boolean
   lastSeen?: string
   unreadCount?: number
+  unread_count?: number
   lastMessage?: string
+  last_message?: string
   lastMessageTime?: string
+  last_message_time?: string
 }
 
 interface Message {
-  id: string
-  senderId: string
-  receiverId: string
+  id: string | number
+  senderId: string | number
+  sender_id?: number
+  receiverId: string | number
+  receiver_id?: number
   content: string
   createdAt: string
+  created_at?: string
   read: boolean
+  is_read?: boolean
   type: 'text' | 'image' | 'file'
 }
 
@@ -76,6 +86,13 @@ const StatusIndicator = ({ isOnline, size = 'sm' }: { isOnline: boolean; size?: 
   )
 }
 
+interface SearchUser {
+  id: number
+  name: string
+  email: string
+  role: string
+}
+
 export default function StudentMessagesPage() {
   const { user } = useAuth()
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -85,99 +102,83 @@ export default function StudentMessagesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [showNewMessageDialog, setShowNewMessageDialog] = useState(false)
+  const [searchUsers, setSearchUsers] = useState<SearchUser[]>([])
+  const [userSearchTerm, setUserSearchTerm] = useState('')
+  const [searchingUsers, setSearchingUsers] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Données de démonstration
-  const demoContacts: Contact[] = [
-    { 
-      id: '1', 
-      name: 'Prof. Jean Mukendi', 
-      email: 'PROF-2020-001@unikin.ac.cd', 
-      role: 'TEACHER',
-      isOnline: true,
-      lastMessage: 'Le cours de demain est reporté.',
-      lastMessageTime: '10:30',
-      unreadCount: 2
-    },
-    { 
-      id: '2', 
-      name: 'Prof. Marie Kabongo', 
-      email: 'PROF-2020-002@unikin.ac.cd', 
-      role: 'TEACHER',
-      isOnline: false,
-      lastSeen: '2026-01-15 14:30',
-      lastMessage: 'N\'oubliez pas le TP de vendredi.',
-      lastMessageTime: 'Hier'
-    },
-    { 
-      id: '3', 
-      name: 'Secrétariat Fac. Sciences', 
-      email: 'secretariat@unikin.ac.cd', 
-      role: 'EMPLOYEE',
-      isOnline: true,
-      lastMessage: 'Votre attestation est prête.',
-      lastMessageTime: '09:15',
-      unreadCount: 1
-    },
-    { 
-      id: '4', 
-      name: 'Paul Mbuyi', 
-      email: 'ETU-2025-002@unikin.ac.cd', 
-      role: 'STUDENT',
-      isOnline: false,
-      lastSeen: '2026-01-15 16:00',
-      lastMessage: 'Tu as les notes du cours?',
-      lastMessageTime: 'Lun'
-    },
-    { 
-      id: '5', 
-      name: 'Admin UNIKIN', 
-      email: 'ADM-2024-001@unikin.ac.cd', 
-      role: 'ADMIN',
-      isOnline: true,
-      lastMessage: 'Bienvenue sur la plateforme!',
-      lastMessageTime: '12 Jan'
-    },
-  ]
-
-  const demoMessages: Message[] = [
-    { id: '1', senderId: '1', receiverId: String(user?.id || ''), content: 'Bonjour! J\'espère que vous allez bien.', createdAt: '2026-01-15T08:00:00', read: true, type: 'text' },
-    { id: '2', senderId: String(user?.id || ''), receiverId: '1', content: 'Bonjour Professeur! Oui très bien merci.', createdAt: '2026-01-15T08:05:00', read: true, type: 'text' },
-    { id: '3', senderId: '1', receiverId: String(user?.id || ''), content: 'Je voulais vous informer que le cours de demain est reporté à jeudi.', createdAt: '2026-01-15T08:10:00', read: true, type: 'text' },
-    { id: '4', senderId: '1', receiverId: String(user?.id || ''), content: 'Le cours de demain est reporté.', createdAt: '2026-01-15T10:30:00', read: false, type: 'text' },
-  ]
+  // Récupérer les conversations depuis l'API
+  const fetchContacts = useCallback(async () => {
+    if (!user?.userId) return
+    
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/messages?user_id=${user.userId}`)
+      if (response.ok) {
+        const data = await response.json()
+        // Normaliser les données de l'API
+        const normalizedContacts = (data.conversations || []).map((conv: any) => ({
+          id: String(conv.contact_id),
+          contact_id: conv.contact_id,
+          name: conv.contact_name,
+          contact_name: conv.contact_name,
+          email: conv.contact_email || '',
+          role: conv.contact_role || 'UNKNOWN',
+          contact_role: conv.contact_role,
+          isOnline: conv.is_online || false,
+          lastSeen: conv.last_seen,
+          unreadCount: conv.unread_count || 0,
+          unread_count: conv.unread_count,
+          lastMessage: conv.last_message,
+          last_message: conv.last_message,
+          lastMessageTime: conv.last_message_time,
+          last_message_time: conv.last_message_time
+        }))
+        setContacts(normalizedContacts)
+      }
+    } catch (error) {
+      console.error('Erreur récupération conversations:', error)
+      toast.error('Erreur de chargement des conversations')
+    } finally {
+      setLoading(false)
+    }
+  }, [user?.userId])
 
   useEffect(() => {
-    fetchContacts()
-    // Mise à jour du statut en ligne
-    updateOnlineStatus()
-    const interval = setInterval(updateOnlineStatus, 30000) // Heartbeat toutes les 30s
-    return () => clearInterval(interval)
-  }, [])
+    if (user?.userId) {
+      fetchContacts()
+      updateOnlineStatus()
+      const interval = setInterval(updateOnlineStatus, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [user?.userId, fetchContacts])
 
   useEffect(() => {
     scrollToBottom()
   }, [messages])
 
-  const fetchContacts = async () => {
-    try {
-      setLoading(true)
-      // En production, appeler l'API
-      // const response = await fetch(`/api/messages?user_id=${user?.id}`)
-      setContacts(demoContacts)
-    } catch (error) {
-      console.error('Error:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Polling pour rafraîchir les messages
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (user?.userId) {
+        fetchContacts()
+        if (selectedContact) {
+          fetchMessages(selectedContact.id)
+        }
+      }
+    }, 10000)
+    
+    return () => clearInterval(interval)
+  }, [user?.userId, selectedContact, fetchContacts])
 
   const updateOnlineStatus = async () => {
+    if (!user?.userId) return
     try {
       await fetch('/api/user-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.id, status: 'ONLINE' })
+        body: JSON.stringify({ userId: user.userId, status: 'ONLINE' })
       })
     } catch (error) {
       // Silently fail
@@ -185,53 +186,129 @@ export default function StudentMessagesPage() {
   }
 
   const fetchMessages = async (contactId: string) => {
-    // En production, appeler l'API
-    const filtered = demoMessages.filter(m => 
-      m.senderId === contactId || m.receiverId === contactId
-    )
-    setMessages(filtered)
+    if (!user?.userId) return
+    
+    try {
+      const response = await fetch(
+        `/api/messages?user_id=${user.userId}&contact_id=${contactId}&type=messages`
+      )
+      if (response.ok) {
+        const data = await response.json()
+        // Normaliser les messages
+        const normalizedMessages = (data.messages || []).map((msg: any) => ({
+          id: String(msg.id),
+          senderId: String(msg.sender_id),
+          sender_id: msg.sender_id,
+          receiverId: String(msg.receiver_id),
+          receiver_id: msg.receiver_id,
+          content: msg.content,
+          createdAt: msg.created_at,
+          created_at: msg.created_at,
+          read: msg.is_read || false,
+          is_read: msg.is_read,
+          type: 'text' as const
+        }))
+        setMessages(normalizedMessages)
+        
+        // Marquer les messages comme lus
+        await fetch('/api/messages', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderId: parseInt(contactId),
+            receiverId: user.userId
+          })
+        })
+      }
+    } catch (error) {
+      console.error('Erreur récupération messages:', error)
+    }
   }
 
   const selectContact = (contact: Contact) => {
     setSelectedContact(contact)
     fetchMessages(contact.id)
-    // Marquer comme lu
+    // Marquer comme lu localement
     setContacts(prev => prev.map(c => 
-      c.id === contact.id ? { ...c, unreadCount: 0 } : c
+      c.id === contact.id ? { ...c, unreadCount: 0, unread_count: 0 } : c
     ))
   }
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedContact) return
+    if (!newMessage.trim() || !selectedContact || !user?.userId) return
     
     setSending(true)
     try {
-      // En production, appeler l'API
-      const newMsg: Message = {
-        id: Date.now().toString(),
-        senderId: String(user?.id || ''),
-        receiverId: selectedContact.id,
-        content: newMessage,
-        createdAt: new Date().toISOString(),
-        read: false,
-        type: 'text'
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          senderId: user.userId,
+          receiverId: parseInt(selectedContact.id),
+          content: newMessage.trim()
+        })
+      })
+      
+      if (response.ok) {
+        setNewMessage('')
+        fetchMessages(selectedContact.id)
+        fetchContacts()
+        toast.success('Message envoyé')
+      } else {
+        throw new Error('Erreur envoi message')
       }
-      setMessages(prev => [...prev, newMsg])
-      setNewMessage('')
-      
-      // Mettre à jour le dernier message dans la liste des contacts
-      setContacts(prev => prev.map(c => 
-        c.id === selectedContact.id 
-          ? { ...c, lastMessage: newMessage, lastMessageTime: 'À l\'instant' }
-          : c
-      ))
-      
-      toast.success('Message envoyé')
     } catch (error) {
+      console.error('Erreur envoi message:', error)
       toast.error('Erreur d\'envoi')
     } finally {
       setSending(false)
     }
+  }
+
+  // Rechercher des utilisateurs pour nouvelle conversation
+  const searchUsersForNewMessage = async (term: string) => {
+    if (!term.trim()) {
+      setSearchUsers([])
+      return
+    }
+    
+    setSearchingUsers(true)
+    try {
+      const response = await fetch(`/api/users?search=${encodeURIComponent(term)}&limit=10`)
+      if (response.ok) {
+        const data = await response.json()
+        setSearchUsers(data.users || data || [])
+      }
+    } catch (error) {
+      console.error('Erreur recherche utilisateurs:', error)
+    } finally {
+      setSearchingUsers(false)
+    }
+  }
+
+  // Démarrer une nouvelle conversation
+  const startNewConversation = (searchUser: SearchUser) => {
+    const newContact: Contact = {
+      id: String(searchUser.id),
+      contact_id: searchUser.id,
+      name: searchUser.name,
+      contact_name: searchUser.name,
+      email: searchUser.email,
+      role: searchUser.role,
+      contact_role: searchUser.role,
+      isOnline: false,
+      unreadCount: 0,
+      unread_count: 0,
+      lastMessage: '',
+      last_message: '',
+      lastMessageTime: new Date().toISOString(),
+      last_message_time: new Date().toISOString()
+    }
+    setSelectedContact(newContact)
+    setMessages([])
+    setShowNewMessageDialog(false)
+    setUserSearchTerm('')
+    setSearchUsers([])
   }
 
   const scrollToBottom = () => {
@@ -241,6 +318,23 @@ export default function StudentMessagesPage() {
   const formatTime = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  const formatMessageTime = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    
+    if (days === 0) {
+      return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    } else if (days === 1) {
+      return 'Hier'
+    } else if (days < 7) {
+      return date.toLocaleDateString('fr-FR', { weekday: 'short' })
+    } else {
+      return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+    }
   }
 
   const formatLastSeen = (dateString?: string) => {
@@ -274,17 +368,21 @@ export default function StudentMessagesPage() {
     return colors[role] || 'bg-gray-100 text-gray-800'
   }
 
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+  }
+
   const filteredContacts = contacts.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchQuery.toLowerCase())
+    (c.name || c.contact_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (c.email || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const totalUnread = contacts.reduce((acc, c) => acc + (c.unreadCount || 0), 0)
+  const totalUnread = contacts.reduce((acc, c) => acc + (c.unreadCount || c.unread_count || 0), 0)
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -300,6 +398,73 @@ export default function StudentMessagesPage() {
             )}
           </h1>
           <p className="text-gray-500 dark:text-gray-400">Échangez avec vos professeurs et collègues</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Dialog open={showNewMessageDialog} onOpenChange={setShowNewMessageDialog}>
+            <Button variant="outline" size="sm" onClick={() => setShowNewMessageDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nouveau message
+            </Button>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Nouvelle conversation</DialogTitle>
+                <DialogDescription>
+                  Recherchez un utilisateur pour démarrer une conversation
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Rechercher un utilisateur..."
+                    className="pl-10"
+                    value={userSearchTerm}
+                    onChange={(e) => {
+                      setUserSearchTerm(e.target.value)
+                      searchUsersForNewMessage(e.target.value)
+                    }}
+                  />
+                </div>
+                <ScrollArea className="h-[300px]">
+                  {searchingUsers ? (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : searchUsers.length > 0 ? (
+                    <div className="space-y-2">
+                      {searchUsers.map((searchUser) => (
+                        <div
+                          key={searchUser.id}
+                          className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                          onClick={() => startNewConversation(searchUser)}
+                        >
+                          <Avatar>
+                            <AvatarFallback className={getRoleBadgeColor(searchUser.role)}>
+                              {getInitials(searchUser.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="font-medium">{searchUser.name}</p>
+                            <p className="text-sm text-gray-500">{getRoleLabel(searchUser.role)}</p>
+                          </div>
+                          <UserPlus className="h-4 w-4 text-gray-400" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : userSearchTerm ? (
+                    <p className="text-center text-gray-500 py-4">Aucun utilisateur trouvé</p>
+                  ) : (
+                    <p className="text-center text-gray-500 py-4">
+                      Tapez pour rechercher un utilisateur
+                    </p>
+                  )}
+                </ScrollArea>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Button variant="outline" size="sm" onClick={fetchContacts}>
+            <RefreshCw className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
@@ -318,41 +483,51 @@ export default function StudentMessagesPage() {
             </div>
           </CardHeader>
           <ScrollArea className="flex-1">
-            {filteredContacts.map(contact => (
-              <div
-                key={contact.id}
-                className={cn(
-                  'flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 border-b',
-                  selectedContact?.id === contact.id && 'bg-blue-50 dark:bg-blue-950'
-                )}
-                onClick={() => selectContact(contact)}
-              >
-                <div className="relative">
-                  <Avatar>
-                    <AvatarFallback className={getRoleBadgeColor(contact.role)}>
-                      {contact.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="absolute bottom-0 right-0">
-                    <StatusIndicator isOnline={contact.isOnline} />
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium truncate">{contact.name}</span>
-                    <span className="text-xs text-gray-500">{contact.lastMessageTime}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500 truncate">{contact.lastMessage}</p>
-                    {contact.unreadCount ? (
-                      <Badge className="bg-blue-600 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                        {contact.unreadCount}
-                      </Badge>
-                    ) : null}
-                  </div>
-                </div>
+            {filteredContacts.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                {searchQuery ? 'Aucun contact trouvé' : 'Aucune conversation'}
               </div>
-            ))}
+            ) : (
+              filteredContacts.map(contact => (
+                <div
+                  key={contact.id}
+                  className={cn(
+                    'flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 border-b',
+                    selectedContact?.id === contact.id && 'bg-blue-50 dark:bg-blue-950'
+                  )}
+                  onClick={() => selectContact(contact)}
+                >
+                  <div className="relative">
+                    <Avatar>
+                      <AvatarFallback className={getRoleBadgeColor(contact.role || contact.contact_role || '')}>
+                        {getInitials(contact.name || contact.contact_name || '')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="absolute bottom-0 right-0">
+                      <StatusIndicator isOnline={contact.isOnline} />
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium truncate">{contact.name || contact.contact_name}</span>
+                      <span className="text-xs text-gray-500">
+                        {formatMessageTime(contact.lastMessageTime || contact.last_message_time || '')}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-500 truncate">
+                        {contact.lastMessage || contact.last_message}
+                      </p>
+                      {(contact.unreadCount || contact.unread_count || 0) > 0 && (
+                        <Badge className="bg-blue-600 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                          {contact.unreadCount || contact.unread_count}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </ScrollArea>
         </Card>
 
@@ -365,8 +540,8 @@ export default function StudentMessagesPage() {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Avatar>
-                      <AvatarFallback className={getRoleBadgeColor(selectedContact.role)}>
-                        {selectedContact.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      <AvatarFallback className={getRoleBadgeColor(selectedContact.role || selectedContact.contact_role || '')}>
+                        {getInitials(selectedContact.name || selectedContact.contact_name || '')}
                       </AvatarFallback>
                     </Avatar>
                     <span className="absolute bottom-0 right-0">
@@ -375,9 +550,9 @@ export default function StudentMessagesPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold flex items-center gap-2">
-                      {selectedContact.name}
-                      <Badge className={getRoleBadgeColor(selectedContact.role)} variant="outline">
-                        {getRoleLabel(selectedContact.role)}
+                      {selectedContact.name || selectedContact.contact_name}
+                      <Badge className={getRoleBadgeColor(selectedContact.role || selectedContact.contact_role || '')} variant="outline">
+                        {getRoleLabel(selectedContact.role || selectedContact.contact_role || '')}
                       </Badge>
                     </h3>
                     <p className="text-sm text-gray-500 flex items-center gap-1">
@@ -400,12 +575,12 @@ export default function StudentMessagesPage() {
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-12 w-12">
-                            <AvatarFallback className={getRoleBadgeColor(selectedContact.role)}>
-                              {selectedContact.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            <AvatarFallback className={getRoleBadgeColor(selectedContact.role || selectedContact.contact_role || '')}>
+                              {getInitials(selectedContact.name || selectedContact.contact_name || '')}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <h4 className="font-semibold">{selectedContact.name}</h4>
+                            <h4 className="font-semibold">{selectedContact.name || selectedContact.contact_name}</h4>
                             <p className="text-sm text-gray-500">{selectedContact.email}</p>
                           </div>
                         </div>
@@ -418,7 +593,7 @@ export default function StudentMessagesPage() {
                           </div>
                           <div className="flex items-center gap-2 text-sm mt-1">
                             <span className="text-gray-500">Rôle:</span>
-                            <span>{getRoleLabel(selectedContact.role)}</span>
+                            <span>{getRoleLabel(selectedContact.role || selectedContact.contact_role || '')}</span>
                           </div>
                         </div>
                       </div>
@@ -430,43 +605,55 @@ export default function StudentMessagesPage() {
               {/* Messages */}
               <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
-                  {messages.map(message => {
-                    const isOwn = message.senderId === String(user?.id)
-                    return (
-                      <div
-                        key={message.id}
-                        className={cn('flex', isOwn ? 'justify-end' : 'justify-start')}
-                      >
-                        <div className={cn(
-                          'max-w-[70%] rounded-2xl px-4 py-2',
-                          isOwn 
-                            ? 'bg-blue-600 text-white rounded-br-md' 
-                            : 'bg-gray-100 dark:bg-gray-800 rounded-bl-md'
-                        )}>
-                          <p>{message.content}</p>
+                  {messages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full py-8 text-gray-500">
+                      Aucun message. Commencez la conversation !
+                    </div>
+                  ) : (
+                    messages.map(message => {
+                      const isOwn = String(message.senderId || message.sender_id) === String(user?.userId)
+                      return (
+                        <div
+                          key={message.id}
+                          className={cn('flex', isOwn ? 'justify-end' : 'justify-start')}
+                        >
                           <div className={cn(
-                            'flex items-center justify-end gap-1 text-xs mt-1',
-                            isOwn ? 'text-blue-200' : 'text-gray-500'
+                            'max-w-[70%] rounded-2xl px-4 py-2',
+                            isOwn 
+                              ? 'bg-blue-600 text-white rounded-br-md' 
+                              : 'bg-gray-100 dark:bg-gray-800 rounded-bl-md'
                           )}>
-                            <span>{formatTime(message.createdAt)}</span>
-                            {isOwn && (
-                              message.read 
-                                ? <CheckCheck className="h-3 w-3" />
-                                : <Check className="h-3 w-3" />
-                            )}
+                            <p>{message.content}</p>
+                            <div className={cn(
+                              'flex items-center justify-end gap-1 text-xs mt-1',
+                              isOwn ? 'text-blue-200' : 'text-gray-500'
+                            )}>
+                              <span>{formatTime(message.createdAt || message.created_at || '')}</span>
+                              {isOwn && (
+                                (message.read || message.is_read)
+                                  ? <CheckCheck className="h-3 w-3" />
+                                  : <Check className="h-3 w-3" />
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
 
               {/* Zone de saisie */}
               <div className="p-4 border-t">
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon">
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    sendMessage()
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Button type="button" variant="ghost" size="icon">
                     <Paperclip className="h-5 w-5" />
                   </Button>
                   <Input 
@@ -474,15 +661,14 @@ export default function StudentMessagesPage() {
                     className="flex-1"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                   />
-                  <Button variant="ghost" size="icon">
+                  <Button type="button" variant="ghost" size="icon">
                     <Smile className="h-5 w-5" />
                   </Button>
-                  <Button onClick={sendMessage} disabled={!newMessage.trim() || sending}>
-                    <Send className="h-5 w-5" />
+                  <Button type="submit" disabled={!newMessage.trim() || sending}>
+                    {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                   </Button>
-                </div>
+                </form>
               </div>
             </>
           ) : (

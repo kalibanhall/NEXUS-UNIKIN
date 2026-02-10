@@ -26,7 +26,8 @@ import { toast } from 'sonner'
 import { useAuth } from '@/lib/auth/auth-context'
 
 export default function StudentAttendancePage() {
-  const { user, studentInfo } = useAuth()
+  const { user } = useAuth()
+  const studentInfo = user?.profile
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [showCodeDialog, setShowCodeDialog] = useState(false)
@@ -34,14 +35,14 @@ export default function StudentAttendancePage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.userId) {
       fetchAttendance()
     }
-  }, [user?.id])
+  }, [user?.userId])
 
   const fetchAttendance = async () => {
     try {
-      const response = await fetch(`/api/dashboard?role=STUDENT&user_id=${user?.id}`)
+      const response = await fetch(`/api/dashboard?role=STUDENT&user_id=${user?.userId}`)
       if (response.ok) {
         const result = await response.json()
         setData(result)

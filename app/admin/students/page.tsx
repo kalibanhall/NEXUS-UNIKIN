@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { 
   Users,
   Plus,
@@ -20,15 +20,15 @@ import {
   Calendar,
   GraduationCap,
   Wallet,
-  RefreshCw,
-  ChevronLeft,
-  ChevronRight,
+  UserCheck,
+  UserX,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Table,
   TableBody,
@@ -51,6 +51,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   DropdownMenu,
@@ -60,794 +61,460 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { toast } from 'sonner'
+import { cn, formatCurrency } from '@/lib/utils'
 
-interface Student {
-  id: number
-  matricule: string
-  user_id: number
-  email: string
-  first_name: string
-  last_name: string
-  phone: string | null
-  promotion_id: number
-  promotion_name: string
-  promotion_level: string
-  department_id: number
-  department_name: string
-  faculty_id: number
-  faculty_name: string
-  status: string
-  payment_status: string
-  enrollment_date: string
-  birth_date: string | null
-  gender: string | null
-  is_active: boolean
-}
-
-interface Promotion {
-  id: number
-  name: string
-  level: string
-  department_name: string
-}
-
-interface Faculty {
-  id: number
-  name: string
-  code: string
-}
-
-export default function StudentsPage() {
-  const [students, setStudents] = useState<Student[]>([])
-  const [faculties, setFaculties] = useState<Faculty[]>([])
-  const [promotions, setPromotions] = useState<Promotion[]>([])
-  const [loading, setLoading] = useState(true)
-  const [pagination, setPagination] = useState({
-    total: 0,
-    page: 1,
-    limit: 20,
-    totalPages: 0
-  })
-  
-  // Filters
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterFaculty, setFilterFaculty] = useState<string>('all')
-  const [filterStatus, setFilterStatus] = useState<string>('all')
-  const [filterPayment, setFilterPayment] = useState<string>('all')
-  
-  // Modal states
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showDetailModal, setShowDetailModal] = useState(false)
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  
-  // Form data
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-    matricule: '',
-    promotionId: '',
-    birthDate: '',
-    birthPlace: '',
+// Mock data
+const studentsData = [
+  {
+    id: '1',
+    matricule: 'L1-INFO-2025-001',
+    firstName: 'Patrick',
+    lastName: 'Mbuyi',
+    email: 'patrick.mbuyi@student.unikin.ac.cd',
+    phone: '+243 812 345 678',
+    promotion: 'L1 Informatique',
+    faculty: 'Sciences',
+    dateOfBirth: '2003-05-15',
     gender: 'M',
-    nationality: 'Congolaise',
-    parentName: '',
-    parentPhone: ''
+    hasDebt: false,
+    debtAmount: 0,
+    isBlocked: false,
+    isActive: true,
+    avatar: null,
+  },
+  {
+    id: '2',
+    matricule: 'L1-INFO-2025-002',
+    firstName: 'Marie',
+    lastName: 'Kasongo',
+    email: 'marie.kasongo@student.unikin.ac.cd',
+    phone: '+243 823 456 789',
+    promotion: 'L1 Informatique',
+    faculty: 'Sciences',
+    dateOfBirth: '2004-02-20',
+    gender: 'F',
+    hasDebt: true,
+    debtAmount: 125000,
+    isBlocked: true,
+    isActive: true,
+    avatar: null,
+  },
+  {
+    id: '3',
+    matricule: 'L1-INFO-2025-003',
+    firstName: 'Jean',
+    lastName: 'Ilunga',
+    email: 'jean.ilunga@student.unikin.ac.cd',
+    phone: '+243 834 567 890',
+    promotion: 'L1 Informatique',
+    faculty: 'Sciences',
+    dateOfBirth: '2003-08-10',
+    gender: 'M',
+    hasDebt: false,
+    debtAmount: 0,
+    isBlocked: false,
+    isActive: true,
+    avatar: null,
+  },
+  {
+    id: '4',
+    matricule: 'L2-INFO-2024-015',
+    firstName: 'Sarah',
+    lastName: 'Mutombo',
+    email: 'sarah.mutombo@student.unikin.ac.cd',
+    phone: '+243 845 678 901',
+    promotion: 'L2 Informatique',
+    faculty: 'Sciences',
+    dateOfBirth: '2002-11-25',
+    gender: 'F',
+    hasDebt: false,
+    debtAmount: 0,
+    isBlocked: false,
+    isActive: true,
+    avatar: null,
+  },
+  {
+    id: '5',
+    matricule: 'L1-INFO-2025-004',
+    firstName: 'David',
+    lastName: 'Lukusa',
+    email: 'david.lukusa@student.unikin.ac.cd',
+    phone: '+243 856 789 012',
+    promotion: 'L1 Informatique',
+    faculty: 'Sciences',
+    dateOfBirth: '2004-01-05',
+    gender: 'M',
+    hasDebt: true,
+    debtAmount: 250000,
+    isBlocked: true,
+    isActive: true,
+    avatar: null,
+  },
+]
+
+// Stats
+const stats = {
+  total: studentsData.length,
+  active: studentsData.filter(s => s.isActive).length,
+  withDebt: studentsData.filter(s => s.hasDebt).length,
+  blocked: studentsData.filter(s => s.isBlocked).length,
+}
+
+export default function StudentsManagementPage() {
+  const [students, setStudents] = useState(studentsData)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [promotionFilter, setPromotionFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedStudent, setSelectedStudent] = useState<typeof studentsData[0] | null>(null)
+
+  // Filter students
+  const filteredStudents = students.filter(student => {
+    const matchesSearch = 
+      student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.matricule.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesPromotion = promotionFilter === 'all' || student.promotion.includes(promotionFilter)
+    
+    const matchesStatus = 
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && student.isActive && !student.isBlocked) ||
+      (statusFilter === 'blocked' && student.isBlocked) ||
+      (statusFilter === 'debt' && student.hasDebt)
+
+    return matchesSearch && matchesPromotion && matchesStatus
   })
 
-  useEffect(() => {
-    fetchData()
-  }, [pagination.page, filterFaculty, filterStatus])
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchTerm !== '') {
-        fetchStudents()
+  // Toggle block status
+  const toggleBlock = (studentId: string) => {
+    setStudents(prev => prev.map(s => {
+      if (s.id === studentId) {
+        const newBlocked = !s.isBlocked
+        toast.success(`Étudiant ${newBlocked ? 'bloqué' : 'débloqué'}`)
+        return { ...s, isBlocked: newBlocked }
       }
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [searchTerm])
-
-  const fetchData = async () => {
-    await Promise.all([
-      fetchStudents(),
-      fetchFaculties(),
-      fetchPromotions()
-    ])
+      return s
+    }))
   }
 
-  const fetchStudents = async () => {
-    try {
-      setLoading(true)
-      const params = new URLSearchParams()
-      params.append('page', pagination.page.toString())
-      params.append('limit', pagination.limit.toString())
-      
-      if (searchTerm) params.append('search', searchTerm)
-      if (filterFaculty && filterFaculty !== 'all') params.append('facultyId', filterFaculty)
-      if (filterStatus && filterStatus !== 'all') params.append('status', filterStatus)
-      
-      const response = await fetch(`/api/students?${params}`)
-      if (response.ok) {
-        const data = await response.json()
-        setStudents(data.students || [])
-        setPagination(prev => ({ ...prev, ...data.pagination }))
-      }
-    } catch (error) {
-      console.error('Error fetching students:', error)
-      toast.error('Erreur lors du chargement des étudiants')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchFaculties = async () => {
-    try {
-      const response = await fetch('/api/faculties')
-      if (response.ok) {
-        const data = await response.json()
-        setFaculties(data.faculties || data || [])
-      }
-    } catch (error) {
-      console.error('Error fetching faculties:', error)
-    }
-  }
-
-  const fetchPromotions = async () => {
-    try {
-      const response = await fetch('/api/promotions')
-      if (response.ok) {
-        const data = await response.json()
-        setPromotions(data.promotions || data || [])
-      }
-    } catch (error) {
-      console.error('Error fetching promotions:', error)
-    }
-  }
-
-  const generateMatricule = (promotionId: string) => {
-    const promotion = promotions.find(p => p.id.toString() === promotionId)
-    if (promotion) {
-      const year = new Date().getFullYear()
-      const random = Math.floor(Math.random() * 9000) + 1000
-      return `${promotion.level}-${year}-${random}`
-    }
-    return ''
-  }
-
-  const handleAddStudent = async () => {
-    if (!formData.email || !formData.password || !formData.firstName || !formData.lastName || !formData.promotionId) {
-      toast.error('Veuillez remplir tous les champs obligatoires')
-      return
-    }
-
-    setSubmitting(true)
-    try {
-      const response = await fetch('/api/students', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          phone: formData.phone,
-          matricule: formData.matricule || generateMatricule(formData.promotionId),
-          promotionId: parseInt(formData.promotionId),
-          birthDate: formData.birthDate || null,
-          birthPlace: formData.birthPlace,
-          gender: formData.gender,
-          nationality: formData.nationality,
-          parentName: formData.parentName,
-          parentPhone: formData.parentPhone
-        })
-      })
-
-      if (response.ok) {
-        toast.success('Étudiant créé avec succès')
-        setShowAddModal(false)
-        resetForm()
-        fetchStudents()
-      } else {
-        const error = await response.json()
-        toast.error(error.error || 'Erreur lors de la création')
-      }
-    } catch (error) {
-      console.error('Error creating student:', error)
-      toast.error('Erreur lors de la création de l\'étudiant')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handleUpdateStudent = async () => {
-    if (!selectedStudent) return
-    
-    setSubmitting(true)
-    try {
-      const response = await fetch(`/api/students/${selectedStudent.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          phone: formData.phone,
-          promotionId: parseInt(formData.promotionId),
-          birthDate: formData.birthDate || null,
-          gender: formData.gender
-        })
-      })
-
-      if (response.ok) {
-        toast.success('Étudiant modifié avec succès')
-        setShowEditModal(false)
-        fetchStudents()
-      } else {
-        const error = await response.json()
-        toast.error(error.error || 'Erreur lors de la modification')
-      }
-    } catch (error) {
-      console.error('Error updating student:', error)
-      toast.error('Erreur lors de la modification')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handleBlockStudent = async (student: Student) => {
-    try {
-      const newStatus = student.status === 'BLOCKED' ? 'ACTIVE' : 'BLOCKED'
-      const response = await fetch(`/api/students/${student.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      })
-
-      if (response.ok) {
-        toast.success(`Étudiant ${newStatus === 'BLOCKED' ? 'bloqué' : 'débloqué'} avec succès`)
-        fetchStudents()
-      }
-    } catch (error) {
-      console.error('Error blocking student:', error)
-      toast.error('Erreur lors du blocage')
-    }
-  }
-
-  const resetForm = () => {
-    setFormData({
-      email: '',
-      password: '',
-      firstName: '',
-      lastName: '',
-      phone: '',
-      matricule: '',
-      promotionId: '',
-      birthDate: '',
-      birthPlace: '',
-      gender: 'M',
-      nationality: 'Congolaise',
-      parentName: '',
-      parentPhone: ''
-    })
-  }
-
-  const openEditModal = (student: Student) => {
+  // View student details
+  const viewStudent = (student: typeof studentsData[0]) => {
     setSelectedStudent(student)
-    setFormData({
-      email: student.email,
-      password: '',
-      firstName: student.first_name,
-      lastName: student.last_name,
-      phone: student.phone || '',
-      matricule: student.matricule,
-      promotionId: student.promotion_id.toString(),
-      birthDate: student.birth_date || '',
-      birthPlace: '',
-      gender: student.gender || 'M',
-      nationality: 'Congolaise',
-      parentName: '',
-      parentPhone: ''
-    })
-    setShowEditModal(true)
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'ACTIVE':
-        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Actif</Badge>
-      case 'BLOCKED':
-        return <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Bloqué</Badge>
-      case 'SUSPENDED':
-        return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Suspendu</Badge>
-      case 'GRADUATED':
-        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Diplômé</Badge>
-      default:
-        return <Badge variant="outline">{status}</Badge>
-    }
-  }
-
-  const getPaymentBadge = (status: string) => {
-    switch (status) {
-      case 'PAID':
-        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Soldé</Badge>
-      case 'PARTIAL':
-        return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Partiel</Badge>
-      case 'BLOCKED':
-        return <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Bloqué</Badge>
-      default:
-        return <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400">Impayé</Badge>
-    }
+    setIsDialogOpen(true)
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des étudiants</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            {pagination.total} étudiants enregistrés
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Users className="w-7 h-7" />
+            Gestion des Étudiants
+          </h1>
+          <p className="text-gray-500">
+            Gérez les comptes et dossiers étudiants
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
+            <Upload className="w-4 h-4 mr-2" />
+            Importer
+          </Button>
+          <Button variant="outline">
+            <Download className="w-4 h-4 mr-2" />
             Exporter
           </Button>
-          <Button onClick={() => { resetForm(); setShowAddModal(true); }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nouvel étudiant
+          <Button className="bg-gradient-to-r from-blue-500 to-cyan-600">
+            <Plus className="w-4 h-4 mr-2" />
+            Nouveau
           </Button>
         </div>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+              <Users className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{stats.total}</p>
+              <p className="text-sm text-gray-500">Total</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <UserCheck className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{stats.active}</p>
+              <p className="text-sm text-gray-500">Actifs</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <Wallet className="w-6 h-6 text-amber-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{stats.withDebt}</p>
+              <p className="text-sm text-gray-500">Avec dette</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <UserX className="w-6 h-6 text-red-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{stats.blocked}</p>
+              <p className="text-sm text-gray-500">Bloqués</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <CardContent className="p-4">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 relative min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Rechercher..."
+                placeholder="Rechercher par nom, matricule, email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
-            <Select value={filterFaculty} onValueChange={setFilterFaculty}>
-              <SelectTrigger>
-                <SelectValue placeholder="Faculté" />
+            <Select value={promotionFilter} onValueChange={setPromotionFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Promotion" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Toutes les facultés</SelectItem>
-                {faculties.map(f => (
-                  <SelectItem key={f.id} value={f.id.toString()}>{f.name}</SelectItem>
-                ))}
+                <SelectItem value="all">Toutes</SelectItem>
+                <SelectItem value="L1">L1</SelectItem>
+                <SelectItem value="L2">L2</SelectItem>
+                <SelectItem value="L3">L3</SelectItem>
+                <SelectItem value="M1">M1</SelectItem>
+                <SelectItem value="M2">M2</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="ACTIVE">Actif</SelectItem>
-                <SelectItem value="BLOCKED">Bloqué</SelectItem>
-                <SelectItem value="SUSPENDED">Suspendu</SelectItem>
-                <SelectItem value="GRADUATED">Diplômé</SelectItem>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="active">Actifs</SelectItem>
+                <SelectItem value="blocked">Bloqués</SelectItem>
+                <SelectItem value="debt">Avec dette</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={() => fetchStudents()}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Actualiser
-            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Table */}
+      {/* Students Table */}
       <Card>
         <CardContent className="p-0">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <RefreshCw className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Matricule</TableHead>
-                  <TableHead>Étudiant</TableHead>
-                  <TableHead>Promotion</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Paiement</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50 dark:bg-gray-800">
+                <TableHead>Étudiant</TableHead>
+                <TableHead>Matricule</TableHead>
+                <TableHead>Promotion</TableHead>
+                <TableHead className="text-center">Dette</TableHead>
+                <TableHead className="text-center">Statut</TableHead>
+                <TableHead className="w-[100px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredStudents.map((student) => (
+                <TableRow 
+                  key={student.id}
+                  className={cn(student.isBlocked && "bg-red-50 dark:bg-red-900/10")}
+                >
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={student.avatar || undefined} />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+                          {student.firstName[0]}{student.lastName[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{student.lastName} {student.firstName}</p>
+                        <p className="text-sm text-gray-500">{student.email}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono text-sm">{student.matricule}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{student.promotion}</Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {student.hasDebt ? (
+                      <div className="flex flex-col items-center">
+                        <Badge variant="destructive" className="text-xs">
+                          {formatCurrency(student.debtAmount)}
+                        </Badge>
+                      </div>
+                    ) : (
+                      <Badge variant="success" className="text-xs">À jour</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {student.isBlocked ? (
+                      <Badge variant="destructive" className="flex items-center gap-1 w-fit mx-auto">
+                        <Lock className="w-3 h-3" />
+                        Bloqué
+                      </Badge>
+                    ) : (
+                      <Badge variant="success">Actif</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => viewStudent(student)}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          Voir détails
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => toggleBlock(student.id)}>
+                          {student.isBlocked ? (
+                            <>
+                              <Unlock className="w-4 h-4 mr-2" />
+                              Débloquer
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-4 h-4 mr-2" />
+                              Bloquer
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {students.length > 0 ? students.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-mono text-sm">{student.matricule}</TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{student.first_name} {student.last_name}</p>
-                        <p className="text-xs text-gray-500">{student.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{student.promotion_name}</p>
-                        <p className="text-xs text-gray-500">{student.faculty_name}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        {student.phone && (
-                          <span className="text-xs flex items-center gap-1">
-                            <Phone className="h-3 w-3" /> {student.phone}
-                          </span>
-                        )}
-                        <span className="text-xs flex items-center gap-1">
-                          <Mail className="h-3 w-3" /> {student.email}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(student.status)}</TableCell>
-                    <TableCell>{getPaymentBadge(student.payment_status)}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => { setSelectedStudent(student); setShowDetailModal(true); }}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            Voir détails
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => openEditModal(student)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Modifier
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleBlockStudent(student)}>
-                            {student.status === 'BLOCKED' ? (
-                              <>
-                                <Unlock className="h-4 w-4 mr-2" />
-                                Débloquer
-                              </>
-                            ) : (
-                              <>
-                                <Lock className="h-4 w-4 mr-2" />
-                                Bloquer
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                )) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12 text-gray-500">
-                      Aucun étudiant trouvé
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          )}
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
 
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Page {pagination.page} sur {pagination.totalPages} ({pagination.total} résultats)
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={pagination.page === 1}
-              onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={pagination.page === pagination.totalPages}
-              onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Add Student Modal */}
-      <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Nouvel étudiant</DialogTitle>
-            <DialogDescription>
-              Créer un nouveau compte étudiant. L'email sera au format matricule@unikin.ac.cd
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">Prénom *</Label>
-                <Input
-                  id="firstName"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Nom *</Label>
-                <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="matricule@student.unikin.ac.cd"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="promotion">Promotion *</Label>
-                <Select 
-                  value={formData.promotionId} 
-                  onValueChange={(val) => {
-                    setFormData({ 
-                      ...formData, 
-                      promotionId: val,
-                      matricule: generateMatricule(val)
-                    })
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner une promotion" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {promotions.map(p => (
-                      <SelectItem key={p.id} value={p.id.toString()}>
-                        {p.name} - {p.department_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="matricule">Matricule</Label>
-                <Input
-                  id="matricule"
-                  value={formData.matricule}
-                  onChange={(e) => setFormData({ ...formData, matricule: e.target.value })}
-                  placeholder="Généré automatiquement"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Téléphone</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="gender">Genre</Label>
-                <Select value={formData.gender} onValueChange={(val) => setFormData({ ...formData, gender: val })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="M">Masculin</SelectItem>
-                    <SelectItem value="F">Féminin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="birthDate">Date de naissance</Label>
-                <Input
-                  id="birthDate"
-                  type="date"
-                  value={formData.birthDate}
-                  onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="birthPlace">Lieu de naissance</Label>
-                <Input
-                  id="birthPlace"
-                  value={formData.birthPlace}
-                  onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="parentName">Nom du parent/tuteur</Label>
-                <Input
-                  id="parentName"
-                  value={formData.parentName}
-                  onChange={(e) => setFormData({ ...formData, parentName: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="parentPhone">Téléphone parent</Label>
-                <Input
-                  id="parentPhone"
-                  value={formData.parentPhone}
-                  onChange={(e) => setFormData({ ...formData, parentPhone: e.target.value })}
-                />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddModal(false)}>Annuler</Button>
-            <Button onClick={handleAddStudent} disabled={submitting}>
-              {submitting ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
-              Créer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Student Modal */}
-      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Modifier l'étudiant</DialogTitle>
-            <DialogDescription>
-              Modifier les informations de {selectedStudent?.first_name} {selectedStudent?.last_name}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-firstName">Prénom</Label>
-                <Input
-                  id="edit-firstName"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-lastName">Nom</Label>
-                <Input
-                  id="edit-lastName"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-phone">Téléphone</Label>
-                <Input
-                  id="edit-phone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-gender">Genre</Label>
-                <Select value={formData.gender} onValueChange={(val) => setFormData({ ...formData, gender: val })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="M">Masculin</SelectItem>
-                    <SelectItem value="F">Féminin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditModal(false)}>Annuler</Button>
-            <Button onClick={handleUpdateStudent} disabled={submitting}>
-              {submitting ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
-              Enregistrer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Detail Modal */}
-      <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
+      {/* Student Details Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Détails de l'étudiant</DialogTitle>
           </DialogHeader>
           {selectedStudent && (
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Header with avatar */}
+              <div className="flex items-start gap-4">
+                <Avatar className="w-20 h-20">
+                  <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+                    {selectedStudent.firstName[0]}{selectedStudent.lastName[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold">
+                    {selectedStudent.lastName} {selectedStudent.firstName}
+                  </h3>
+                  <p className="text-gray-500 font-mono">{selectedStudent.matricule}</p>
+                  <div className="flex gap-2 mt-2">
+                    <Badge>{selectedStudent.promotion}</Badge>
+                    {selectedStudent.isBlocked ? (
+                      <Badge variant="destructive">Bloqué</Badge>
+                    ) : (
+                      <Badge variant="success">Actif</Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Info grid */}
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Matricule</p>
-                  <p className="font-mono font-medium">{selectedStudent.matricule}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Nom complet</p>
-                  <p className="font-medium">{selectedStudent.first_name} {selectedStudent.last_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{selectedStudent.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Téléphone</p>
-                  <p className="font-medium">{selectedStudent.phone || '-'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Promotion</p>
-                  <p className="font-medium">{selectedStudent.promotion_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Faculté</p>
-                  <p className="font-medium">{selectedStudent.faculty_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Statut</p>
-                  {getStatusBadge(selectedStudent.status)}
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Paiement</p>
-                  {getPaymentBadge(selectedStudent.payment_status)}
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Date d'inscription</p>
-                  <p className="font-medium">
-                    {new Date(selectedStudent.enrollment_date).toLocaleDateString('fr-FR')}
+                <div className="space-y-1">
+                  <Label className="text-gray-500">Email</Label>
+                  <p className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-gray-400" />
+                    {selectedStudent.email}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Date de naissance</p>
-                  <p className="font-medium">
-                    {selectedStudent.birth_date 
-                      ? new Date(selectedStudent.birth_date).toLocaleDateString('fr-FR')
-                      : '-'}
+                <div className="space-y-1">
+                  <Label className="text-gray-500">Téléphone</Label>
+                  <p className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-gray-400" />
+                    {selectedStudent.phone}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-gray-500">Date de naissance</Label>
+                  <p className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    {new Date(selectedStudent.dateOfBirth).toLocaleDateString('fr-FR')}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-gray-500">Faculté</Label>
+                  <p className="flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-gray-400" />
+                    {selectedStudent.faculty}
                   </p>
                 </div>
               </div>
+
+              {/* Financial status */}
+              {selectedStudent.hasDebt && (
+                <Card className="border-red-200 bg-red-50 dark:bg-red-900/20">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <AlertTriangle className="w-5 h-5 text-red-600" />
+                    <div>
+                      <p className="font-medium text-red-800 dark:text-red-200">
+                        Dette financière
+                      </p>
+                      <p className="text-sm text-red-700 dark:text-red-300">
+                        Montant impayé: {formatCurrency(selectedStudent.debtAmount)}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDetailModal(false)}>Fermer</Button>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Fermer
+            </Button>
+            <Button>
+              <Edit className="w-4 h-4 mr-2" />
+              Modifier
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

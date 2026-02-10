@@ -104,7 +104,7 @@ export default function AdminSettingsPage() {
           <CardContent className="space-y-4">
             <div className="grid gap-2">
               <Label>Serveur</Label>
-              <Input value="localhost:5432" disabled />
+              <Input value={process.env.DATABASE_URL ? 'Configuré ✓' : 'Non configuré'} disabled />
             </div>
             <div className="grid gap-2">
               <Label>Base de données</Label>

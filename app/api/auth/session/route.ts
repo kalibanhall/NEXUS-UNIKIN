@@ -1,46 +1,40 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { queryOne } from '@/lib/db'
+import { verifySession, SESSION_COOKIE_NAME } from '@/lib/auth/jwt'
 
 export async function GET() {
   try {
     const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get('nexus-session')
+    const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)
 
     if (!sessionCookie) {
       return NextResponse.json({ user: null }, { status: 401 })
     }
 
-    const session = JSON.parse(sessionCookie.value)
+    // Vérifier et décoder le JWT
+    const session = verifySession(sessionCookie.value)
 
-    // Vérifier que l'utilisateur existe toujours
-    const user = await queryOne<{ 
-      id: number
-      email: string
-      first_name: string
-      last_name: string 
-      role: string
-      is_active: boolean 
-    }>(
-      'SELECT id, email, first_name, last_name, role, is_active FROM users WHERE id = $1',
+    if (!session) {
+      // Token invalide ou expiré — supprimer le cookie
+      cookieStore.delete(SESSION_COOKIE_NAME)
+      return NextResponse.json({ user: null }, { status: 401 })
+    }
+
+    // Vérifier que l'utilisateur existe toujours et est actif
+    const user = await queryOne<{ id: number; email: string; role: string; is_active: boolean }>(
+      'SELECT id, email, role, is_active FROM users WHERE id = $1',
       [session.userId]
     )
 
     if (!user || !user.is_active) {
-      cookieStore.delete('nexus-session')
+      cookieStore.delete(SESSION_COOKIE_NAME)
       return NextResponse.json({ user: null }, { status: 401 })
     }
 
     return NextResponse.json({
       user: {
-        id: user.id,
-        userId: session.userId,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        name: `${user.first_name} ${user.last_name}`,
-        role: user.role,
-        profile: session.profile,
+        ...session,
         isActive: user.is_active,
       },
     })

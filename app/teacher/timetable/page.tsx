@@ -15,14 +15,14 @@ export default function TeacherTimetablePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.userId) {
       fetchSchedule()
     }
-  }, [user?.id])
+  }, [user?.userId])
 
   const fetchSchedule = async () => {
     try {
-      const response = await fetch(`/api/dashboard?role=TEACHER&user_id=${user?.id}`)
+      const response = await fetch(`/api/dashboard?role=TEACHER&user_id=${user?.userId}`)
       if (response.ok) {
         const data = await response.json()
         setSchedule(data.schedule || [])

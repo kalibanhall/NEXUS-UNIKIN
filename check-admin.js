@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:Qualis2025@localhost:5432/nexus_unikin'
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/nexus_unikin'
 });
 
 async function checkAdmins() {

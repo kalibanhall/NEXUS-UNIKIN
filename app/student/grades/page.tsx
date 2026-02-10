@@ -80,7 +80,8 @@ interface FinancialStatus {
 }
 
 export default function StudentGradesPage() {
-  const { user, studentInfo } = useAuth()
+  const { user } = useAuth()
+  const studentInfo = user?.profile
   const [courses, setCourses] = useState<any[]>([])
   const [deliberations, setDeliberations] = useState<any>(null)
   const [financialStatus, setFinancialStatus] = useState<FinancialStatus | null>(null)
@@ -96,17 +97,17 @@ export default function StudentGradesPage() {
   const [showLockedModal, setShowLockedModal] = useState(false)
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.userId) {
       fetchData()
     }
-  }, [user?.id])
+  }, [user?.userId])
 
   const fetchData = async () => {
     try {
       setLoading(true)
       
       // Récupérer les notes
-      const gradesResponse = await fetch(`/api/dashboard?role=STUDENT&user_id=${user?.id}`)
+      const gradesResponse = await fetch(`/api/dashboard?role=STUDENT&user_id=${user?.userId}`)
       if (gradesResponse.ok) {
         const data = await gradesResponse.json()
         setCourses(data.courses || [])

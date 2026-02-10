@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    const client = await pool.connect()
+    const client = await pool!.connect()
 
     try {
       // Vérifier que la tentative existe et n'est pas encore soumise
@@ -184,7 +184,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'attempt_id requis' }, { status: 400 })
     }
 
-    const client = await pool.connect()
+    const client = await pool!.connect()
 
     try {
       let query = `
@@ -224,7 +224,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'file_id requis' }, { status: 400 })
     }
 
-    const client = await pool.connect()
+    const client = await pool!.connect()
 
     try {
       // Vérifier que le fichier existe et que la tentative n'est pas soumise

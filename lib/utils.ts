@@ -1,57 +1,11 @@
-/**
- * ============================================================================
- * NEXUS UNIKIN - Fonctions utilitaires globales
- * ============================================================================
- * 
- * @description Ce module contient toutes les fonctions utilitaires réutilisables
- *              dans l'ensemble de l'application. Il inclut des fonctions de
- *              formatage, de calcul de notes, de génération de codes, etc.
- * 
- * @author Chris NGOZULU KASONGO
- * @email kasongongozulu@hmail.com
- * @version 1.0.0
- * @license Proprietary - UNIKIN
- * 
- * ============================================================================
- */
-
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-/**
- * Fusionne les classes CSS avec Tailwind CSS
- * 
- * @description Combine clsx et tailwind-merge pour gérer intelligemment
- *              les classes CSS conditionnelles et éviter les conflits Tailwind.
- * 
- * @param {...ClassValue[]} inputs - Classes CSS à fusionner
- * @returns {string} - Chaîne de classes CSS fusionnées
- * 
- * @example
- * cn('px-4 py-2', isActive && 'bg-blue-500', 'hover:bg-gray-100')
- */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// ============================================================================
-// FONCTIONS DE FORMATAGE DE DATES ET HEURES
-// ============================================================================
-
-/**
- * Formate une date en français
- * 
- * @description Convertit une date en format lisible selon les conventions françaises.
- *              Par défaut: "08 janvier 2026"
- * 
- * @param {Date | string} date - La date à formater
- * @param {Intl.DateTimeFormatOptions} options - Options de formatage personnalisées
- * @returns {string} - La date formatée en français
- * 
- * @example
- * formatDate(new Date()) // "08 janvier 2026"
- * formatDate('2026-01-08', { weekday: 'long' }) // "jeudi 08 janvier 2026"
- */
+// Formater une date en français
 export function formatDate(date: Date | string, options?: Intl.DateTimeFormatOptions): string {
   const defaultOptions: Intl.DateTimeFormatOptions = {
     day: '2-digit',
@@ -62,37 +16,12 @@ export function formatDate(date: Date | string, options?: Intl.DateTimeFormatOpt
   return new Date(date).toLocaleDateString('fr-FR', defaultOptions)
 }
 
-/**
- * Formate une heure au format français
- * 
- * @description Remplace les deux-points par 'h' pour le format horaire français.
- *              Exemple: "14:30" devient "14h30"
- * 
- * @param {string} time - L'heure au format "HH:MM"
- * @returns {string} - L'heure au format "HHhMM"
- */
+// Formater une heure
 export function formatTime(time: string): string {
   return time.replace(':', 'h')
 }
 
-// ============================================================================
-// FONCTIONS DE FORMATAGE MONÉTAIRE
-// ============================================================================
-
-/**
- * Formate un montant en devise
- * 
- * @description Formate un nombre en devise avec le symbole approprié.
- *              Par défaut utilise le Franc Congolais (CDF).
- * 
- * @param {number} amount - Le montant à formater
- * @param {string} currency - Code de la devise (défaut: 'CDF')
- * @returns {string} - Le montant formaté avec symbole de devise
- * 
- * @example
- * formatCurrency(50000) // "50 000 CDF"
- * formatCurrency(100, 'USD') // "100 $US"
- */
+// Formater un montant en CDF
 export function formatCurrency(amount: number, currency: string = 'CDF'): string {
   return new Intl.NumberFormat('fr-CD', {
     style: 'currency',
@@ -102,27 +31,7 @@ export function formatCurrency(amount: number, currency: string = 'CDF'): string
   }).format(amount)
 }
 
-// ============================================================================
-// FONCTIONS DE CALCUL ACADÉMIQUE
-// ============================================================================
-
-/**
- * Calcule la note finale pondérée d'un étudiant
- * 
- * @description Calcule la moyenne pondérée des notes CC (contrôle continu),
- *              TP (travaux pratiques) et Examen selon les coefficients définis.
- * 
- * @param {number | null} noteCC - Note du contrôle continu (sur 20)
- * @param {number | null} noteTP - Note des travaux pratiques (sur 20)
- * @param {number | null} noteExam - Note de l'examen (sur 20)
- * @param {number} weightCC - Coefficient CC (défaut: 30%)
- * @param {number} weightTP - Coefficient TP (défaut: 20%)
- * @param {number} weightExam - Coefficient Examen (défaut: 50%)
- * @returns {number | null} - La note finale ou null si aucune note
- * 
- * @example
- * calculateFinalGrade(15, 14, 12) // 13.1 (15*0.3 + 14*0.2 + 12*0.5)
- */
+// Calculer la note finale
 export function calculateFinalGrade(
   noteCC: number | null,
   noteTP: number | null,
@@ -135,7 +44,6 @@ export function calculateFinalGrade(
   const tp = noteTP ?? 0
   const exam = noteExam ?? 0
   
-  // Si aucune note n'est disponible, retourner null
   if (noteCC === null && noteTP === null && noteExam === null) {
     return null
   }

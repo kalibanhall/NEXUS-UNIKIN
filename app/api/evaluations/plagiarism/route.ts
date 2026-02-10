@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'submission_id requis' }, { status: 400 })
     }
 
-    const client = await pool.connect()
+    const client = await pool!.connect()
 
     try {
       // Récupérer le rapport existant
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'submission_id requis' }, { status: 400 })
     }
 
-    const client = await pool.connect()
+    const client = await pool!.connect()
 
     try {
       // Récupérer la soumission

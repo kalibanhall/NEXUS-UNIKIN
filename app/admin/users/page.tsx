@@ -140,8 +140,10 @@ export default function UsersPage() {
       const matricule = newUser.matricule || generateMatricule(newUser.role)
       const domain = newUser.role === 'STUDENT' ? 'student.unikin.ac.cd' : 'unikin.ac.cd'
       const email = `${matricule.toLowerCase()}@${domain}`
-      const defaultPassword = newUser.role === 'STUDENT' ? 'Etudiant@2026' : 
-                             newUser.role === 'TEACHER' ? 'Prof@2026' : 'Employe@2026'
+      // Générer un mot de passe temporaire aléatoire
+      const defaultPassword = Array.from(crypto.getRandomValues(new Uint8Array(10)))
+        .map(b => String.fromCharCode(33 + (b % 93)))
+        .join('')
 
       const response = await fetch('/api/users', {
         method: 'POST',

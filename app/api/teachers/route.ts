@@ -74,7 +74,10 @@ export async function POST(request: NextRequest) {
 
     // Email basé sur le matricule
     const email = `${matricule.toLowerCase()}@unikin.ac.cd`
-    const defaultPassword = 'Prof@2026'
+    // Générer un mot de passe temporaire aléatoire
+    const defaultPassword = Array.from(crypto.getRandomValues(new Uint8Array(12)))
+      .map(b => String.fromCharCode(33 + (b % 93)))
+      .join('')
     const hashedPassword = await bcrypt.hash(defaultPassword, 10)
 
     const result = await transaction(async (client) => {
@@ -101,7 +104,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: 'Enseignant créé avec succès',
       teacher: result,
-      credentials: { email: result.email, password: 'Prof@2026' }
+      credentials: { email: result.email, temporaryPassword: defaultPassword }
     }, { status: 201 })
   } catch (error) {
     console.error('Error creating teacher:', error)

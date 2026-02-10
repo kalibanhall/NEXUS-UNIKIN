@@ -76,7 +76,8 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }>
 }
 
 export default function StudentDocumentsPage() {
-  const { user, studentInfo } = useAuth()
+  const { user } = useAuth()
+  const studentInfo = user?.profile
   const [requests, setRequests] = useState<DocumentRequest[]>([])
   const [stats, setStats] = useState<DocumentStats | null>(null)
   const [loading, setLoading] = useState(true)
