@@ -18,8 +18,8 @@ export function UnikinLogo({ className, size = 64, showText = false }: UnikinLog
         src={UNIKIN_LOGO_BASE64}
         alt="Logo UNIKIN"
         width={size}
-        height={size}
-        style={{ width: size, height: size, objectFit: 'contain' }}
+        height={Math.round(size * 258 / 250)}
+        style={{ width: size, height: 'auto', objectFit: 'contain' }}
         className="drop-shadow-lg"
       />
       

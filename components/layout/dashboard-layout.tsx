@@ -241,7 +241,7 @@ export function DashboardLayout({ children, role, user }: DashboardLayoutProps) 
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
           <Link href={`/${role}/dashboard`} className="flex items-center gap-3 min-w-0">
-            <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center">
+            <div className="flex-shrink-0 flex items-center justify-center">
               <UnikinLogo size={36} />
             </div>
             {sidebarOpen && (
