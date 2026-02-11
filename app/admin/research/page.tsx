@@ -98,7 +98,7 @@ export default function ResearchPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [showNewProjectDialog, setShowNewProjectDialog] = useState(false)
   const [showNewThesisDialog, setShowNewThesisDialog] = useState(false)
 
@@ -125,7 +125,7 @@ export default function ResearchPage() {
     try {
       setLoading(true)
       const params = new URLSearchParams({ type: 'projects' })
-      if (statusFilter) params.append('status', statusFilter)
+      if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter)
       
       const response = await fetch(`/api/research?${params.toString()}`)
       if (response.ok) {
@@ -381,7 +381,7 @@ export default function ResearchPage() {
                     <SelectValue placeholder="Statut" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tous</SelectItem>
+                    <SelectItem value="all">Tous</SelectItem>
                     <SelectItem value="PROPOSED">Proposé</SelectItem>
                     <SelectItem value="IN_PROGRESS">En cours</SelectItem>
                     <SelectItem value="COMPLETED">Terminé</SelectItem>

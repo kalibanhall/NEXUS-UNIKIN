@@ -73,9 +73,10 @@ export default function LibraryPage() {
   const [favorites, setFavorites] = useState<LibraryResource[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [moduleError, setModuleError] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('')
-  const [selectedType, setSelectedType] = useState<string>('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedType, setSelectedType] = useState<string>('all')
   const [selectedResource, setSelectedResource] = useState<LibraryResource | null>(null)
   const [activeTab, setActiveTab] = useState('catalog')
 
@@ -97,13 +98,15 @@ export default function LibraryPage() {
       setLoading(true)
       const params = new URLSearchParams()
       if (searchQuery) params.append('search', searchQuery)
-      if (selectedCategory) params.append('category', selectedCategory)
-      if (selectedType) params.append('type', selectedType)
+      if (selectedCategory && selectedCategory !== 'all') params.append('category', selectedCategory)
+      if (selectedType && selectedType !== 'all') params.append('type', selectedType)
 
       const response = await fetch(`/api/library?${params.toString()}`)
       if (response.ok) {
         const data = await response.json()
         setResources(data.resources || [])
+      } else if (response.status === 401 || response.status === 403) {
+        setModuleError(true)
       }
     } catch (error) {
       console.error('Error fetching resources:', error)
@@ -119,6 +122,8 @@ export default function LibraryPage() {
       if (response.ok) {
         const data = await response.json()
         setCategories(data.categories || [])
+      } else if (response.status === 401 || response.status === 403) {
+        setModuleError(true)
       }
     } catch (error) {
       console.error('Error fetching categories:', error)
@@ -265,6 +270,18 @@ export default function LibraryPage() {
         </div>
       </div>
 
+      {moduleError ? (
+        <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <Library className="h-16 w-16 text-amber-500 mb-4" />
+            <h2 className="text-xl font-semibold text-amber-700 dark:text-amber-400 mb-2">Module en cours de développement</h2>
+            <p className="text-amber-600 dark:text-amber-500 text-center max-w-md">
+              Le module Bibliothèque est actuellement en plein développement. Il sera disponible prochainement.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3 max-w-md">
           <TabsTrigger value="catalog">Catalogue</TabsTrigger>
@@ -292,7 +309,7 @@ export default function LibraryPage() {
                     <SelectValue placeholder="Catégorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Toutes catégories</SelectItem>
+                    <SelectItem value="all">Toutes catégories</SelectItem>
                     {categories.map((cat) => (
                       <SelectItem key={cat.category} value={cat.category}>
                         {cat.category} ({cat.count})
@@ -305,7 +322,7 @@ export default function LibraryPage() {
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tous types</SelectItem>
+                    <SelectItem value="all">Tous types</SelectItem>
                     {resourceTypes.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         {type.label}
@@ -315,8 +332,8 @@ export default function LibraryPage() {
                 </Select>
                 <Button variant="outline" onClick={() => {
                   setSearchQuery('')
-                  setSelectedCategory('')
-                  setSelectedType('')
+                  setSelectedCategory('all')
+                  setSelectedType('all')
                 }}>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Réinitialiser
@@ -588,6 +605,7 @@ export default function LibraryPage() {
           )}
         </TabsContent>
       </Tabs>
+      )}
     </div>
   )
 }

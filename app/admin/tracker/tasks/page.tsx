@@ -94,9 +94,9 @@ export default function TasksPage() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
-  const [priorityFilter, setPriorityFilter] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all')
+  const [priorityFilter, setPriorityFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
   const [phaseFilter, setPhaseFilter] = useState(searchParams.get('phase_id') || '')
   const [weekFilter, setWeekFilter] = useState(searchParams.get('week_id') || '')
 
@@ -128,9 +128,9 @@ export default function TasksPage() {
       params.set('page', page.toString())
       params.set('limit', '20')
       if (search) params.set('search', search)
-      if (statusFilter) params.set('status', statusFilter)
-      if (priorityFilter) params.set('priority', priorityFilter)
-      if (categoryFilter) params.set('category', categoryFilter)
+      if (statusFilter && statusFilter !== 'all') params.set('status', statusFilter)
+      if (priorityFilter && priorityFilter !== 'all') params.set('priority', priorityFilter)
+      if (categoryFilter && categoryFilter !== 'all') params.set('category', categoryFilter)
       if (phaseFilter) params.set('phase_id', phaseFilter)
       if (weekFilter) params.set('week_id', weekFilter)
 
@@ -401,7 +401,7 @@ export default function TasksPage() {
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous</SelectItem>
+                <SelectItem value="all">Tous</SelectItem>
                 {STATUS_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
@@ -412,7 +412,7 @@ export default function TasksPage() {
                 <SelectValue placeholder="Priorité" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Toutes</SelectItem>
+                <SelectItem value="all">Toutes</SelectItem>
                 {PRIORITY_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
@@ -423,7 +423,7 @@ export default function TasksPage() {
                 <SelectValue placeholder="Catégorie" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Toutes</SelectItem>
+                <SelectItem value="all">Toutes</SelectItem>
                 {CATEGORY_OPTIONS.map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}

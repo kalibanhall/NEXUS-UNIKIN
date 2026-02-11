@@ -81,7 +81,7 @@ export default function ScholarshipsPage() {
   const [applications, setApplications] = useState<ScholarshipApplication[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('programs')
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [showNewProgramDialog, setShowNewProgramDialog] = useState(false)
   const [selectedApplication, setSelectedApplication] = useState<ScholarshipApplication | null>(null)
   const [stats, setStats] = useState<any>(null)
@@ -110,7 +110,7 @@ export default function ScholarshipsPage() {
   const fetchApplications = async () => {
     try {
       const params = new URLSearchParams()
-      if (statusFilter) params.append('status', statusFilter)
+      if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter)
       
       const response = await fetch(`/api/scholarships?type=applications&${params.toString()}`)
       if (response.ok) {
@@ -388,7 +388,7 @@ export default function ScholarshipsPage() {
                     <SelectValue placeholder="Statut" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tous</SelectItem>
+                    <SelectItem value="all">Tous</SelectItem>
                     <SelectItem value="PENDING">En attente</SelectItem>
                     <SelectItem value="APPROVED">Approuvées</SelectItem>
                     <SelectItem value="REJECTED">Rejetées</SelectItem>
