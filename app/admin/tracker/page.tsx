@@ -146,7 +146,7 @@ export default function TrackerDashboard() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Target className="h-8 w-8 text-primary" />
-            NEXUS Tracker
+            Suivi du Projet
           </h1>
           <p className="text-gray-500 mt-1">
             Suivi du projet NEXUS UNIKIN - 30 Janvier au 30 Avril 2026

@@ -140,7 +140,7 @@ export default function AdminDashboardEnhanced() {
       change: analytics?.kpis?.successRate && analytics.kpis.successRate > 70 ? '+5%' : '-2%',
       trend: analytics?.kpis?.successRate && analytics.kpis.successRate > 70 ? 'up' : 'down',
       color: 'from-purple-500 to-purple-600',
-      href: '/admin/deliberation',
+      href: '/admin/deliberations',
     },
     {
       title: 'Recettes (CDF)',
@@ -155,7 +155,7 @@ export default function AdminDashboardEnhanced() {
 
   const quickActions = [
     { label: 'Nouvel étudiant', href: '/admin/students/new', icon: GraduationCap },
-    { label: 'Délibérations', href: '/admin/deliberation', icon: FileText },
+    { label: 'Délibérations', href: '/admin/deliberations', icon: FileText },
     { label: 'Paiements', href: '/admin/finances', icon: CreditCard },
     { label: 'Emplois du temps', href: '/admin/academic', icon: Clock },
     { label: 'Bourses', href: '/admin/scholarships', icon: Award },

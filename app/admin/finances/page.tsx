@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { 
   CreditCard, 
   Plus, 
@@ -13,6 +14,7 @@ import {
   RefreshCw,
   Receipt,
   Printer,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -184,13 +186,20 @@ export default function FinancesPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gestion financière</h1>
           <p className="text-gray-500 dark:text-gray-400">Suivi des paiements et frais académiques</p>
         </div>
-        <Dialog open={showNewPaymentDialog} onOpenChange={setShowNewPaymentDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nouveau paiement
+        <div className="flex items-center gap-2">
+          <Link href="/admin/finances/import">
+            <Button variant="outline">
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Importer Excel
             </Button>
-          </DialogTrigger>
+          </Link>
+          <Dialog open={showNewPaymentDialog} onOpenChange={setShowNewPaymentDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Nouveau paiement
+              </Button>
+            </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Enregistrer un paiement</DialogTitle>
@@ -270,6 +279,7 @@ export default function FinancesPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Stats */}

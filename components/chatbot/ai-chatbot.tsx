@@ -80,7 +80,7 @@ export function AIChatbot() {
       setMessages([{
         id: '1',
         role: 'assistant',
-        content: "Bonjour ! 👋 Je suis **NEXUS Assistant**, votre assistant IA universitaire. Je peux vous aider avec :\n\n• Vos cours et emploi du temps\n• Vos notes et évaluations\n• Les procédures administratives\n• La navigation sur la plateforme\n\nComment puis-je vous aider aujourd'hui ?",
+        content: "Bonjour ! Je suis **NEXUS Assistant**, votre assistant IA universitaire. Je peux vous aider avec :\n\n• Vos cours et emploi du temps\n• Vos notes et évaluations\n• Les procédures administratives\n• La navigation sur la plateforme\n\nComment puis-je vous aider aujourd'hui ?",
         timestamp: new Date(),
         suggestions: initialSuggestions
       }])

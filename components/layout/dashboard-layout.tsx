@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useState, useEffect } from 'react'
+import { ReactNode, useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { 
@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  ChevronRight,
   Building2,
   ClipboardList,
   BarChart3,
@@ -25,6 +26,8 @@ import {
   MessageSquare,
   CheckCheck,
   Wallet,
+  AlertTriangle,
+  Hand,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -37,6 +40,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { LucideIcon } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
@@ -76,7 +87,12 @@ const menuConfig: Record<'admin' | 'teacher' | 'student' | 'employee', MenuConfi
       },
       { icon: BookOpen, label: 'Cours & UE', href: '/admin/courses' },
       { icon: ClipboardList, label: 'Délibérations', href: '/admin/deliberations' },
-      { icon: CreditCard, label: 'Finances', href: '/admin/finances' },
+      { icon: CreditCard, label: 'Finances', href: '/admin/finances',
+        children: [
+          { label: 'Vue d\'ensemble', href: '/admin/finances' },
+          { label: 'Importer des données', href: '/admin/finances/import' },
+        ]
+      },
       { icon: BarChart3, label: 'Statistiques', href: '/admin/statistics' },
       { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
       { icon: Bell, label: 'Annonces', href: '/admin/announcements' },
@@ -154,16 +170,17 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, role, user }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([])
   const pathname = usePathname()
   const router = useRouter()
   const menu = menuConfig[role]
 
-  // Avertissement avant de quitter la page
+  // Avertissement avant de quitter/recharger la page
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault()
-      e.returnValue = 'Êtes-vous sûr de vouloir quitter cette page ?'
+      e.returnValue = 'Êtes-vous sûr de vouloir quitter cette page ? Les modifications non enregistrées seront perdues.'
       return e.returnValue
     }
 
@@ -171,12 +188,38 @@ export function DashboardLayout({ children, role, user }: DashboardLayoutProps) 
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [])
 
+  // Fermer le menu mobile lors de la navigation
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
+
   const handleLogout = async () => {
-    const confirmed = window.confirm('Êtes-vous sûr de vouloir vous déconnecter ?')
-    if (!confirmed) return
-    
     await fetch('/api/auth/logout', { method: 'POST' })
     window.location.href = '/auth/login'
+  }
+
+  const toggleSubmenu = useCallback((label: string) => {
+    setExpandedMenus(prev => 
+      prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]
+    )
+  }, [])
+
+  // Générer le fil d'Ariane
+  const getBreadcrumbs = () => {
+    const parts = pathname.split('/').filter(Boolean)
+    const crumbs: { label: string; href: string }[] = []
+    
+    let currentPath = ''
+    for (const part of parts) {
+      currentPath += `/${part}`
+      const menuItem = menu.items.find(item => item.href === currentPath)
+      crumbs.push({
+        label: menuItem?.label || part.charAt(0).toUpperCase() + part.slice(1),
+        href: currentPath,
+      })
+    }
+    
+    return crumbs
   }
 
   return (
@@ -197,12 +240,14 @@ export function DashboardLayout({ children, role, user }: DashboardLayoutProps) 
       )}>
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
-          <Link href={`/${role}/dashboard`} className="flex items-center gap-3">
-            <UnikinLogo size={sidebarOpen ? 40 : 36} />
+          <Link href={`/${role}/dashboard`} className="flex items-center gap-3 min-w-0">
+            <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center">
+              <UnikinLogo size={36} />
+            </div>
             {sidebarOpen && (
-              <div className="hidden sm:block">
-                <h1 className="font-bold text-gray-900 dark:text-white">NEXUS</h1>
-                <p className="text-xs text-gray-500">UNIKIN</p>
+              <div className="hidden sm:block min-w-0">
+                <h1 className="font-bold text-gray-900 dark:text-white truncate">NEXUS</h1>
+                <p className="text-xs text-gray-500 truncate">UNIKIN</p>
               </div>
             )}
           </Link>
@@ -234,30 +279,75 @@ export function DashboardLayout({ children, role, user }: DashboardLayoutProps) 
           {menu.items.map((item, index) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
             const Icon = item.icon
+            const hasChildren = item.children && item.children.length > 0
+            const isExpanded = expandedMenus.includes(item.label)
             
             return (
               <div key={index}>
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                    isActive 
-                      ? `bg-gradient-to-r ${menu.color} text-white shadow-lg` 
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  )}
-                >
-                  <Icon className={cn("w-5 h-5 flex-shrink-0", !sidebarOpen && "mx-auto")} />
-                  {sidebarOpen && (
-                    <>
-                      <span className="flex-1 font-medium">{item.label}</span>
-                      {item.badge && (
-                        <Badge variant="secondary" className="text-xs">
-                          {item.badge}
-                        </Badge>
+                {hasChildren ? (
+                  <>
+                    <button
+                      onClick={() => toggleSubmenu(item.label)}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+                        isActive 
+                          ? `bg-gradient-to-r ${menu.color} text-white shadow-lg` 
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                       )}
-                    </>
-                  )}
-                </Link>
+                    >
+                      <Icon className={cn("w-5 h-5 flex-shrink-0", !sidebarOpen && "mx-auto")} />
+                      {sidebarOpen && (
+                        <>
+                          <span className="flex-1 font-medium text-left">{item.label}</span>
+                          <ChevronDown className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-180")} />
+                        </>
+                      )}
+                    </button>
+                    {sidebarOpen && isExpanded && item.children && (
+                      <div className="ml-6 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-600 pl-3">
+                        {item.children.map((child, childIdx) => {
+                          const isChildActive = pathname === child.href
+                          return (
+                            <Link
+                              key={childIdx}
+                              href={child.href}
+                              className={cn(
+                                "block px-3 py-2 rounded-md text-sm transition-colors",
+                                isChildActive 
+                                  ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
+                                  : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                              )}
+                            >
+                              {child.label}
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+                      isActive 
+                        ? `bg-gradient-to-r ${menu.color} text-white shadow-lg` 
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    )}
+                  >
+                    <Icon className={cn("w-5 h-5 flex-shrink-0", !sidebarOpen && "mx-auto")} />
+                    {sidebarOpen && (
+                      <>
+                        <span className="flex-1 font-medium">{item.label}</span>
+                        {item.badge && (
+                          <Badge variant="secondary" className="text-xs">
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </>
+                    )}
+                  </Link>
+                )}
               </div>
             )
           })}
@@ -304,17 +394,27 @@ export function DashboardLayout({ children, role, user }: DashboardLayoutProps) 
                 <Menu className="h-5 w-5" />
               </Button>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Bienvenue, {user.name.split(' ')[0]} 👋
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {new Date().toLocaleDateString('fr-FR', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </p>
+                <div className="flex items-center gap-2">
+                  <Hand className="w-5 h-5 text-amber-500" />
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Bienvenue, {user.name.split(' ')[0]}
+                  </h2>
+                </div>
+                {/* Fil d'Ariane */}
+                <div className="flex items-center gap-1 text-sm text-gray-500">
+                  {getBreadcrumbs().map((crumb, idx) => (
+                    <span key={idx} className="flex items-center gap-1">
+                      {idx > 0 && <ChevronRight className="w-3 h-3" />}
+                      {idx === getBreadcrumbs().length - 1 ? (
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">{crumb.label}</span>
+                      ) : (
+                        <Link href={crumb.href} className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                          {crumb.label}
+                        </Link>
+                      )}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -353,7 +453,7 @@ export function DashboardLayout({ children, role, user }: DashboardLayoutProps) 
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <DropdownMenuItem onClick={() => setShowLogoutDialog(true)} className="text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
                     Déconnexion
                   </DropdownMenuItem>
@@ -362,6 +462,30 @@ export function DashboardLayout({ children, role, user }: DashboardLayoutProps) 
             </div>
           </div>
         </header>
+
+        {/* Dialogue de confirmation de déconnexion */}
+        <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                Confirmer la déconnexion
+              </DialogTitle>
+              <DialogDescription>
+                Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à votre espace.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+                Annuler
+              </Button>
+              <Button variant="destructive" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Se déconnecter
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Page content */}
         <main className="p-4 lg:p-6">
