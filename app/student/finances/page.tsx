@@ -139,10 +139,19 @@ export default function StudentFinancesPage() {
     }
   }
 
-  const totalFees = finances?.summary?.totalDue || 1300
-  const totalPaid = finances?.summary?.totalPaid || data?.totalPaid || 0
-  const remaining = totalFees - totalPaid
-  const percentage = Math.min(100, Math.round((totalPaid / totalFees) * 100))
+  const summary = finances?.summary || {}
+  const totalFeesUSD = summary.totalDueUSD || 0
+  const totalPaidUSD = summary.totalPaidUSD || data?.totalPaid || 0
+  const remainingUSD = summary.remainingUSD ?? Math.max(0, totalFeesUSD - totalPaidUSD)
+  const percentageUSD = totalFeesUSD > 0 ? Math.min(100, Math.round((totalPaidUSD / totalFeesUSD) * 100)) : 0
+  
+  const totalFeesCDF = summary.totalDueCDF || 0
+  const totalPaidCDF = summary.totalPaidCDF || 0
+  const remainingCDF = summary.remainingCDF ?? Math.max(0, totalFeesCDF - totalPaidCDF)
+  const percentageCDF = totalFeesCDF > 0 ? Math.min(100, Math.round((totalPaidCDF / totalFeesCDF) * 100)) : 0
+
+  const studentLevel = finances?.student?.level || studentInfo?.promotion_level || 'L1'
+  const isFullyPaid = remainingUSD <= 0 && remainingCDF <= 0
 
   if (loading) {
     return (
@@ -170,8 +179,11 @@ export default function StudentFinancesPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Total frais</p>
-                <p className="text-3xl font-bold">${totalFees.toLocaleString()}</p>
+                <p className="text-sm text-gray-500">Frais académiques</p>
+                <p className="text-3xl font-bold">${totalFeesUSD.toLocaleString()}</p>
+                {totalFeesCDF > 0 && (
+                  <p className="text-sm text-gray-400 mt-1">+ {totalFeesCDF.toLocaleString()} CDF (inscription)</p>
+                )}
               </div>
               <Wallet className="h-8 w-8 text-gray-400" />
             </div>
@@ -182,7 +194,10 @@ export default function StudentFinancesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total payé</p>
-                <p className="text-3xl font-bold text-green-600">${totalPaid.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-green-600">${totalPaidUSD.toLocaleString()}</p>
+                {totalPaidCDF > 0 && (
+                  <p className="text-sm text-green-500 mt-1">+ {totalPaidCDF.toLocaleString()} CDF</p>
+                )}
               </div>
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
@@ -193,27 +208,62 @@ export default function StudentFinancesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Reste à payer</p>
-                <p className="text-3xl font-bold text-amber-600">${remaining.toLocaleString()}</p>
+                {remainingUSD > 0 ? (
+                  <p className="text-3xl font-bold text-amber-600">${remainingUSD.toLocaleString()}</p>
+                ) : (
+                  <p className="text-3xl font-bold text-green-600">$0</p>
+                )}
+                {remainingCDF > 0 && (
+                  <p className="text-sm text-amber-500 mt-1">+ {remainingCDF.toLocaleString()} CDF</p>
+                )}
               </div>
-              <AlertTriangle className="h-8 w-8 text-amber-600" />
+              {isFullyPaid ? (
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              ) : (
+                <AlertTriangle className="h-8 w-8 text-amber-600" />
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Progression des paiements</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Progression des paiements</CardTitle>
+          <CardDescription>
+            {studentLevel && `Grille tarifaire: ${['L0','L1','B1','PREP','GRADE1','P1','IR1','D1'].includes(studentLevel) ? '350 USD (1ère année)' : '270 USD'}`}
+          </CardDescription>
+        </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Avancement</span>
-              <span className="font-medium">{percentage}%</span>
+          <div className="space-y-4">
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Frais académiques (USD)</span>
+                <span className="font-medium">{percentageUSD}%</span>
+              </div>
+              <Progress value={percentageUSD} className="h-4" />
+              <p className="text-xs text-gray-400 mt-1">
+                ${totalPaidUSD.toLocaleString()} / ${totalFeesUSD.toLocaleString()} USD
+              </p>
             </div>
-            <Progress value={percentage} className="h-4" />
+            {totalFeesCDF > 0 && (
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Frais d&apos;inscription (CDF)</span>
+                  <span className="font-medium">{percentageCDF}%</span>
+                </div>
+                <Progress value={percentageCDF} className="h-4" />
+                <p className="text-xs text-gray-400 mt-1">
+                  {totalPaidCDF.toLocaleString()} / {totalFeesCDF.toLocaleString()} CDF
+                </p>
+              </div>
+            )}
             <p className="text-sm text-gray-500 mt-2">
-              {data?.student?.payment_status === 'PAID' 
-                ? 'Votre situation financière est régularisée' 
-                : `Il vous reste $${remaining.toLocaleString()} à payer.`}
+              {isFullyPaid
+                ? '✅ Votre situation financière est régularisée' 
+                : remainingUSD > 0 
+                  ? `Il vous reste $${remainingUSD.toLocaleString()} à payer.`
+                  : 'Frais académiques soldés.'}
             </p>
           </div>
         </CardContent>
@@ -246,11 +296,16 @@ export default function StudentFinancesPage() {
                   {data?.payments?.length > 0 ? data.payments.map((payment: any, idx: number) => (
                     <TableRow key={idx}>
                       <TableCell>{new Date(payment.payment_date).toLocaleDateString('fr-FR')}</TableCell>
-                      <TableCell className="font-mono">{payment.receipt_number}</TableCell>
-                      <TableCell>{payment.payment_type}</TableCell>
-                      <TableCell><Badge variant="outline">{payment.payment_method}</Badge></TableCell>
+                      <TableCell className="font-mono">{payment.receipt_number || payment.transaction_ref || '-'}</TableCell>
+                      <TableCell>
+                        <span className="text-xs">{payment.payment_type?.replace(/_/g, ' ') || '-'}</span>
+                      </TableCell>
+                      <TableCell><Badge variant="outline">{payment.payment_method || payment.devise || '-'}</Badge></TableCell>
                       <TableCell className="text-right font-bold text-green-600">
-                        ${parseFloat(payment.amount).toLocaleString()}
+                        {payment.devise === 'CDF' 
+                          ? `${parseFloat(payment.amount).toLocaleString()} CDF`
+                          : `$${parseFloat(payment.amount).toLocaleString()}`
+                        }
                       </TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="sm"><Download className="h-4 w-4" /></Button>
@@ -298,7 +353,12 @@ export default function StudentFinancesPage() {
                       <TableCell><Badge variant="outline">{receipt.receipt_type}</Badge></TableCell>
                       <TableCell className="font-mono">{receipt.receipt_number}</TableCell>
                       <TableCell>{receipt.bank_name || '-'}</TableCell>
-                      <TableCell className="text-right font-bold">${parseFloat(receipt.amount).toLocaleString()}</TableCell>
+                      <TableCell className="text-right font-bold">
+                        {receipt.currency === 'CDF' 
+                          ? `${parseFloat(receipt.amount).toLocaleString()} CDF`
+                          : `$${parseFloat(receipt.amount).toLocaleString()}`
+                        }
+                      </TableCell>
                       <TableCell className="text-center">
                         {receipt.verified ? <Badge className="bg-green-600">Vérifié</Badge> : <Badge className="bg-amber-600">En attente</Badge>}
                       </TableCell>

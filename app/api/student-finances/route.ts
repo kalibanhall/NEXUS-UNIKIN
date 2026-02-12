@@ -2,6 +2,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query, queryOne } from '@/lib/db'
 
+// Grille tarifaire par niveau (en USD)
+function getAcademicFeesByLevel(level: string): number {
+  const upperLevel = (level || '').toUpperCase()
+  // L1, L0, B1, PREP, GRADE1 → 350 USD (classes inférieures / première année)
+  if (['L0', 'L1', 'B1', 'PREP', 'GRADE1', 'P1', 'IR1', 'D1'].includes(upperLevel)) {
+    return 350
+  }
+  // Tous les autres niveaux → 270 USD
+  return 270
+}
+
+// Frais d'inscription fixes en CDF
+const FRAIS_INSCRIPTION_CDF = 145000
+
 // GET - Obtenir la situation financière d'un étudiant
 export async function GET(request: NextRequest) {
   try {
@@ -22,64 +36,104 @@ export async function GET(request: NextRequest) {
       yearId = currentYear?.id
     }
 
-    // Paiements effectués (table existante)
-    const payments = await query(
-      `SELECT * FROM payments 
-       WHERE student_id = $1 AND academic_year_id = $2 AND status = 'COMPLETED'
-       ORDER BY payment_date DESC`,
-      [studentId, yearId]
+    // Obtenir le niveau de l'étudiant
+    const student = await queryOne(
+      `SELECT s.id, s.matricule, s.payment_status, p.level, p.name as promotion_name,
+              d.name as department_name, f.name as faculty_name
+       FROM students s
+       LEFT JOIN promotions p ON s.promotion_id = p.id
+       LEFT JOIN departments d ON p.department_id = d.id
+       LEFT JOIN faculties f ON d.faculty_id = f.id
+       WHERE s.id = $1`,
+      [studentId]
     )
 
-    // Calculer les frais par type de paiement
-    const paymentsByType: { [key: string]: number } = {}
-    payments.rows.forEach((p: any) => {
-      if (!paymentsByType[p.payment_type]) {
-        paymentsByType[p.payment_type] = 0
-      }
-      paymentsByType[p.payment_type] += parseFloat(p.amount || 0)
-    })
+    const level = student?.level || 'L1'
+    const academicFeeDue = getAcademicFeesByLevel(level)
 
-    // Créer des estimations par défaut basées sur les types de paiement existants
-    const defaultFees = [
-      { fee_type: 'INSCRIPTION', name: 'Frais d\'inscription', amount_due: 50 },
-      { fee_type: 'FRAIS_ACADEMIQUES', name: 'Frais académiques', amount_due: 250 },
-      { fee_type: 'FRAIS_MINERVAL', name: 'Minerval', amount_due: 100 }
+    // Paiements USD
+    const paymentsUSD = await query(
+      `SELECT * FROM payments 
+       WHERE student_id = $1 AND status = 'COMPLETED' AND (devise = 'USD' OR devise IS NULL)
+       ORDER BY payment_date DESC`,
+      [studentId]
+    )
+
+    // Paiements CDF (inscription)
+    const paymentsCDF = await query(
+      `SELECT * FROM payments 
+       WHERE student_id = $1 AND status = 'COMPLETED' AND devise = 'CDF'
+       ORDER BY payment_date DESC`,
+      [studentId]
+    )
+
+    // Tous les paiements pour l'historique
+    const allPayments = await query(
+      `SELECT * FROM payments 
+       WHERE student_id = $1 AND status = 'COMPLETED'
+       ORDER BY payment_date DESC`,
+      [studentId]
+    )
+
+    const totalPaidUSD = paymentsUSD.rows.reduce((sum: number, p: any) => sum + parseFloat(p.amount || 0), 0)
+    const totalPaidCDF = paymentsCDF.rows.reduce((sum: number, p: any) => sum + parseFloat(p.amount || 0), 0)
+
+    // Structure des frais
+    const fees = [
+      { 
+        fee_type: 'FRAIS_ACADEMIQUES', 
+        name: 'Frais académiques', 
+        amount_due: academicFeeDue, 
+        amount_paid: totalPaidUSD,
+        currency: 'USD',
+        description: level === 'L1' || level === 'L0' || level === 'B1' || level === 'PREP' 
+          ? 'Frais académiques (1ère année)' 
+          : 'Frais académiques'
+      },
+      { 
+        fee_type: 'FRAIS_INSCRIPTION', 
+        name: 'Frais d\'inscription', 
+        amount_due: FRAIS_INSCRIPTION_CDF, 
+        amount_paid: totalPaidCDF,
+        currency: 'CDF',
+        description: 'Frais d\'inscription et formulaire'
+      },
     ]
-    
-    const fees = defaultFees.map(f => ({
-      ...f,
-      amount_paid: paymentsByType[f.fee_type] || 0,
-      currency: 'USD'
-    }))
-    
-    const totalDue = fees.reduce((sum: number, f: any) => sum + f.amount_due, 0)
-    const totalPaid = payments.rows.reduce((sum: number, p: any) => sum + parseFloat(p.amount || 0), 0)
-    const totalRemaining = Math.max(0, totalDue - totalPaid)
 
-    // Par catégorie
-    const byCategory = fees.reduce((acc: any, f: any) => {
-      const category = f.fee_type
-      if (!acc[category]) {
-        acc[category] = { due: 0, paid: 0, items: [] }
-      }
-      acc[category].due += f.amount_due
-      acc[category].paid += f.amount_paid
-      acc[category].items.push(f)
-      return acc
-    }, {})
+    const remainingUSD = Math.max(0, academicFeeDue - totalPaidUSD)
+    const remainingCDF = Math.max(0, FRAIS_INSCRIPTION_CDF - totalPaidCDF)
+
+    // Pourcentage global (on pondère USD et CDF)
+    const percentUSD = academicFeeDue > 0 ? Math.min(100, Math.round((totalPaidUSD / academicFeeDue) * 100)) : 100
+    const percentCDF = FRAIS_INSCRIPTION_CDF > 0 ? Math.min(100, Math.round((totalPaidCDF / FRAIS_INSCRIPTION_CDF) * 100)) : 100
 
     return NextResponse.json({
-      fees: fees,
-      payments: payments.rows,
+      student: {
+        level,
+        promotion_name: student?.promotion_name,
+        department_name: student?.department_name,
+        faculty_name: student?.faculty_name,
+        payment_status: student?.payment_status,
+      },
+      fees,
+      payments: allPayments.rows,
       receipts: [],
       summary: {
-        totalDue,
-        totalPaid,
-        totalRemaining,
-        percentagePaid: totalDue > 0 ? Math.round((totalPaid / totalDue) * 100) : 0,
-        isComplete: totalPaid >= totalDue
+        totalDueUSD: academicFeeDue,
+        totalPaidUSD,
+        remainingUSD,
+        percentageUSD: percentUSD,
+        totalDueCDF: FRAIS_INSCRIPTION_CDF,
+        totalPaidCDF,
+        remainingCDF,
+        percentageCDF: percentCDF,
+        // Legacy fields for backward compatibility
+        totalDue: academicFeeDue,
+        totalPaid: totalPaidUSD,
+        totalRemaining: remainingUSD,
+        percentagePaid: percentUSD,
+        isComplete: remainingUSD <= 0 && remainingCDF <= 0
       },
-      byCategory
     })
   } catch (error) {
     console.error('Error fetching student finances:', error)
@@ -88,13 +142,11 @@ export async function GET(request: NextRequest) {
       payments: [],
       receipts: [],
       summary: {
-        totalDue: 0,
-        totalPaid: 0,
-        totalRemaining: 0,
-        percentagePaid: 0,
+        totalDueUSD: 0, totalPaidUSD: 0, remainingUSD: 0, percentageUSD: 0,
+        totalDueCDF: 0, totalPaidCDF: 0, remainingCDF: 0, percentageCDF: 0,
+        totalDue: 0, totalPaid: 0, totalRemaining: 0, percentagePaid: 0,
         isComplete: false
       },
-      byCategory: {}
     }, { status: 200 })
   }
 }
