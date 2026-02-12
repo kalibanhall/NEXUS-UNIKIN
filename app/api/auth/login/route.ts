@@ -153,11 +153,12 @@ export async function POST(request: NextRequest) {
         profile = await queryOne<StudentRow>(
           `SELECT s.id, s.matricule, s.status, s.payment_status, 
                   p.id as promotion_id, p.name as promotion_name, p.level as promotion_level,
-                  d.name as department_name, f.name as faculty_name
+                  d.name as department_name, f.name as faculty_name,
+                  s.option_name, s.code_promotion
            FROM students s
-           JOIN promotions p ON s.promotion_id = p.id
-           JOIN departments d ON p.department_id = d.id
-           JOIN faculties f ON d.faculty_id = f.id
+           LEFT JOIN promotions p ON s.promotion_id = p.id
+           LEFT JOIN departments d ON p.department_id = d.id
+           LEFT JOIN faculties f ON d.faculty_id = f.id
            WHERE s.user_id = $1`,
           [user.id]
         )

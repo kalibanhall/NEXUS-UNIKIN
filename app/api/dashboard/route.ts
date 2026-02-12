@@ -130,11 +130,12 @@ export async function GET(request: NextRequest) {
     } else if (role === 'STUDENT' && userId) {
       // Stats étudiant
       const student = await queryOne(
-        `SELECT s.*, p.name as promotion_name, p.level, d.name as department_name, f.name as faculty_name
+        `SELECT s.*, p.name as promotion_name, p.level, d.name as department_name, f.name as faculty_name,
+                s.option_name, s.code_promotion
          FROM students s
-         JOIN promotions p ON s.promotion_id = p.id
-         JOIN departments d ON p.department_id = d.id
-         JOIN faculties f ON d.faculty_id = f.id
+         LEFT JOIN promotions p ON s.promotion_id = p.id
+         LEFT JOIN departments d ON p.department_id = d.id
+         LEFT JOIN faculties f ON d.faculty_id = f.id
          WHERE s.user_id = $1`,
         [userId]
       )
