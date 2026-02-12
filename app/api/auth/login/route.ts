@@ -106,6 +106,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Vérifier si le compte est activé (pas de mot de passe = pas encore activé)
+    if (!user.password || user.password === '') {
+      return NextResponse.json(
+        { error: 'Votre compte n\'est pas encore activé. Veuillez d\'abord activer votre compte.', needsActivation: true },
+        { status: 403 }
+      )
+    }
+
     // Vérification du mot de passe
     const isValidPassword = await bcrypt.compare(password, user.password)
     if (!isValidPassword) {

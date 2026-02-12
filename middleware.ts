@@ -15,8 +15,10 @@ import { SESSION_COOKIE_NAME } from '@/lib/auth/constants'
 const PUBLIC_ROUTES = [
   '/auth/login',
   '/auth/register',
+  '/auth/activate',
   '/api/auth/login',
   '/api/auth/logout',
+  '/api/auth/activate',
 ]
 
 // Préfixes de routes publiques
