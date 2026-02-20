@@ -1,83 +1,147 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Label } from '@/components/ui/label'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
-import { Search, Plus, Eye, DollarSign, CheckCircle, Clock, XCircle } from 'lucide-react'
-
-const mockPayments = [
-  {
-    id: 1,
-    reference: 'PAY-2024-001',
-    etudiant: 'MBUYI Jean',
-    matricule: 'ETU-2024-001',
-    montant: 500,
-    type: 'Frais académiques',
-    date: '2024-01-15',
-    status: 'validé'
-  },
-  {
-    id: 2,
-    reference: 'PAY-2024-002',
-    etudiant: 'KABONGO Marie',
-    matricule: 'ETU-2024-002',
-    montant: 250,
-    type: 'Frais académiques',
-    date: '2024-01-16',
-    status: 'en attente'
-  },
-  {
-    id: 3,
-    reference: 'PAY-2024-003',
-    etudiant: 'MUTOMBO Pierre',
-    matricule: 'ETU-2024-003',
-    montant: 100,
-    type: 'Frais de laboratoire',
-    date: '2024-01-17',
-    status: 'validé'
-  },
-  {
-    id: 4,
-    reference: 'PAY-2024-004',
-    etudiant: 'LUMUMBA Patrick',
-    matricule: 'ETU-2024-004',
-    montant: 750,
-    type: 'Frais académiques',
-    date: '2024-01-18',
-    status: 'rejeté'
-  },
-]
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
+import { Search, Plus, DollarSign, CheckCircle, Clock, XCircle, RefreshCw, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+import { useAuth } from '@/lib/auth/auth-context'
 
 export default function EmployeePaymentsPage() {
+  const { user } = useAuth()
+  const [payments, setPayments] = useState<any[]>([])
+  const [pagination, setPagination] = useState({ page: 1, total: 0, totalPages: 1 })
   const [searchTerm, setSearchTerm] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [showNewPayment, setShowNewPayment] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const filteredPayments = mockPayments.filter(payment =>
-    payment.etudiant.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    payment.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    payment.matricule.toLowerCase().includes(searchTerm.toLowerCase())
+  // Stats calculées depuis les données
+  const [stats, setStats] = useState({ totalAmount: 0, completed: 0, pending: 0, rejected: 0 })
+
+  const [paymentForm, setPaymentForm] = useState({
+    studentId: '',
+    academicYearId: '',
+    amount: '',
+    paymentType: 'FRAIS_ACADEMIQUES',
+    paymentMethod: 'CASH',
+    reference: '',
+    remarks: ''
+  })
+
+  useEffect(() => {
+    fetchPayments()
+  }, [])
+
+  const fetchPayments = async (page = 1) => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/payments?page=${page}&limit=50`)
+      if (response.ok) {
+        const data = await response.json()
+        setPayments(data.payments || [])
+        setPagination(data.pagination || { page: 1, total: 0, totalPages: 1 })
+        
+        // Calculer les stats depuis les données
+        const all = data.payments || []
+        const totalAmount = all
+          .filter((p: any) => p.status === 'COMPLETED')
+          .reduce((sum: number, p: any) => sum + parseFloat(p.amount || 0), 0)
+        const completed = all.filter((p: any) => p.status === 'COMPLETED').length
+        const pending = all.filter((p: any) => p.status === 'PENDING').length
+        const rejected = all.filter((p: any) => p.status === 'REJECTED' || p.status === 'CANCELLED').length
+        setStats({ totalAmount, completed, pending, rejected })
+      } else {
+        toast.error('Erreur lors du chargement des paiements')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      toast.error('Erreur de connexion')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const createPayment = async () => {
+    if (!paymentForm.studentId || !paymentForm.amount || !paymentForm.academicYearId) {
+      toast.error('Veuillez remplir tous les champs obligatoires')
+      return
+    }
+    setSubmitting(true)
+    try {
+      const response = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: parseInt(paymentForm.studentId),
+          academicYearId: parseInt(paymentForm.academicYearId),
+          amount: parseFloat(paymentForm.amount),
+          paymentType: paymentForm.paymentType,
+          paymentMethod: paymentForm.paymentMethod,
+          reference: paymentForm.reference || null,
+          remarks: paymentForm.remarks || null,
+          recordedBy: user?.userId
+        })
+      })
+      if (response.ok) {
+        toast.success('Paiement enregistré avec succès')
+        setShowNewPayment(false)
+        setPaymentForm({
+          studentId: '', academicYearId: '', amount: '',
+          paymentType: 'FRAIS_ACADEMIQUES', paymentMethod: 'CASH',
+          reference: '', remarks: ''
+        })
+        fetchPayments()
+      } else {
+        const err = await response.json()
+        toast.error(err.error || 'Erreur lors de l\'enregistrement')
+      }
+    } catch (error) {
+      toast.error('Erreur de connexion')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const filteredPayments = payments.filter(payment =>
+    (payment.student_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (payment.matricule || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (payment.receipt_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (payment.reference || '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'validé':
+    switch (status?.toUpperCase()) {
+      case 'COMPLETED':
         return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"><CheckCircle className="h-3 w-3 mr-1" />Validé</Badge>
-      case 'en attente':
+      case 'PENDING':
         return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"><Clock className="h-3 w-3 mr-1" />En attente</Badge>
-      case 'rejeté':
+      case 'REJECTED':
+      case 'CANCELLED':
         return <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"><XCircle className="h-3 w-3 mr-1" />Rejeté</Badge>
       default:
-        return <Badge>{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
   }
 
   return (
@@ -89,10 +153,16 @@ export default function EmployeePaymentsPage() {
             Enregistrer et valider les paiements des étudiants
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouveau paiement
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => fetchPayments()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualiser
+          </Button>
+          <Button onClick={() => setShowNewPayment(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouveau paiement
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
@@ -102,10 +172,8 @@ export default function EmployeePaymentsPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$125,430</div>
-            <p className="text-xs text-muted-foreground">
-              Ce mois-ci
-            </p>
+            <div className="text-2xl font-bold">${stats.totalAmount.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">{pagination.total} paiement(s) total</p>
           </CardContent>
         </Card>
         <Card>
@@ -114,7 +182,7 @@ export default function EmployeePaymentsPage() {
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">234</div>
+            <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
           </CardContent>
         </Card>
         <Card>
@@ -123,7 +191,7 @@ export default function EmployeePaymentsPage() {
             <Clock className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">45</div>
+            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
           </CardContent>
         </Card>
         <Card>
@@ -132,7 +200,7 @@ export default function EmployeePaymentsPage() {
             <XCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">12</div>
+            <div className="text-2xl font-bold text-red-600">{stats.rejected}</div>
           </CardContent>
         </Card>
       </div>
@@ -154,47 +222,149 @@ export default function EmployeePaymentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Référence</TableHead>
+                <TableHead>N° Reçu</TableHead>
                 <TableHead>Étudiant</TableHead>
                 <TableHead>Matricule</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Montant</TableHead>
+                <TableHead>Mode</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredPayments.map((payment) => (
+              {filteredPayments.length > 0 ? filteredPayments.map((payment) => (
                 <TableRow key={payment.id}>
-                  <TableCell className="font-mono">{payment.reference}</TableCell>
-                  <TableCell className="font-medium">{payment.etudiant}</TableCell>
+                  <TableCell className="font-mono">{payment.receipt_number || '-'}</TableCell>
+                  <TableCell className="font-medium">{payment.student_name}</TableCell>
                   <TableCell>{payment.matricule}</TableCell>
-                  <TableCell>{payment.type}</TableCell>
-                  <TableCell className="font-bold">${payment.montant}</TableCell>
-                  <TableCell>{payment.date}</TableCell>
+                  <TableCell className="text-sm">{payment.payment_type?.replace(/_/g, ' ')}</TableCell>
+                  <TableCell className="font-bold text-green-600">${parseFloat(payment.amount).toLocaleString()}</TableCell>
+                  <TableCell><Badge variant="outline">{payment.payment_method || '-'}</Badge></TableCell>
+                  <TableCell>{payment.payment_date ? new Date(payment.payment_date).toLocaleDateString('fr-FR') : '-'}</TableCell>
                   <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {payment.status === 'en attente' && (
-                      <>
-                        <Button variant="ghost" size="sm" className="text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600">
-                          <XCircle className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                    Aucun paiement trouvé
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
+          {pagination.totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-4">
+              <Button 
+                variant="outline" size="sm" 
+                disabled={pagination.page <= 1}
+                onClick={() => fetchPayments(pagination.page - 1)}
+              >
+                Précédent
+              </Button>
+              <span className="flex items-center text-sm text-gray-500">
+                Page {pagination.page} / {pagination.totalPages}
+              </span>
+              <Button 
+                variant="outline" size="sm" 
+                disabled={pagination.page >= pagination.totalPages}
+                onClick={() => fetchPayments(pagination.page + 1)}
+              >
+                Suivant
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Dialog nouveau paiement */}
+      <Dialog open={showNewPayment} onOpenChange={setShowNewPayment}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Enregistrer un paiement</DialogTitle>
+            <DialogDescription>Saisir les informations du paiement étudiant</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>ID Étudiant *</Label>
+                <Input 
+                  type="number" placeholder="Ex: 123"
+                  value={paymentForm.studentId}
+                  onChange={(e) => setPaymentForm({...paymentForm, studentId: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>ID Année académique *</Label>
+                <Input 
+                  type="number" placeholder="Ex: 1"
+                  value={paymentForm.academicYearId}
+                  onChange={(e) => setPaymentForm({...paymentForm, academicYearId: e.target.value})}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Montant (USD) *</Label>
+                <Input 
+                  type="number" placeholder="0.00"
+                  value={paymentForm.amount}
+                  onChange={(e) => setPaymentForm({...paymentForm, amount: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Type</Label>
+                <Select value={paymentForm.paymentType} onValueChange={(v) => setPaymentForm({...paymentForm, paymentType: v})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="FRAIS_ACADEMIQUES">Frais académiques</SelectItem>
+                    <SelectItem value="FRAIS_INSCRIPTION">Frais d&apos;inscription</SelectItem>
+                    <SelectItem value="FRAIS_LABORATOIRE">Frais de laboratoire</SelectItem>
+                    <SelectItem value="FRAIS_MINERVAL">Minerval</SelectItem>
+                    <SelectItem value="AUTRE">Autre</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Mode de paiement</Label>
+                <Select value={paymentForm.paymentMethod} onValueChange={(v) => setPaymentForm({...paymentForm, paymentMethod: v})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CASH">Espèces</SelectItem>
+                    <SelectItem value="BANK_TRANSFER">Virement bancaire</SelectItem>
+                    <SelectItem value="MOBILE_MONEY">Mobile Money</SelectItem>
+                    <SelectItem value="CHECK">Chèque</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Référence</Label>
+                <Input 
+                  placeholder="N° de référence"
+                  value={paymentForm.reference}
+                  onChange={(e) => setPaymentForm({...paymentForm, reference: e.target.value})}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Remarques</Label>
+              <Input 
+                placeholder="Notes supplémentaires"
+                value={paymentForm.remarks}
+                onChange={(e) => setPaymentForm({...paymentForm, remarks: e.target.value})}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNewPayment(false)} disabled={submitting}>Annuler</Button>
+            <Button onClick={createPayment} disabled={submitting}>
+              {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Envoi...</> : <><Plus className="h-4 w-4 mr-2" />Enregistrer</>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

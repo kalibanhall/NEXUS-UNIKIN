@@ -108,7 +108,19 @@ export default function StudentFinancesPage() {
     try {
       let scanUrl = null
       if (selectedFile) {
-        scanUrl = `/uploads/${selectedFile.name}`
+        // Upload réel du fichier
+        const formData = new FormData()
+        formData.append('file', selectedFile)
+        formData.append('category', 'receipts')
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData })
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json()
+          scanUrl = uploadData.url
+        } else {
+          toast.error('Erreur lors de l\'upload du fichier')
+          setSubmitting(false)
+          return
+        }
       }
       const response = await fetch('/api/student-finances', {
         method: 'POST',
