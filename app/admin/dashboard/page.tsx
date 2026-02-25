@@ -25,6 +25,7 @@ import { Progress } from '@/components/ui/progress'
 
 interface DashboardStats {
   students: number
+  studentsApproximate?: boolean
   teachers: number
   courses: number
   faculties: number
@@ -65,10 +66,14 @@ export default function AdminDashboard() {
   const statsCards = [
     {
       title: 'Total Étudiants',
-      value: stats ? stats.students.toLocaleString() : '...',
+      value: stats
+        ? (stats.studentsApproximate
+          ? `${stats.students.toLocaleString()}+`
+          : stats.students.toLocaleString())
+        : '...',
       icon: GraduationCap,
       color: 'from-blue-500 to-blue-600',
-      description: 'Étudiants actifs',
+      description: stats?.studentsApproximate ? 'Étudiants actifs (approx.)' : 'Étudiants actifs',
     },
     {
       title: 'Enseignants',
@@ -175,7 +180,9 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between">
                     <span className="font-medium">Étudiants soldés</span>
                     <div className="flex items-center gap-4">
-                      <span className="text-sm text-gray-500">{stats?.paymentStats?.paid || 0} étudiants</span>
+                      {!stats?.studentsApproximate && (
+                        <span className="text-sm text-gray-500">{stats?.paymentStats?.paid || 0} étudiants</span>
+                      )}
                       <Badge variant="default">{stats?.students ? Math.round(((stats?.paymentStats?.paid || 0) / stats.students) * 100) : 0}%</Badge>
                     </div>
                   </div>
@@ -185,7 +192,9 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between">
                     <span className="font-medium">Paiements partiels</span>
                     <div className="flex items-center gap-4">
-                      <span className="text-sm text-gray-500">{stats?.paymentStats?.partial || 0} étudiants</span>
+                      {!stats?.studentsApproximate && (
+                        <span className="text-sm text-gray-500">{stats?.paymentStats?.partial || 0} étudiants</span>
+                      )}
                       <Badge variant="secondary">{stats?.students ? Math.round(((stats?.paymentStats?.partial || 0) / stats.students) * 100) : 0}%</Badge>
                     </div>
                   </div>
@@ -195,7 +204,9 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between">
                     <span className="font-medium">Impayés</span>
                     <div className="flex items-center gap-4">
-                      <span className="text-sm text-gray-500">{stats?.paymentStats?.unpaid || 0} étudiants</span>
+                      {!stats?.studentsApproximate && (
+                        <span className="text-sm text-gray-500">{stats?.paymentStats?.unpaid || 0} étudiants</span>
+                      )}
                       <Badge variant="destructive">{stats?.students ? Math.round(((stats?.paymentStats?.unpaid || 0) / stats.students) * 100) : 0}%</Badge>
                     </div>
                   </div>
@@ -320,7 +331,11 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-3">
                     <CreditCard className="w-4 h-4 text-amber-600" />
                     <p className="text-sm text-amber-700 dark:text-amber-300">
-                      <strong>{totalDebt} étudiant{totalDebt > 1 ? 's' : ''}</strong> {totalDebt > 1 ? 'ont' : 'a'} des dettes impayées
+                      {stats?.studentsApproximate ? (
+                        <>Des étudiants ont des <strong>dettes impayées</strong></>
+                      ) : (
+                        <><strong>{totalDebt} étudiant{totalDebt > 1 ? 's' : ''}</strong> {totalDebt > 1 ? 'ont' : 'a'} des dettes impayées</>
+                      )}
                     </p>
                   </div>
                 )}
@@ -328,7 +343,11 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-3">
                     <Clock className="w-4 h-4 text-amber-600" />
                     <p className="text-sm text-amber-700 dark:text-amber-300">
-                      <strong>{stats?.paymentStats?.partial} étudiant{(stats?.paymentStats?.partial || 0) > 1 ? 's' : ''}</strong> en paiement partiel
+                      {stats?.studentsApproximate ? (
+                        <>Des étudiants sont en <strong>paiement partiel</strong></>
+                      ) : (
+                        <><strong>{stats?.paymentStats?.partial} étudiant{(stats?.paymentStats?.partial || 0) > 1 ? 's' : ''}</strong> en paiement partiel</>
+                      )}
                     </p>
                   </div>
                 )}

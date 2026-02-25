@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       case 'SUPER_ADMIN':
       case 'ADMIN':
         profile = await queryOne(
-          'SELECT id, admin_type, faculty_id, department_id FROM admins WHERE user_id = $1',
+          'SELECT id, admin_type, faculty_id, department_id, permissions FROM admins WHERE user_id = $1',
           [user.id]
         )
         break

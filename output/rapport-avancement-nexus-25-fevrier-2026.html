@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS UNIKIN — Rapport d'Avancement — 25 Février 2026</title>
+  <style>
+    @page { size: A4; margin: 15mm 18mm; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; color: #1a1a1a; line-height: 1.5; background: #fff; }
+    .page { page-break-after: always; padding: 0; }
+    .page:last-child { page-break-after: avoid; }
+
+    /* Cover */
+    .cover { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90vh; text-align: center; }
+    .cover h1 { font-size: 32px; color: #1e3a5f; margin-bottom: 8px; letter-spacing: 2px; }
+    .cover h2 { font-size: 20px; color: #2c5282; font-weight: 600; margin-bottom: 6px; }
+    .cover h3 { font-size: 15px; color: #4a5568; font-weight: 400; margin-bottom: 40px; }
+    .cover .info-box { background: #e6f2ff; border: 2px solid #1e3a5f; border-radius: 8px; padding: 20px 35px; text-align: left; display: inline-block; margin-top: 20px; }
+    .cover .info-box p { font-size: 12px; margin: 4px 0; }
+    .cover .info-box strong { color: #1e3a5f; }
+
+    /* TOC */
+    .toc h2 { color: #1e3a5f; font-size: 18px; border-bottom: 2px solid #1e3a5f; padding-bottom: 6px; margin-bottom: 14px; }
+    .toc ul { list-style: none; }
+    .toc li { font-size: 12px; padding: 5px 0; border-bottom: 1px dotted #ccc; }
+    .toc li span { color: #2c5282; font-weight: 600; }
+
+    /* Sections */
+    h2.section { color: #1e3a5f; font-size: 16px; border-bottom: 2px solid #1e3a5f; padding-bottom: 5px; margin: 20px 0 10px; }
+    h3.sub { color: #2c5282; font-size: 13px; margin: 14px 0 6px; }
+    h4.sub2 { color: #3182ce; font-size: 12px; margin: 10px 0 5px; }
+
+    p { font-size: 11px; margin: 4px 0; }
+    .indent { margin-left: 20px; }
+
+    /* Status badges */
+    .status { display: inline-block; padding: 2px 10px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-left: 8px; }
+    .status.fait { background: #c6f6d5; color: #22543d; }
+    .status.encours { background: #fefcbf; color: #744210; }
+    .status.avenir { background: #bee3f8; color: #2a4365; }
+    .status.nouveau { background: #fed7e2; color: #702459; }
+
+    /* Bullets */
+    ul.bullets { list-style: none; margin: 4px 0 8px 10px; }
+    ul.bullets li { font-size: 11px; padding: 2px 0; position: relative; padding-left: 14px; }
+    ul.bullets li::before { content: "•"; position: absolute; left: 0; color: #2c5282; font-weight: bold; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 10px; }
+    th { background: #1e3a5f; color: #fff; padding: 6px 8px; text-align: left; font-weight: 600; font-size: 10px; }
+    td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; }
+    tr:nth-child(even) td { background: #f7fafc; }
+    .highlight-row td { background: #e6f2ff !important; font-weight: 600; }
+
+    /* Alert box */
+    .alert { background: #fffbeb; border-left: 4px solid #d69e2e; padding: 10px 14px; margin: 10px 0; font-size: 11px; border-radius: 0 4px 4px 0; }
+    .alert strong { color: #b7791f; }
+
+    /* New badge */
+    .new-tag { background: #fc8181; color: #fff; font-size: 9px; padding: 1px 6px; border-radius: 3px; font-weight: 700; margin-left: 4px; vertical-align: middle; }
+
+    /* Footer */
+    .footer { text-align: center; color: #a0aec0; font-size: 10px; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { page-break-after: always; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==================== PAGE DE GARDE ==================== -->
+<div class="page">
+  <div class="cover">
+    <h1>NEXUS UNIKIN</h1>
+    <h2>RAPPORT D'AVANCEMENT</h2>
+    <h3>Système de Gestion Universitaire</h3>
+    <p style="font-size:13px; margin-bottom:5px;">Université de Kinshasa (UNIKIN)</p>
+    <p style="font-size:13px; margin-bottom:40px;">État d'avancement au <strong>25 Février 2026</strong></p>
+    <div class="info-box">
+      <p><strong>Date de début effectif :</strong> 30 janvier 2026</p>
+      <p><strong>Date du rapport :</strong> 25 février 2026</p>
+      <p><strong>Durée écoulée :</strong> 26 jours</p>
+      <p><strong>Échéance finale :</strong> 30 avril 2026</p>
+      <p><strong>Plateforme :</strong> http://94.72.97.228</p>
+      <p><strong>Faculté pilote :</strong> Sciences Pharmaceutiques</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TABLE DES MATIÈRES ==================== -->
+<div class="page">
+  <div class="toc">
+    <h2>TABLE DES MATIÈRES</h2>
+    <ul>
+      <li><span>1.</span> Résumé Exécutif</li>
+      <li><span>2.</span> État d'Avancement par Phase</li>
+      <li><span>3.</span> Phase 4 : Faculté Pilote — Sciences Pharmaceutiques</li>
+      <li><span>4.</span> Statistiques de la Base de Données</li>
+      <li><span>5.</span> Détail des 15 Facultés</li>
+      <li><span>6.</span> Modules Fonctionnels Déployés</li>
+      <li><span>7.</span> Prochaines Étapes</li>
+      <li><span>8.</span> Recommandations</li>
+      <li><span>A.</span> Annexes</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== 1. RÉSUMÉ EXÉCUTIF ==================== -->
+<div class="page">
+  <h2 class="section">1. RÉSUMÉ EXÉCUTIF</h2>
+  <p>Le projet NEXUS UNIKIN a démarré effectivement le 30 janvier 2026 avec pour objectif la mise en place d'une plateforme complète de gestion universitaire pour l'Université de Kinshasa.</p>
+  <p>En 26 jours, le projet a franchi des étapes majeures, culminant avec l'intégration complète de la Faculté des Sciences Pharmaceutiques comme faculté pilote.</p>
+
+  <h3 class="sub">1.1 Points clés</h3>
+  <ul class="bullets">
+    <li>Plateforme déployée en ligne et accessible via http://94.72.97.228</li>
+    <li>Plus de 2 000 étudiants encodés et ajoutés dans la plateforme</li>
+    <li>1 131 enseignants intégrés (toutes facultés UNIKIN) avec grades académiques — données 2023-2024</li>
+    <li>15 facultés, 134+ départements, 503+ promotions encodés</li>
+    <li>Faculté de Pharmacie entièrement configurée : 136 cours, 9 jurys, critères de délibération</li>
+    <li>Infrastructure technique : Next.js 14, PostgreSQL, PM2, Nginx, 20 tables</li>
+    <li>Système d'activation opérationnel (étudiants + enseignants)</li>
+    <li>3 années académiques configurées (2023-2024, 2024-2025, 2025-2026)</li>
+  </ul>
+
+  <h3 class="sub">1.2 État d'avancement global</h3>
+  <table>
+    <tr><th style="width:70%">Phase</th><th>Statut</th></tr>
+    <tr><td>Phase 1 — Infrastructure</td><td><span class="status fait">100% ✓</span></td></tr>
+    <tr><td>Phase 2 — Intégration données initiales</td><td><span class="status fait">100% ✓</span></td></tr>
+    <tr><td>Phase 3 — Modules fonctionnels</td><td><span class="status fait">100% ✓</span></td></tr>
+    <tr><td>Phase 4 — Faculté pilote Pharmacie</td><td><span class="status fait">100% ✓</span></td></tr>
+    <tr><td>Phase 5 — Tests situation réelle</td><td><span class="status avenir">27 fév. 2026</span></td></tr>
+    <tr><td>Phase 6 — Formation académique</td><td><span class="status avenir">3 mars 2026</span></td></tr>
+  </table>
+</div>
+
+<!-- ==================== 2. ÉTAT D'AVANCEMENT PAR PHASE ==================== -->
+<div class="page">
+  <h2 class="section">2. ÉTAT D'AVANCEMENT PAR PHASE</h2>
+
+  <h3 class="sub">Phase 1 : Infrastructure et mise en ligne <span class="status fait">Fait</span></h3>
+  <ul class="bullets">
+    <li>Serveur VPS provisionné (IP 94.72.97.228, Ubuntu, 32 Go RAM)</li>
+    <li>Plateforme déployée en ligne (Next.js 14 + PostgreSQL)</li>
+    <li>Base de données configurée (20 tables, schéma complet)</li>
+    <li>Système d'authentification JWT fonctionnel</li>
+    <li>Compte Super Admin créé et opérationnel</li>
+    <li>Configuration PM2 pour gestion des processus + Nginx reverse proxy</li>
+  </ul>
+  <p class="indent"><em>Date d'achèvement : 2 février 2026</em></p>
+
+  <h3 class="sub">Phase 2 : Intégration des données initiales <span class="status fait">Fait</span></h3>
+  <ul class="bullets">
+    <li>Plus de 2 000 étudiants importés depuis fichiers Excel</li>
+    <li>15 facultés encodées (toutes les facultés UNIKIN)</li>
+    <li>134 départements créés et rattachés aux facultés</li>
+    <li>503 promotions créées (L0 à D4, tous niveaux)</li>
+    <li>Paiements importés (USD + CDF — 2023-2024, 2024-2025 et 2025-2026)</li>
+    <li>3 années académiques configurées</li>
+    <li>Identifiants attribués (email : matricule@unikin.ac.cd)</li>
+    <li>Passerelle d'activation opérationnelle</li>
+  </ul>
+  <p class="indent"><em>Date d'achèvement : 12 février 2026</em></p>
+
+  <h3 class="sub">Phase 3 : Modules fonctionnels <span class="status fait">Fait</span></h3>
+  <table>
+    <tr><th>Module</th><th style="width:80px">Statut</th></tr>
+    <tr><td>Tableau de bord étudiant (données réelles)</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>Tableau de bord enseignant</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>Tableau de bord administrateur</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>Gestion des finances (grille tarifaire dynamique)</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>Gestion des notes et délibérations</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>Système de présences (codes de validation)</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>Gestion des évaluations</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>Emploi du temps</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>Messagerie interne</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>Bibliothèque numérique</td><td><span class="status fait">Fait</span></td></tr>
+    <tr><td>11 corrections UI/UX déployées</td><td><span class="status fait">Fait</span></td></tr>
+  </table>
+  <p class="indent"><em>Date d'achèvement : 13 février 2026</em></p>
+</div>
+
+<!-- ==================== 3. PHASE 4 — PHARMACIE ==================== -->
+<div class="page">
+  <h2 class="section">3. PHASE 4 : FACULTÉ PILOTE — SCIENCES PHARMACEUTIQUES <span class="new-tag">NOUVEAU</span></h2>
+  <p>Depuis le <strong>mercredi 18 février 2026</strong>, l'équipe technique a procédé à l'intégration complète des données de la Faculté des Sciences Pharmaceutiques, désignée comme faculté pilote pour valider le workflow complet de NEXUS.</p>
+
+  <h3 class="sub">3.1 Personnel académique intégré</h3>
+  <ul class="bullets">
+    <li>1 131 enseignants de toutes les facultés UNIKIN importés avec leurs grades (données 2023-2024)</li>
+    <li>Grades : Professeur Ordinaire, Professeur, Professeur Associé, Chef de Travaux, Assistant</li>
+    <li>89 enseignants de Pharmacie ont reçu leurs matricules ESU vérifiés</li>
+    <li>Emails enseignants migrés vers le format matricule@unikin.ac.cd</li>
+    <li>Système d'activation enseignants par matricule + date de naissance opérationnel</li>
+  </ul>
+
+  <h3 class="sub">3.2 Cours et programme</h3>
+  <table>
+    <tr><th>Programme</th><th>Niveaux</th><th>Nb Cours</th><th>Détails</th></tr>
+    <tr><td>PharmD (Doctorat en Pharmacie)</td><td>B1-B3, P1-P3</td><td>88</td><td>Cours obligatoires et optionnels</td></tr>
+    <tr><td>LTP — option PTP</td><td>L1-L3</td><td>~25</td><td>Pharmacie Traditionnelle et Plantes Médicinales</td></tr>
+    <tr><td>LTP — option PIP</td><td>L1-L3</td><td>~23</td><td>Pratiques et Industries Pharmaceutiques</td></tr>
+    <tr class="highlight-row"><td><strong>TOTAL</strong></td><td></td><td><strong>136+</strong></td><td><strong>7 départements, 19 promotions</strong></td></tr>
+  </table>
+
+  <h3 class="sub">3.3 Jurys de délibération</h3>
+  <p>9 jurys de délibération ont été configurés avec la composition complète :</p>
+  <table>
+    <tr><th>Jury</th><th>Programme</th><th>Président</th><th>Secrétaire</th><th>Membre</th></tr>
+    <tr><td>B1 PharmD</td><td>Doctorat</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>B2 PharmD</td><td>Doctorat</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>B3 PharmD</td><td>Doctorat</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>P1 PharmD</td><td>Doctorat</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>P2 PharmD</td><td>Doctorat</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>P3 PharmD</td><td>Doctorat</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>L1 LTP</td><td>Licence</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>L2 LTP</td><td>Licence</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>L3 LTP</td><td>Licence</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  </table>
+
+  <h3 class="sub">3.4 Critères de délibération</h3>
+  <ul class="bullets">
+    <li>Moyenne minimale de passage, passage avec dette, reprise et échec définis</li>
+    <li>Pourcentage de crédits requis pour passage et passage avec dette</li>
+    <li>Pondérations TP / TD / Examen configurées</li>
+    <li>Système de mentions (distinction, grande distinction, plus grande distinction) avec seuils</li>
+    <li>Règles spéciales : note éliminatoire, nombre max de dettes, étudiants bloqués</li>
+  </ul>
+
+  <h3 class="sub">3.5 Mise à jour étudiants Pharmacie</h3>
+  <ul class="bullets">
+    <li>1 141+ étudiants Pharmacie mis à jour avec données de paiement</li>
+    <li>Inscriptions et affectations aux promotions vérifiées</li>
+    <li>Données cohérentes entre paiements, inscriptions et promotions</li>
+  </ul>
+
+  <h3 class="sub">3.6 Nouvelles fonctionnalités techniques</h3>
+  <ul class="bullets">
+    <li>3 nouvelles tables : deliberation_juries, deliberation_jury_members, deliberation_criteria</li>
+    <li>API d'activation enseignants avec vérification par date de naissance</li>
+    <li>Interface d'activation universelle (étudiants et enseignants)</li>
+    <li>Support des filières multiples (PharmD + LTP avec options PTP/PIP)</li>
+  </ul>
+</div>
+
+<!-- ==================== 4. STATISTIQUES ==================== -->
+<div class="page">
+  <h2 class="section">4. STATISTIQUES DE LA BASE DE DONNÉES</h2>
+
+  <h3 class="sub">4.1 Vue d'ensemble au 25 février 2026</h3>
+  <table>
+    <tr><th style="width:65%">Catégorie</th><th>Nombre</th></tr>
+    <tr><td>Étudiants encodés</td><td><strong>Plus de 2 000</strong></td></tr>
+    <tr><td>Enseignants intégrés</td><td><strong>1 131</strong></td></tr>
+    <tr><td>Facultés actives</td><td>15</td></tr>
+    <tr><td>Départements actifs</td><td>134+</td></tr>
+    <tr><td>Promotions</td><td>503+</td></tr>
+    <tr><td>Cours créés (Pharmacie)</td><td>136+</td></tr>
+    <tr><td>Jurys de délibération</td><td>9</td></tr>
+    <tr><td>Membres de jury</td><td>27</td></tr>
+    <tr><td>Tables base de données</td><td>20</td></tr>
+    <tr><td>Années académiques</td><td>3</td></tr>
+    <tr><td>Paiements enregistrés</td><td>66 435+</td></tr>
+  </table>
+
+  <h3 class="sub">4.2 Évolution depuis le dernier rapport (17 février)</h3>
+  <table>
+    <tr><th>Nouveauté</th><th>Détail</th></tr>
+    <tr><td><span class="new-tag">NOUVEAU</span> 1 131 enseignants toutes facultés</td><td>Avec grades académiques — données 2023-2024</td></tr>
+    <tr><td><span class="new-tag">NOUVEAU</span> 136+ cours Pharmacie</td><td>PharmD (88) + LTP (48)</td></tr>
+    <tr><td><span class="new-tag">NOUVEAU</span> 9 jurys de délibération</td><td>Avec 27 membres assignés</td></tr>
+    <tr><td><span class="new-tag">NOUVEAU</span> Critères de délibération</td><td>Moyennes, crédits, mentions, règles</td></tr>
+    <tr><td><span class="new-tag">NOUVEAU</span> Activation enseignants</td><td>Matricule + date de naissance</td></tr>
+    <tr><td><span class="new-tag">NOUVEAU</span> 3 tables supplémentaires</td><td>16 → 20 tables</td></tr>
+    <tr><td><span class="new-tag">NOUVEAU</span> Données 2023-2024</td><td>Personnel académique et enseignants importés</td></tr>
+    <tr><td><span class="new-tag">NOUVEAU</span> 3 années académiques</td><td>2023-2024, 2024-2025, 2025-2026</td></tr>
+  </table>
+</div>
+
+<!-- ==================== 5. DÉTAIL DES 15 FACULTÉS ==================== -->
+<div class="page">
+  <h2 class="section">5. DÉTAIL DES 15 FACULTÉS</h2>
+  <p>Toutes les 15 facultés de l'UNIKIN sont encodées dans le système :</p>
+  <table>
+    <tr><th>#</th><th>Faculté</th><th>Dép.</th><th>Prom.</th><th>Statut données</th></tr>
+    <tr><td>1</td><td>Droit</td><td>8</td><td>29</td><td>Étudiants intégrés</td></tr>
+    <tr><td>2</td><td>Sciences Éco. et Gestion</td><td>21</td><td>59</td><td>Étudiants intégrés</td></tr>
+    <tr><td>3</td><td>Médecine</td><td>7</td><td>30</td><td>Étudiants intégrés</td></tr>
+    <tr><td>4</td><td>Sciences et Technologies</td><td>13</td><td>48</td><td>Étudiants intégrés</td></tr>
+    <tr><td>5</td><td>Psychologie et Éducation</td><td>6</td><td>23</td><td>Étudiants intégrés</td></tr>
+    <tr><td>6</td><td>Sciences Sociales et Admin.</td><td>5</td><td>19</td><td>Étudiants intégrés</td></tr>
+    <tr><td>7</td><td>Lettres et Sciences Humaines</td><td>26</td><td>67</td><td>Étudiants intégrés</td></tr>
+    <tr><td>8</td><td>Médecine Dentaire</td><td>3</td><td>21</td><td>Étudiants intégrés</td></tr>
+    <tr><td>9</td><td>Sciences Agronomiques</td><td>16</td><td>68</td><td>Étudiants intégrés</td></tr>
+    <tr class="highlight-row"><td>10</td><td><strong>Sciences Pharmaceutiques</strong></td><td><strong>7</strong></td><td><strong>19</strong></td><td><strong>COMPLET (pilote)</strong></td></tr>
+    <tr><td>11</td><td>Pétrole, Gaz et Énergies Renouvelables</td><td>8</td><td>65</td><td>Étudiants intégrés</td></tr>
+    <tr><td>12</td><td>Polytechnique</td><td>12</td><td>34</td><td>Étudiants intégrés</td></tr>
+    <tr><td>13</td><td>Médecine Vétérinaire</td><td>5</td><td>20</td><td>Étudiants intégrés</td></tr>
+    <tr><td>14</td><td>École Sc. Population et Développement</td><td>2</td><td>2</td><td>Étudiants intégrés</td></tr>
+    <tr><td>15</td><td>Sciences</td><td>0</td><td>0</td><td>Restructurée → FST</td></tr>
+  </table>
+  <p style="margin-top:8px; font-size:10px; color:#2c5282;"><strong>Note :</strong> La Faculté des Sciences Pharmaceutiques (ligne 10) est la seule faculté avec l'intégration complète : enseignants avec matricules ESU, cours, jurys de délibération et critères.</p>
+</div>
+
+<!-- ==================== 6. MODULES FONCTIONNELS ==================== -->
+<div class="page">
+  <h2 class="section">6. MODULES FONCTIONNELS DÉPLOYÉS</h2>
+
+  <h3 class="sub">6.1 Module Étudiant</h3>
+  <ul class="bullets">
+    <li>Consultation des données personnelles et académiques</li>
+    <li>Visualisation des paiements effectués (historique complet)</li>
+    <li>Consultation du statut financier en temps réel</li>
+    <li>Accès aux notes et relevés</li>
+    <li>Emploi du temps personnalisé</li>
+    <li>Messagerie interne</li>
+  </ul>
+
+  <h3 class="sub">6.2 Module Enseignant</h3>
+  <ul class="bullets">
+    <li>Gestion des présences avec système de codes de validation</li>
+    <li>Saisie et modification des notes (TP, TD, Examen)</li>
+    <li>Consultation des listes d'étudiants par cours</li>
+    <li>Gestion des évaluations</li>
+    <li>Communication avec les étudiants</li>
+    <li>Activation par matricule + date de naissance <span class="new-tag">NOUVEAU</span></li>
+  </ul>
+
+  <h3 class="sub">6.3 Module Administrateur</h3>
+  <ul class="bullets">
+    <li>Tableau de bord avec statistiques en temps réel</li>
+    <li>Gestion complète des utilisateurs</li>
+    <li>Gestion des facultés, départements et promotions</li>
+    <li>Gestion des années académiques</li>
+    <li>Suivi des paiements et finances</li>
+    <li>Système de délibérations avec jurys configurables <span class="new-tag">NOUVEAU</span></li>
+    <li>Critères de délibération paramétrables <span class="new-tag">NOUVEAU</span></li>
+    <li>Génération de rapports</li>
+  </ul>
+
+  <h3 class="sub">6.4 Modules Transversaux</h3>
+  <ul class="bullets">
+    <li>Système d'authentification sécurisé (JWT)</li>
+    <li>Gestion des rôles et permissions</li>
+    <li>Bibliothèque numérique</li>
+    <li>Système de notifications</li>
+    <li>Chatbot IA pour assistance</li>
+  </ul>
+</div>
+
+<!-- ==================== 7. PROCHAINES ÉTAPES ==================== -->
+<div class="page">
+  <h2 class="section">7. PROCHAINES ÉTAPES</h2>
+
+  <h3 class="sub">7.1 Vendredi 27 Février — Tests en situation réelle</h3>
+  <p>Premiers tests avec une promotion réelle de la Faculté de Pharmacie :</p>
+  <ul class="bullets">
+    <li>Activation des comptes étudiants et enseignants en conditions réelles</li>
+    <li>Test du workflow complet : présences, consultation notes, paiements</li>
+    <li>Collecte des retours et identification des bugs</li>
+    <li>Priorisation des correctifs</li>
+  </ul>
+  <p class="indent"><em>Objectif : Valider le processus complet avant la formation</em></p>
+
+  <h3 class="sub">7.2 Mardi 3 Mars — Formation personnel académique Pharmacie</h3>
+  <p>Journée de formation complète pour le personnel de la Faculté de Pharmacie :</p>
+  <ul class="bullets">
+    <li>Formation Doyen et Vice-Doyens : vue d'ensemble et rapports</li>
+    <li>Formation enseignants : saisie des notes, présences, codes de validation</li>
+    <li>Formation secrétariat : bordereaux, paiements, listes étudiants</li>
+    <li>Formation jury de délibération : processus numérique</li>
+  </ul>
+  <p class="indent"><em>Objectif : Personnel académique Pharmacie autonome sur NEXUS</em></p>
+
+  <h3 class="sub">7.3 Mars — Délibérations Faculté Pilote</h3>
+  <div class="alert">
+    <strong>Important :</strong> La délibération de toutes les promotions de la Faculté des Sciences Pharmaceutiques sera effective durant le mois de mars. C'est après la réussite de ces délibérations que le déploiement par vagues aux autres facultés pourra commencer.
+  </div>
+
+  <h3 class="sub">7.4 Après délibérations — Déploiement par vagues</h3>
+  <p>Le déploiement par vagues (3-4 facultés/semaine) commence <strong>après les délibérations de toutes les promotions de la Faculté des Sciences Pharmaceutiques</strong> :</p>
+  <table>
+    <tr><th>Vague</th><th>Facultés</th><th>Détail</th></tr>
+    <tr><td>Vague 1</td><td>Droit, FSEG, Médecine</td><td>Les 3 plus grandes facultés</td></tr>
+    <tr><td>Vague 2</td><td>FST, FPSE, FSSAP</td><td>3 facultés moyennes</td></tr>
+    <tr><td>Vague 3</td><td>FLSH, FMEDD, FSAE, FPGER</td><td>4 facultés</td></tr>
+    <tr><td>Vague 4</td><td>FPOLY, FMEDV, ESPD, FSC</td><td>Dernières facultés + consolidation</td></tr>
+  </table>
+  <p class="indent"><em>Pour chaque vague : intégration données enseignants/cours, formation, activation</em></p>
+
+  <h3 class="sub">7.5 Avril — Finalisation</h3>
+  <ul class="bullets">
+    <li>Modules avancés et intégrations (notifications)</li>
+    <li>Tests finaux (charge, sécurité)</li>
+    <li>Documentation et formation des formateurs</li>
+    <li>Cérémonie de lancement officiel avec le Recteur</li>
+    <li>Transfert de compétences à l'équipe informatique UNIKIN</li>
+    <li>Livraison définitive le 30 avril 2026</li>
+  </ul>
+</div>
+
+<!-- ==================== 8. RECOMMANDATIONS ==================== -->
+<div class="page">
+  <h2 class="section">8. RECOMMANDATIONS</h2>
+
+  <h3 class="sub">8.1 Stratégie validée : « Test puis Déploiement »</h3>
+  <p>L'approche choisie a été validée avec succès :</p>
+  <ul class="bullets">
+    <li>1. Intégrer complètement une faculté pilote (Pharmacie) ✓</li>
+    <li>2. Tester en situation réelle (27 février)</li>
+    <li>3. Former le personnel académique (3 mars)</li>
+    <li>4. Délibérer toutes les promotions Pharmacie (mars)</li>
+    <li>5. Déployer progressivement aux autres facultés</li>
+  </ul>
+  <p>Cette approche garantit que chaque faculté bénéficie d'une expérience complète dès le premier jour.</p>
+
+  <h3 class="sub">8.2 Préparation des tests du 27 février</h3>
+  <ul class="bullets">
+    <li>Sélectionner une promotion avec un nombre gérable d'étudiants</li>
+    <li>Préparer les scénarios de test couvrant tous les modules</li>
+    <li>Avoir un plan de secours en cas de problème technique</li>
+    <li>Documenter tous les retours pour correction rapide</li>
+  </ul>
+
+  <h3 class="sub">8.3 Préparation de la formation du 3 mars</h3>
+  <ul class="bullets">
+    <li>Préparer les supports de formation (guides imprimés, présentations)</li>
+    <li>Organiser la salle et les équipements (connexion internet stable)</li>
+    <li>Prévoir des sessions pratiques avec manipulation directe</li>
+    <li>Former en priorité les membres des jurys de délibération</li>
+  </ul>
+
+  <h3 class="sub">8.4 Collecte de données pour les autres facultés</h3>
+  <p>Pour accélérer le déploiement après les délibérations, commencer dès maintenant la collecte :</p>
+  <ul class="bullets">
+    <li>Listes d'enseignants avec matricules, grades et coordonnées</li>
+    <li>Catalogues de cours avec crédits, semestres et responsables</li>
+    <li>Composition des jurys de délibération</li>
+    <li>Critères de délibération spécifiques à chaque faculté</li>
+  </ul>
+</div>
+
+<!-- ==================== CONCLUSION ==================== -->
+<div class="page">
+  <h2 class="section">CONCLUSION</h2>
+  <p>Le projet NEXUS UNIKIN a accompli des progrès remarquables en 26 jours :</p>
+  <ul class="bullets">
+    <li>100% de l'infrastructure technique déployée et fonctionnelle</li>
+    <li>Plus de 2 000 étudiants encodés dans la plateforme</li>
+    <li>1 131 enseignants intégrés avec grades académiques (données 2023-2024)</li>
+    <li>100% des modules fonctionnels développés et testés</li>
+    <li>Faculté de Pharmacie entièrement configurée comme pilote (136 cours, 9 jurys, critères)</li>
+    <li>3 années académiques (2023-2024, 2024-2025, 2025-2026)</li>
+  </ul>
+  <p style="margin-top:10px;">Les prochaines étapes critiques sont les tests en situation réelle le 27 février et la formation du personnel académique de Pharmacie le 3 mars. Ces deux jalons précèdent les délibérations de toutes les promotions de la Faculté de Pharmacie durant le mois de mars, après quoi le déploiement par vagues aux autres facultés pourra commencer.</p>
+  <p style="margin-top:8px;">Les données de l'année académique 2023-2024 ont également été intégrées (personnel académique et enseignants), renforçant la base de données historique du système.</p>
+  <p style="margin-top:8px;">Le calendrier de 3 mois (30 janvier — 30 avril 2026) reste parfaitement tenable.</p>
+
+  <hr style="margin: 25px 0 15px; border: none; border-top: 1px solid #e2e8f0;">
+
+  <h2 class="section">ANNEXES</h2>
+
+  <h3 class="sub">A. Accès à la plateforme</h3>
+  <p><strong>URL :</strong> http://94.72.97.228</p>
+  <p><strong>Super Admin :</strong> admin@unikin.ac.cd</p>
+
+  <h3 class="sub">B. Processus d'activation — Étudiants</h3>
+  <ol style="font-size:11px; margin-left:20px;">
+    <li>Aller sur http://94.72.97.228/auth/activate</li>
+    <li>Entrer son matricule (ex : 2201773)</li>
+    <li>Confirmer son identité (nom affiché)</li>
+    <li>Créer un mot de passe sécurisé</li>
+    <li>Se connecter avec matricule@unikin.ac.cd + mot de passe</li>
+  </ol>
+
+  <h3 class="sub">C. Processus d'activation — Enseignants</h3>
+  <ol style="font-size:11px; margin-left:20px;">
+    <li>Aller sur http://94.72.97.228/auth/activate</li>
+    <li>Entrer son matricule</li>
+    <li>Confirmer sa date de naissance</li>
+    <li>Confirmer son identité</li>
+    <li>Créer un mot de passe sécurisé</li>
+    <li>Se connecter avec matricule@unikin.ac.cd + mot de passe</li>
+  </ol>
+
+  <h3 class="sub">D. Documents de référence</h3>
+  <ul class="bullets">
+    <li>Contrat de prestation de services</li>
+    <li>Calendrier de déploiement mis à jour (25 février 2026)</li>
+    <li>Architecture des rôles NEXUS</li>
+    <li>Plan de travail détaillé</li>
+  </ul>
+
+  <div class="footer">
+    <p>Rapport émis le 25 février 2026</p>
+    <p>NEXUS UNIKIN — Système de Gestion Universitaire</p>
+    <p>Chris NGOZULU KASONGO</p>
+  </div>
+</div>
+
+</body>
+</html>

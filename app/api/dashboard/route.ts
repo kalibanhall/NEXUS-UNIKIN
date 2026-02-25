@@ -1,6 +1,7 @@
 // API Dashboard - Statistiques générales
 import { NextRequest, NextResponse } from 'next/server'
 import { query, queryOne } from '@/lib/db'
+import { getSession } from '@/lib/auth/session'
 
 // GET - Statistiques du dashboard
 export async function GET(request: NextRequest) {
@@ -17,6 +18,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
+      // Vérifier si l'admin a des restrictions sur le nombre d'étudiants
+      const session = await getSession()
+      const hideExactStudents = session?.profile?.permissions?.hide_exact_students === true
+
       // Stats admin
       const studentsCount = await queryOne('SELECT COUNT(*) as count FROM students WHERE status = $1', ['ACTIVE'])
       const teachersCount = await queryOne('SELECT COUNT(*) as count FROM teachers')
@@ -47,9 +52,16 @@ export async function GET(request: NextRequest) {
         [currentYear?.id || 1]
       )
 
+      // Si restriction, arrondir à la centaine inférieure et ajouter un flag
+      const realStudentCount = parseInt(studentsCount?.count || '0')
+      const displayStudentCount = hideExactStudents
+        ? Math.floor(realStudentCount / 100) * 100  // arrondi centaine inf.
+        : realStudentCount
+
       stats = {
         ...stats,
-        students: parseInt(studentsCount?.count || '0'),
+        students: displayStudentCount,
+        studentsApproximate: hideExactStudents,
         teachers: parseInt(teachersCount?.count || '0'),
         courses: parseInt(coursesCount?.count || '0'),
         faculties: parseInt(facultiesCount?.count || '0'),
