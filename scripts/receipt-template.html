@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  @page {
+    size: 612px 792px;
+    margin: 0;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1a1a1a;
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-feature-settings: 'cv01', 'cv02', 'cv03', 'cv04';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .page {
+    width: 612px;
+    height: 792px;
+    padding: 0;
+    position: relative;
+    background: white;
+    overflow: hidden;
+  }
+
+  .top-bar {
+    height: 3px;
+    background: #000;
+    width: 100%;
+  }
+
+  .content {
+    padding: 28px 36px 36px 36px;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 22px;
+  }
+
+  .header h1 {
+    font-size: 19px;
+    font-weight: 600;
+    color: #000;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
+  }
+
+  .stripe-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .info-section {
+    margin-bottom: 18px;
+  }
+
+  .info-row {
+    display: flex;
+    font-size: 9px;
+    line-height: 1.65;
+    margin-bottom: 1px;
+  }
+
+  .info-row .label {
+    font-weight: 600;
+    color: #404040;
+    width: 105px;
+    flex-shrink: 0;
+  }
+
+  .info-row .value {
+    color: #737373;
+    font-weight: 400;
+  }
+
+  .two-col {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 14px;
+  }
+
+  .two-col .col-left {
+    flex: 1;
+    max-width: 280px;
+  }
+
+  .two-col .col-right {
+    flex: 1;
+  }
+
+  .section-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #404040;
+    margin-bottom: 4px;
+  }
+
+  .section-value {
+    font-size: 9px;
+    color: #737373;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .right-info {
+    font-size: 9px;
+    line-height: 1.5;
+  }
+
+  .right-info .ri-row {
+    margin-bottom: 8px;
+  }
+
+  .right-info .ri-label {
+    font-weight: 600;
+    color: #404040;
+    margin-bottom: 1px;
+  }
+
+  .right-info .ri-value {
+    color: #737373;
+    font-weight: 400;
+  }
+
+  .divider {
+    height: 1px;
+    background: #ebebeb;
+    margin: 14px 0;
+  }
+
+  .amount-summary {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #000;
+    margin: 12px 0 12px 0;
+    letter-spacing: -0.2px;
+  }
+
+  .invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+
+  .invoice-table thead th {
+    text-align: left;
+    font-weight: 400;
+    color: #949494;
+    font-size: 7.5px;
+    padding: 0 0 5px 0;
+    border-bottom: 1px solid #ebebeb;
+    letter-spacing: 0.01em;
+  }
+
+  .invoice-table thead th:last-child,
+  .invoice-table thead th.right {
+    text-align: right;
+  }
+
+  .invoice-table thead th.center {
+    text-align: center;
+  }
+
+  .invoice-table tbody td {
+    padding: 8px 0 0 0;
+    vertical-align: top;
+    color: #404040;
+    font-weight: 400;
+  }
+
+  .invoice-table tbody td:last-child,
+  .invoice-table tbody td.right {
+    text-align: right;
+  }
+
+  .invoice-table tbody td.center {
+    text-align: center;
+  }
+
+  .item-date {
+    font-size: 7.5px;
+    color: #949494;
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  .summary-table {
+    width: 250px;
+    margin-left: auto;
+    border-collapse: collapse;
+    font-size: 9px;
+  }
+
+  .summary-table td {
+    padding: 6px 0;
+    border-top: 1px solid #ebebeb;
+    font-weight: 400;
+  }
+
+  .summary-table td:last-child {
+    text-align: right;
+  }
+
+  .summary-table tr.normal td {
+    color: #737373;
+  }
+
+  .summary-table tr.total td {
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .summary-table tr.bold td {
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .payment-section {
+    margin-top: 22px;
+  }
+
+  .payment-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 14px;
+    letter-spacing: -0.2px;
+  }
+
+  .payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px;
+  }
+
+  .payment-table thead th {
+    text-align: left;
+    font-weight: 400;
+    color: #949494;
+    font-size: 7.5px;
+    padding: 0 0 5px 0;
+    border-bottom: 1px solid #ebebeb;
+    letter-spacing: 0.01em;
+  }
+
+  .payment-table tbody td {
+    padding: 8px 0 0 0;
+    color: #404040;
+    font-weight: 400;
+  }
+
+  .footer {
+    margin-top: 22px;
+    padding-top: 12px;
+    border-top: 1px solid #ebebeb;
+    font-size: 7.5px;
+    color: #737373;
+    line-height: 1.65;
+    font-weight: 400;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top-bar"></div>
+  <div class="content">
+    <div class="header">
+      <h1>Receipt</h1>
+      <svg class="stripe-logo" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="7" fill="#635BFF"/>
+        <path d="M18.4 16.15c0-.85.7-1.18 1.86-1.18 1.67 0 3.77.51 5.44 1.41V11.8c-1.82-.72-3.62-1-5.44-1-4.45 0-7.41 2.32-7.41 6.2 0 6.05 8.33 5.08 8.33 7.69 0 1.01-.88 1.34-2.11 1.34-1.83 0-4.17-.75-6.02-1.76v4.63c2.05.88 4.12 1.26 6.02 1.26 4.56 0 7.69-2.26 7.69-6.19-.01-6.53-8.36-5.37-8.36-7.82z" fill="white"/>
+      </svg>
+    </div>
+
+    <div class="info-section">
+      <div class="info-row">
+        <span class="label">Receipt number</span>
+        <span class="value">2955-4198</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Invoice number</span>
+        <span class="value">INV-BD6E-4198</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Date paid</span>
+        <span class="value">February 02, 2026</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Payment method</span>
+        <span class="value">Visa - 4198</span>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="col-left">
+        <div class="section-label">Bill to</div>
+        <div class="section-value">
+          UNIKIN (Chris Ngozulu K)<br>
+          J1 Plateau des Résidents, UNIKIN, Kinshasa-Lemba<br>
+          Kinshasa<br>
+          Congo - Kinshasa<br>
+          kasongongozulu@gmail.com
+        </div>
+      </div>
+      <div class="col-right">
+        <div class="right-info">
+          <div class="ri-row">
+            <div class="ri-label">Amount paid</div>
+            <div class="ri-value">$240.00</div>
+          </div>
+          <div class="ri-row">
+            <div class="ri-label">Date</div>
+            <div class="ri-value">February 02, 2026</div>
+          </div>
+          <div class="ri-row">
+            <div class="ri-label">Payment method</div>
+            <div class="ri-value">Visa - 4198</div>
+          </div>
+          <div class="ri-row">
+            <div class="ri-label">Summary</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="amount-summary">$240.00 paid on February 02, 2026</div>
+
+    <div class="divider"></div>
+
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th class="center" style="width:36px">Qty</th>
+          <th class="right" style="width:65px">Unit price</th>
+          <th class="right" style="width:65px">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            Pro
+            <div class="item-date">Feb 02, 2026 &nbsp;–&nbsp; Jan 03, 2027</div>
+          </td>
+          <td class="center">1</td>
+          <td class="right">$20.00</td>
+          <td class="right">$240.00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="summary-table">
+      <tr class="normal">
+        <td>Subtotal</td>
+        <td>$240.00</td>
+      </tr>
+      <tr class="total">
+        <td>Total</td>
+        <td>$240.00</td>
+      </tr>
+      <tr class="bold">
+        <td>Amount paid</td>
+        <td>$240.00</td>
+      </tr>
+    </table>
+
+    <div class="payment-section">
+      <div class="divider"></div>
+      <div class="payment-title">Payment details</div>
+      <table class="payment-table">
+        <thead>
+          <tr>
+            <th>Payment method</th>
+            <th>Date</th>
+            <th>Amount paid</th>
+            <th>Receipt number</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Visa - 4198</td>
+            <td>February 02, 2026</td>
+            <td>$240.00</td>
+            <td>2955-4198</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      No items on this invoice are subject to your subscription, your invoice amount is being
+      processed via https://billing.stripe.com/p/login/cN2bKK1oP0UU4eY3cc, please visit
+      https://billing.stripe.com/p/login/cN2bKK1oP0UU4eY3cc to manage your subscription.
+    </div>
+  </div>
+</div>
+</body>
+</html>

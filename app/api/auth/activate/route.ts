@@ -5,13 +5,15 @@ import bcrypt from 'bcryptjs'
 /**
  * POST /api/auth/activate
  * 
- * Étape 1 - Vérification: { matricule } → retourne nom masqué pour confirmation
- * Étape 2 - Activation: { matricule, password, confirmPassword } → active le compte
+ * Activation universelle : Étudiants ET Enseignants
+ * 
+ * Étudiants: matricule → vérification nom → mot de passe
+ * Enseignants: matricule UNIKIN + date de naissance → vérification nom → mot de passe
  */
 
-interface StudentInfo {
+interface PersonInfo {
   user_id: number
-  student_id: number
+  person_id: number
   matricule: string
   first_name: string
   last_name: string
@@ -19,31 +21,48 @@ interface StudentInfo {
   email: string
   account_activated: boolean
   must_change_password: boolean
+  role: string
+  birth_date: string | null
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { matricule, step, password, confirmPassword } = body
+    const { matricule, step, password, confirmPassword, birthDate } = body
 
     if (!matricule) {
       return NextResponse.json({ error: 'Numéro matricule requis' }, { status: 400 })
     }
 
-    const cleanMatricule = String(matricule).trim().toUpperCase()
+    const cleanMatricule = String(matricule).trim().toUpperCase().replace(/\s+/g, '')
 
-    // Chercher l'étudiant par matricule
-    const student = await queryOne<StudentInfo>(`
+    // Chercher d'abord dans les étudiants
+    let person = await queryOne<PersonInfo>(`
       SELECT 
-        u.id as user_id, s.id as student_id, s.matricule,
+        u.id as user_id, s.id as person_id, s.matricule,
         u.first_name, u.last_name, u.postnom, u.email,
-        u.account_activated, u.must_change_password
+        u.account_activated, u.must_change_password,
+        u.role, s.birth_date::text
       FROM students s
       JOIN users u ON s.user_id = u.id
-      WHERE UPPER(s.matricule) = $1
+      WHERE UPPER(REPLACE(s.matricule, ' ', '')) = $1
     `, [cleanMatricule])
 
-    if (!student) {
+    // Si pas trouvé dans étudiants, chercher dans les enseignants
+    if (!person) {
+      person = await queryOne<PersonInfo>(`
+        SELECT 
+          u.id as user_id, t.id as person_id, t.matricule,
+          u.first_name, u.last_name, u.postnom, u.email,
+          u.account_activated, u.must_change_password,
+          u.role, t.birth_date::text
+        FROM teachers t
+        JOIN users u ON t.user_id = u.id
+        WHERE UPPER(REPLACE(t.matricule, ' ', '')) = $1
+      `, [cleanMatricule])
+    }
+
+    if (!person) {
       return NextResponse.json(
         { error: 'Aucun compte trouvé avec ce numéro matricule. Vérifiez votre matricule ou contactez l\'administration.' },
         { status: 404 }
@@ -51,28 +70,63 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier si déjà activé
-    if (student.account_activated && !student.must_change_password) {
+    if (person.account_activated && !person.must_change_password) {
       return NextResponse.json(
-        { error: 'Ce compte est déjà activé. Connectez-vous avec votre email et mot de passe.', email: student.email },
+        { error: 'Ce compte est déjà activé. Connectez-vous avec votre email et mot de passe.', email: person.email },
         { status: 409 }
       )
     }
 
-    // ÉTAPE 1: Vérification - Retourner les infos masquées
+    // ============================================
+    // ÉTAPE 1: Vérification du matricule
+    // ============================================
     if (step === 'verify' || !step) {
+      // Pour les enseignants: exiger la date de naissance
+      if (person.role === 'TEACHER') {
+        if (!birthDate) {
+          return NextResponse.json({
+            success: true,
+            step: 'need_birthdate',
+            role: person.role,
+            message: 'Enseignant trouvé. Veuillez renseigner votre date de naissance pour vérification.'
+          })
+        }
+
+        // Vérifier la date de naissance si elle existe en DB
+        if (person.birth_date) {
+          const dbDate = new Date(person.birth_date).toISOString().split('T')[0]
+          const inputDate = new Date(birthDate).toISOString().split('T')[0]
+          if (dbDate !== inputDate) {
+            return NextResponse.json(
+              { error: 'La date de naissance ne correspond pas à nos enregistrements.' },
+              { status: 400 }
+            )
+          }
+        }
+        // Si pas de birth_date en DB, on l'enregistre lors de l'activation
+      }
+
       // Masquer partiellement le nom pour confirmation
-      const maskedName = `${student.last_name} ${student.postnom ? student.postnom.charAt(0) + '***' : ''} ${student.first_name.charAt(0)}***`
+      const lastName = person.last_name || ''
+      const postnom = person.postnom || ''
+      const firstName = person.first_name || ''
+      const maskedName = `${lastName} ${postnom ? postnom.charAt(0) + '***' : ''} ${firstName ? firstName.charAt(0) + '***' : ''}`.trim()
 
       return NextResponse.json({
         success: true,
         step: 'verify',
-        matricule: student.matricule,
-        maskedName: maskedName.trim(),
-        message: 'Étudiant trouvé. Confirmez votre identité et créez votre mot de passe.'
+        role: person.role,
+        matricule: person.matricule,
+        maskedName: maskedName || lastName || 'Utilisateur',
+        message: person.role === 'TEACHER' 
+          ? 'Enseignant trouvé. Confirmez votre identité et créez votre mot de passe.'
+          : 'Étudiant trouvé. Confirmez votre identité et créez votre mot de passe.'
       })
     }
 
+    // ============================================
     // ÉTAPE 2: Activation - Créer le mot de passe
+    // ============================================
     if (step === 'activate') {
       if (!password || !confirmPassword) {
         return NextResponse.json({ error: 'Mot de passe et confirmation requis' }, { status: 400 })
@@ -100,17 +154,28 @@ export async function POST(request: NextRequest) {
       // Hasher le mot de passe
       const hashedPassword = await bcrypt.hash(password, 10)
 
-      // Activer le compte
+      // Activer le compte utilisateur
       await query(
         `UPDATE users SET password = $1, account_activated = TRUE, must_change_password = FALSE, updated_at = CURRENT_TIMESTAMP WHERE id = $2`,
-        [hashedPassword, student.user_id]
+        [hashedPassword, person.user_id]
       )
+
+      // Si enseignant et birth_date fournie mais pas encore en DB, l'enregistrer
+      if (person.role === 'TEACHER' && birthDate && !person.birth_date) {
+        await query(
+          `UPDATE teachers SET birth_date = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`,
+          [birthDate, person.person_id]
+        )
+      }
+
+      const fullName = `${person.last_name || ''} ${person.postnom || ''} ${person.first_name || ''}`.trim()
 
       return NextResponse.json({
         success: true,
         step: 'activated',
-        email: student.email,
-        fullName: `${student.last_name} ${student.postnom || ''} ${student.first_name}`.trim(),
+        email: person.email,
+        fullName,
+        role: person.role,
         message: 'Votre compte a été activé avec succès! Vous pouvez maintenant vous connecter.'
       })
     }

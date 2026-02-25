@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Eye, EyeOff, Loader2, CheckCircle, UserCheck, KeyRound, ArrowRight } from 'lucide-react'
+import { Eye, EyeOff, Loader2, CheckCircle, UserCheck, KeyRound, ArrowRight, CalendarDays } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,12 +10,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from 'sonner'
 import { UnikinLogo } from '@/components/ui/unikin-logo'
 
-type Step = 'matricule' | 'confirm' | 'password' | 'success'
+type Step = 'matricule' | 'birthdate' | 'confirm' | 'password' | 'success'
 
 export default function ActivatePage() {
   const [step, setStep] = useState<Step>('matricule')
   const [matricule, setMatricule] = useState('')
+  const [birthDate, setBirthDate] = useState('')
   const [maskedName, setMaskedName] = useState('')
+  const [userRole, setUserRole] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -31,16 +33,18 @@ export default function ActivatePage() {
 
     setIsLoading(true)
     try {
+      const payload: Record<string, string> = { matricule: matricule.trim(), step: 'verify' }
+      if (birthDate) payload.birthDate = birthDate
+
       const res = await fetch('/api/auth/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ matricule: matricule.trim(), step: 'verify' }),
+        body: JSON.stringify(payload),
       })
       const data = await res.json()
 
       if (!res.ok) {
         if (res.status === 409) {
-          // Compte déjà activé
           toast.info(data.error)
           setActivatedEmail(data.email || '')
           setStep('success')
@@ -49,9 +53,44 @@ export default function ActivatePage() {
         throw new Error(data.error)
       }
 
+      // Si l'API demande la date de naissance (enseignant)
+      if (data.step === 'need_birthdate') {
+        setUserRole('TEACHER')
+        setStep('birthdate')
+        toast.info('Veuillez renseigner votre date de naissance')
+        return
+      }
+
+      setUserRole(data.role || 'STUDENT')
       setMaskedName(data.maskedName)
       setStep('confirm')
       toast.success('Matricule trouvé!')
+    } catch (error: any) {
+      toast.error(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Étape 1b: Soumettre date de naissance (enseignants)
+  const handleBirthDate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!birthDate) return
+    // Re-appeler verify avec la date de naissance
+    setIsLoading(true)
+    try {
+      const res = await fetch('/api/auth/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ matricule: matricule.trim(), step: 'verify', birthDate }),
+      })
+      const data = await res.json()
+
+      if (!res.ok) throw new Error(data.error)
+
+      setMaskedName(data.maskedName)
+      setStep('confirm')
+      toast.success('Identité vérifiée!')
     } catch (error: any) {
       toast.error(error.message)
     } finally {
@@ -82,7 +121,7 @@ export default function ActivatePage() {
       const res = await fetch('/api/auth/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ matricule: matricule.trim(), step: 'activate', password, confirmPassword }),
+        body: JSON.stringify({ matricule: matricule.trim(), step: 'activate', password, confirmPassword, birthDate: birthDate || undefined }),
       })
       const data = await res.json()
 
@@ -128,28 +167,28 @@ export default function ActivatePage() {
             { key: 'matricule', label: 'Matricule', icon: UserCheck },
             { key: 'password', label: 'Mot de passe', icon: KeyRound },
             { key: 'success', label: 'Terminé', icon: CheckCircle },
-          ].map((s, i) => (
-            <div key={s.key} className="flex items-center gap-2">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                step === s.key || (step === 'confirm' && s.key === 'matricule')
-                  ? 'bg-blue-600 text-white'
-                  : step === 'success' || (step === 'password' && s.key === 'matricule')
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-200 text-gray-500 dark:bg-gray-700'
-              }`}>
-                {step === 'success' || (step === 'password' && s.key === 'matricule') ? (
-                  <CheckCircle className="h-4 w-4" />
-                ) : (
-                  i + 1
-                )}
+          ].map((s, i) => {
+            const isActive = s.key === 'matricule' 
+              ? ['matricule', 'birthdate', 'confirm'].includes(step)
+              : step === s.key
+            const isDone = s.key === 'matricule'
+              ? step === 'password' || step === 'success'
+              : s.key === 'password' ? step === 'success' : false
+            return (
+              <div key={s.key} className="flex items-center gap-2">
+                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                  isDone ? 'bg-green-500 text-white' : isActive ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500 dark:bg-gray-700'
+                }`}>
+                  {isDone ? <CheckCircle className="h-4 w-4" /> : i + 1}
+                </div>
+                {i < 2 && <div className={`w-8 h-0.5 ${
+                  (step === 'password' && i === 0) || step === 'success'
+                    ? 'bg-green-500'
+                    : 'bg-gray-200 dark:bg-gray-700'
+                }`} />}
               </div>
-              {i < 2 && <div className={`w-8 h-0.5 ${
-                (step === 'password' && i === 0) || step === 'success'
-                  ? 'bg-green-500'
-                  : 'bg-gray-200 dark:bg-gray-700'
-              }`} />}
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         <Card className="shadow-xl border-0">
@@ -159,17 +198,17 @@ export default function ActivatePage() {
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl text-center">Activer mon compte</CardTitle>
                 <CardDescription className="text-center">
-                  Entrez votre numéro matricule pour activer votre compte étudiant
+                  Entrez votre numéro matricule UNIKIN (étudiant ou enseignant)
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handleVerify}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="matricule">Numéro Matricule</Label>
+                    <Label htmlFor="matricule">Numéro Matricule UNIKIN</Label>
                     <Input
                       id="matricule"
                       type="text"
-                      placeholder="Ex: 236-308-453 ou 2103086"
+                      placeholder="Ex: 236-308-453 ou 15.577"
                       value={matricule}
                       onChange={(e) => setMatricule(e.target.value)}
                       required
@@ -190,6 +229,49 @@ export default function ActivatePage() {
             </>
           )}
 
+          {/* ÉTAPE 1b: Date de naissance (enseignants) */}
+          {step === 'birthdate' && (
+            <>
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl text-center">Vérification enseignant</CardTitle>
+                <CardDescription className="text-center">
+                  Pour activer votre compte enseignant, renseignez votre date de naissance
+                </CardDescription>
+              </CardHeader>
+              <form onSubmit={handleBirthDate}>
+                <CardContent className="space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 space-y-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Matricule UNIKIN</p>
+                    <p className="font-mono text-lg font-semibold">{matricule.toUpperCase()}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="birthDate">Date de naissance</Label>
+                    <div className="relative">
+                      <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="birthDate"
+                        type="date"
+                        value={birthDate}
+                        onChange={(e) => setBirthDate(e.target.value)}
+                        required
+                        disabled={isLoading}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex flex-col gap-3">
+                  <Button type="submit" className="w-full gradient-primary hover:opacity-90" disabled={isLoading || !birthDate}>
+                    {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Vérification...</> : <>Vérifier <ArrowRight className="ml-2 h-4 w-4" /></>}
+                  </Button>
+                  <Button variant="outline" onClick={() => { setStep('matricule'); setMatricule(''); setBirthDate(''); }} className="w-full">
+                    Retour
+                  </Button>
+                </CardFooter>
+              </form>
+            </>
+          )}
+
           {/* ÉTAPE 2: Confirmer l'identité */}
           {step === 'confirm' && (
             <>
@@ -204,8 +286,13 @@ export default function ActivatePage() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Matricule</p>
                   <p className="font-mono text-lg font-semibold">{matricule.toUpperCase()}</p>
                 </div>
+                {userRole === 'TEACHER' && (
+                  <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-lg p-4 space-y-1">
+                    <p className="text-xs text-indigo-500 font-medium uppercase tracking-wider">Enseignant</p>
+                  </div>
+                )}
                 <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-4 space-y-2">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Nom de l&apos;étudiant</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{userRole === 'TEACHER' ? 'Nom de l\'enseignant' : 'Nom de l\'étudiant'}</p>
                   <p className="text-lg font-semibold">{maskedName}</p>
                 </div>
               </CardContent>
@@ -213,7 +300,7 @@ export default function ActivatePage() {
                 <Button onClick={handleConfirm} className="w-full gradient-primary hover:opacity-90">
                   C&apos;est bien moi <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                <Button variant="outline" onClick={() => { setStep('matricule'); setMatricule(''); }} className="w-full">
+                <Button variant="outline" onClick={() => { setStep('matricule'); setMatricule(''); setBirthDate(''); }} className="w-full">
                   Ce n&apos;est pas moi
                 </Button>
               </CardFooter>
